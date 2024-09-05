@@ -1,14 +1,647 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="zh-cn">
+<head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
-    <script type="module" crossorigin src="/assets/index-D7X11W4y.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BaMTLMsk.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" id="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="这是来自NOISE的个人主页，包含了多个关联站点的入口，你可以通过安装或访问它来获取更多有关NOISE站点的信息">
+	<meta name="keywords" content="NOISE,NOISE主页,诺伊斯,NOISE云盘,NOISE宝藏阁,NOISE导航,宝藏站点,宝藏博主,诺伊斯的主页,">
+    <meta itemprop="image" content="./assets/9147.png" />
+	<meta itemprop="image" content="./assets/9147.png" />
+	<meta itemprop="image" content="./assets/9147.png" />
+    <meta name="google-adsense-account" content="ca-pub-1078287385751140">
+    <link rel="icon" href="./assets/favicon.png" type="image/png" />
+    <title>Noise主页</title>
+    <script src="https://kit.fontawesome.com/25cfefa7b1.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="css/font_3165812_pvad0am2nmp.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/terminal.css">
+    <link rel="stylesheet" href="css/fira_code.css">
+    <script src="https://cdn.staticfile.net/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.net/layer/3.1.1/layer.js"></script>
+    <script src="js/fetch.min.js"></script>
+    <script src="js/axios.min.js"></script>
+    <script src="js/parallax.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/flotext.css">
+    <script src="js/flotext.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/loading.css"> 
+    <link rel="stylesheet" href="css/tab.css">
+    <link rel="stylesheet" href="css/AD.css">
+    <link rel="stylesheet" href="css/Text.css">
+    <link rel="stylesheet" href="css/rss.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/Right.css">
+    <script src="js/Right.js"></script>
+    <link rel="stylesheet" href="./css/waline.css">
+    <link rel="stylesheet" href="./css/friendlink.css">
+    <!--  引入JS -->   
+    <script src="js/instantclick.min.js"></script>
+    <!-- data-no-instant表示该标签不进行预加载 -->
+    <script data-no-instant>
+    //选择点击瞬间预加载模式
+    InstantClick.init("mousedown");
+    </script>
+    <script type="text/javascript">
+        /*  动态网页标题*/
+        var OriginTitile = document.title,
+        titleTime;
+        document.addEventListener("visibilitychange",
+        function() {
+            if (document.hidden) {
+                $('[rel="shortcut icon"]').attr("href", "./assets/favicon.png");
+                document.title = "你别走吖 Σ(っ °Д °;)っ";
+                clearTimeout(titleTime)
+            } else {
+                $('[rel="shortcut icon"]').attr("href", "./assets/favicon.png");
+                document.title = "你可算回来了 (｡•ˇ‸ˇ•｡)" + OriginTitile;
+                titleTime = setTimeout(function() {
+                    document.title = OriginTitile
+                },
+                2000)
+            }
+        });
+    </script>
+    <script src="https://cdn.staticfile.net/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script defer src="https://cdn.staticfile.net/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	 <!-- 浏览器强制刷新 --> 
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- 添加版本号-每次更新要改版本号才会刷新缓存 -->
+    <link rel="stylesheet" type="text/css" href="css/main.css?v=1.2.3">
+    <script src="service-worker.js?v=1.6"></script>
+    <script src="index.html?v=1.3.3"></script>
+    <script src="js/suiji-picture.js?v=1.2.3"></script>
+</head>
+<body>
+     <!-- 右键菜单 -->
+<body oncontextmenu="openMenu(event)">
+    <div class="menu">
+        <ul class="menu-list01">
+            <li class="menu-item">
+                <a href="./e/zhichi/index.html" target="_blank" style="color: white; text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512">
+                        <path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/>
+                    </svg>
+                    <span style="margin-left: -4px;">赞赏</span>
+                </a>
+            </li>
+            <li class="menu-item" onclick="toggleFullScreen()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512">
+                    <path d="M200 32H56C42.7 32 32 42.7 32 56V200c0 9.7 5.8 18.5 14.8 22.2s19.3 1.7 26.2-5.2l40-40 79 79-79 79L73 295c-6.9-6.9-17.2-8.9-26.2-5.2S32 302.3 32 312V456c0 13.3 10.7 24 24 24H200c9.7 0 18.5-5.8 22.2-14.8s1.7-19.3-5.2-26.2l-40-40 79-79 79 79-40 40c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H456c13.3 0 24-10.7 24-24V312c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2l-40 40-79-79 79-79 40 40c6.9 6.9 17.2 8.9 26.2 5.2s14.8-12.5 14.8-22.2V56c0-13.3-10.7-24-24-24H312c-9.7 0-18.5 5.8-22.2 14.8s-1.7 19.3 5.2 26.2l40 40-79 79-79-79 40-40c6.9-6.9 8.9-17.2 5.2-26.2S209.7 32 200 32z"/>
+                </svg>
+                <span style="margin-left: 2px;">全屏</span>
+            </li>
+            <li class="menu-item" onclick="refreshPage()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path d="M142.9 142.9c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5c0 0 0 0 0 0H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5c7.7-21.8 20.2-42.3 37.8-59.8zM16 312v7.6 .7V440c0 9.7 5.8 18.5 14.8 22.2s19.3 1.7 26.2-5.2l41.6-41.6c87.6 86.5 228.7 86.2 315.8-1c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.2 62.2-162.7 62.5-225.3 1L185 329c6.9-6.9 8.9-17.2 5.2-26.2s-12.5-14.8-22.2-14.8H48.4h-.7H40c-13.3 0-24 10.7-24 24z"/></svg>
+                <span style="margin-left: 2.3px;">刷新</span>
+            </li>
+            <li class="menu-item" onclick="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><path d="M0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32C28.7 32 0 60.7 0 96L0 416zM128 256c0-6.7 2.8-13 7.7-17.6l112-104c7-6.5 17.2-8.2 25.9-4.4s14.4 12.5 14.4 22l0 208c0 9.5-5.7 18.2-14.4 22s-18.9 2.1-25.9-4.4l-112-104c-4.9-4.5-7.7-10.9-7.7-17.6z"/></svg>
+                <span style="margin-left: 2.7px;">返回</span>
+            </li>
+            <li class="menu-item" onclick="changeMode()">
+                <a href="./home.html" style="color: white; text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path d="M258.6 0c-1.7 0-3.4 .1-5.1 .5C168 17 115.6 102.3 130.5 189.3c2.9 17 8.4 32.9 15.9 47.4L32 224H29.4C13.2 224 0 237.2 0 253.4c0 1.7 .1 3.4 .5 5.1C17 344 102.3 396.4 189.3 381.5c17-2.9 32.9-8.4 47.4-15.9L224 480v2.6c0 16.2 13.2 29.4 29.4 29.4c1.7 0 3.4-.1 5.1-.5C344 495 396.4 409.7 381.5 322.7c-2.9-17-8.4-32.9-15.9-47.4L480 288h2.6c16.2 0 29.4-13.2 29.4-29.4c0-1.7-.1-3.4-.5-5.1C495 168 409.7 115.6 322.7 130.5c-17 2.9-32.9 8.4-47.4 15.9L288 32V29.4C288 13.2 274.8 0 258.6 0zM256 224a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg>
+                    <span style="margin-left: -4.5px;">模式</span>
+                </a>
+            </li>
+            <!-- 弹出图片效果 -->
+            <li class="menu-item">
+                <a href="#" style="color: white; text-decoration: none;" onclick="showImage1()">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="18" viewBox="0 0 576 512">
+                        <path d="M385.2 167.6c6.4 0 12.6 .3 18.8 1.1C387.4 90.3 303.3 32 207.7 32 100.5 32 13 104.8 13 197.4c0 53.4 29.3 97.5 77.9 131.6l-19.3 58.6 68-34.1c24.4 4.8 43.8 9.7 68.2 9.7 6.2 0 12.1-.3 18.3-.8-4-12.9-6.2-26.6-6.2-40.8-.1-84.9 72.9-154 165.3-154zm-104.5-52.9c14.5 0 24.2 9.7 24.2 24.4 0 14.5-9.7 24.2-24.2 24.2-14.8 0-29.3-9.7-29.3-24.2 .1-14.7 14.6-24.4 29.3-24.4zm-136.4 48.6c-14.5 0-29.3-9.7-29.3-24.2 0-14.8 14.8-24.4 29.3-24.4 14.8 0 24.4 9.7 24.4 24.4 0 14.6-9.6 24.2-24.4 24.2zM563 319.4c0-77.9-77.9-141.3-165.4-141.3-92.7 0-165.4 63.4-165.4 141.3S305 460.7 397.6 460.7c19.3 0 38.9-5.1 58.6-9.9l53.4 29.3-14.8-48.6C534 402.1 563 363.2 563 319.4zm-219.1-24.5c-9.7 0-19.3-9.7-19.3-19.6 0-9.7 9.7-19.3 19.3-19.3 14.8 0 24.4 9.7 24.4 19.3 0 10-9.7 19.6-24.4 19.6zm107.1 0c-9.7 0-19.3-9.7-19.3-19.6 0-9.7 9.7-19.3 19.3-19.3 14.5 0 24.4 9.7 24.4 19.3 .1 10-9.9 19.6-24.4 19.6z"/>
+                    </svg>
+                    <span style="margin-left: -4.5px;">联系</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="https://github.com/rcy1314/noisework" target="_blank" style="color: white; text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
+                    <span style="margin-left: -4.5px;">主题</span>
+                </a>
+            </li>
+            <li class="menu-item-divider"></li>
+            <li class="menu-item menu-item-danger">
+                <a href="#" style="color: white; text-decoration: none;"></a>
+                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H448c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zm175 79c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/></svg>
+                <span style="margin-left: 2px;">关闭</span>
+            </li>
+        </ul>
+    </div>
+    <!-- 弹出图片的覆盖层 -->
+    <div id="imageOverlay1" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000;">
+        <img id="popupImage1" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);" src="" alt="Popup Image">
+        <a href="javascript:void(0)" onclick="closePopup()" style="position:absolute; top:10px; right:10px; color:white; font-size:24px;">&times;</a>
+    </div>
+    <div id="imageOverlay2" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000;">
+        <img id="popupImage2" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);" src="" alt="Popup Image">
+        <a href="javascript:void(0)" onclick="closePopup()" style="position:absolute; top:10px; right:10px; color:white; font-size:24px;">&times;</a>
+    </div>
+    <!-- loading加载--> 
+    <div id="spinner-container">
+        <div class="spinner"></div>
+    </div>
+    <!-- 弹窗信息提醒代码开始 -->
+    <script>
+    window.addEventListener('load', function() {
+        var currentTime = new Date().getHours();
+        var greeting;
+        if (currentTime < 5) {
+            greeting = "凌晨好！";
+        } else if (currentTime < 8) {
+            greeting = "早上好！";
+        } else if (currentTime < 11) {
+            greeting = "上午好！";
+        } else if (currentTime < 13) {
+            greeting = "中午好！";
+        } else if (currentTime < 18) {
+            greeting = "下午好！";
+        } else if (currentTime < 19) {
+            greeting = "傍晚好！";
+        } else if (currentTime < 24) {
+            greeting = "晚上好！";
+        }
+     
+		layer.msg(greeting + "👏欢迎你的访问！");
+    });
+    </script>
+    <!-- 弹窗信息提醒代码结束 -->
+     <!-- 底层背景 -->
+    <div id="low-bg"></div>
+    <!-- 添加Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }).catch(function(error) {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+    </script>
+    <div class="node" id="node"></div>
+    <div class="cursor" id="cursor"></div>
+    <div id="sence">
+        <div id="background" data-depth="0.8"></div>
+        <div id="bg" data-depth="0.6"></div>   
+		<script src="js/suiji-picture.js"></script> 
+    </div>
+    <div class="main">
+        <div class="about">
+            <h2 class="chtitle">欢迎访问<span>Noise</span>主页</h2>
+            <div id="clear">
+                <div id="avatar">
+                    <a title="点击可切换背景" target="_blank" id='morelink' class="bt" onclick="changeBackground()"><i class="fa-solid fa-compass"></i></a>
+                </div>
+                <div id="persontag">
+                    <div class="line">🌟&nbsp;芝士星球<div class="tag">【探索】</div>&nbsp;发现者</div>
+                    <div class="line">📷&nbsp;爱<div class="tag">'音乐'</div>'摄影'<div class="tag">'舞蹈'</div>【自由派】</div>
+                    <div class="line">🕹️&nbsp;SWITCH&nbsp;【塞尔达传说】</div>
+                    <div class="line">🎁&nbsp;知行合一，努力才有收获</div>
+                </div>
+                <div id="terminal"></div>
+            </div>
+                   
+        <!-- rss订阅文字代码-->
+        <div class="rss-container">
+            <div id="rss-item"></div>
+            <div class="close-button" id="close-button">X</div>
+          </div>
+        <!-- 弹出文字代码-->
+        <div class="popup">
+            <p id="popupText"></p>
+        </div>
+        <!-- 隐藏式数字时钟-->
+        <div class="clock" id="clock">00:00:00</div>
+        <!--浮空文字 -->
+        <div class="floating-text" id="floatingText1"></div>
+        <div class="floating-text" id="floatingText2"></div>
+        <div class="floating-text" id="floatingText3"></div>
+        <div class="floating-text" id="floatingText4"></div>
+        <div class="floating-text" id="floatingText5"></div>
+        <div class="floating-text" id="floatingText6"></div>
+        <div class="floating-text" id="floatingText7"></div>
+        <div class="floating-text" id="floatingText8"></div>
+        <div class="floating-text" id="floatingText9"></div>
+         <!--向下滑动提示-->
+        <div class="scroll-down">
+            <span>向下滑动查看</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 16l-6-6h12z"/>
+            </svg>
+        </div>
+       <!--向下滑动提示结束-->
+        <div class="find">
+            <h2 class="chtitle"><span>社交</span>媒体</h2>
+            <div id="linkbox">
+                <a href="https://twitter.com/liangwenhao3" target="_blank">
+                    <div class="item" style="--color: rgba(40, 169, 224,0.3)">
+                        <div class="bg" style="background-color:rgb(40, 169, 224)"></div>
+                        <div class="inner"><i class="fa-brands fa-x-twitter"></i><span>Twitter</span></div>
+                    </div>
+                </a>
+                <a href="https://github.com/rcy1314" target="_blank">
+                    <div class="item" style="--color:rgba(53, 53, 53,0.3)">
+                        <div class="bg" style="background-color:rgb(53, 53, 53)"></div>
+                        <div class="inner"> <i class="fa-brands fa-github"></i><span>Github</span></div>
+                    </div>
+                </a>
+               <!-- 弹出效果 -->
+               <a href="#" onclick="showImage2()">
+                <div class="item" style="--color:rgba(0, 102, 255,0.3)">
+                    <div class="bg" style="background-color:rgb(0, 102, 255)"></div>
+                    <div class="inner"> <i class="fa-brands fa-weixin"></i><span>公众号</span></div>
+                </div>
+            </a>
+               </a>
+                <a href="https://noise.zhubai.love"target="_blank">
+                    <div class="item" style="--color:rgba(35, 45, 55,0.3)">
+                        <div class="bg" style="background-color: rgb(1, 193, 157);"></div>
+                        <div class="inner"><i class="fa-solid fa-square-envelope"></i><span>竹白</span></div>
+                    </div>
+                </a>
+                <a href="https://tg.noisework.cn" target="_blank">
+                    <div class="item" style="--color:rgba(35, 45, 55,0.3)">
+                        <div class="bg" style="background-color:rgb(35, 45, 55)"></div>
+                        <div class="inner"> <i class="fa-brands fa-telegram"></i><span>TG频道</span></div>
+                    </div>
+                </a>
+                <a href="https://www.noiseblogs.top" target="_blank">
+                    <div class="item" style="--color:rgba(1, 193, 157,0.3)">
+                        <div class="bg" style="background-color: rgb(1, 193, 157);"></div>
+                        <div class="inner"> <i class="fa-solid fa-blog"></i><span>Blog</span></div>
+                    </div>
+                </a>
+                <!-- 弹出效果 -->
+                <a href="#" onclick="showImage1()">
+                    <div class="item" style="--color:rgba(35, 45, 55,0.3)">
+                        <div class="bg" style="background-color: rgb(43, 41, 41);"></div>
+                        <div class="inner"> <i class="fa-brands fa-weixin"></i><span>微信号</span></div>
+                    </div>
+                </a>
+                <a href="https://sspai.com/u/noise/updates" target="_blank">
+                    <div class="item" style="--color:rgba(28, 64, 100)">
+                        <div class="bg" style="background-color:rgb(220, 92, 122)"></div>
+                        <div class="inner"><i class="fa-solid fa-user-astronaut"></i><span>少数派</span></div>
+                    </div>
+                </a>    
+            </div>
+        </div>
+        <div class="work">
+            <h2 class="chtitle"><span>网站</span>合集</span>【滑动或左右键可切换】</h2>
+            <div class="workbox">
+                <a href="./home.html" title="右滑动查看,mac用户请用键盘左右键或触控板上下滑动查看，PC用户鼠标滚轮向右查看">
+                    <div id="first"></i><i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span style="font-size: 17px;">◉切换风格模式</span>
+                  </div>
+                  </a>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://www.noisedh.link" target="_blank"><h3>Noise导航站</h3></a>
+                    <p>静态化综合导航站</p>
+                    <div class="language"><div style="--color:#f1e05a">综合且全面</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://noisevip.cn" target="_blank"><h3>NOISE&宝藏阁</h3></a>
+                    <p>Wordpress站点</p>
+                    <div class="language"><div style="--color:#e34c26">强大的资源分类支持</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="./fw/index.html" target="_blank"><h3>公共服务页</h3></a>
+                    <p>个人公共化服务</p>
+                    <div class="language"><div style="--color:#3572A5">有你支持才有动力</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://efficiency.super.site/" target="_blank"><h3>知识效率集</h3></a>
+                    <p>这是一个Notion页面</p>
+                    <div class="language"><div style="--color:#e34c26">Notion网站</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://efficiencyfollow.notion.site" target="_blank"><h3>Efficiency主页</h3></a>
+                    <p>始于Notion，忠于Notion</p>
+                    <div class="language"><div style="--color:#e34c26">自动化、RSS指南</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="./photo/index.html" target="_blank"><h3>NOISE摄影图库</h3></a>
+                    <p>相册分享</p>
+                    <div class="language"><div style="--color:#e34c26">爱生活，爱摄影</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://rcy1314.github.io/some-stars/" target="_blank"><h3>我的start列表</h3></a>
+                    <p>我的start列表，每日更新</p>
+                    <div class="language"><div style="--color:#e34c26">Github-starts</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://www.noiseapi.top" target="_blank"><h3>Noise-Api</h3></a>
+                    <p>API接口服务</p>
+                    <div class="language"><div style="--color:#e34c26">gpt-api</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://docs.noisework.cn" target="_blank"><h3>主题配置文档</h3></a>
+                    <p>主页配置说明文档</p>
+                    <div class="language"><div style="--color:#e34c26">主页配置说明文档</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://flowus.cn/share/8decd1b3-1b9d-4356-9300-19a9f4b90c0c" target="_blank"><h3>Flowus空间</h3></a>
+                    <p>Flowus息流提高效率</p>
+                    <div class="language"><div style="--color:#e34c26">知识其实可以更多</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://rcy1314.github.io/news/" target="_blank"><h3>聚合Rss阅读页</h3></a>
+                    <p>聚合RSS阅读页</p>
+                    <div class="language"><div style="--color:#e34c26">RSS聚合，每3小时更新</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://rcy1314.github.io/Rss-Translation/" target="_blank"><h3>RSS翻译转换</h3></a>
+                    <p>外网订阅源翻译转换订阅</p>
+                    <div class="language"><div style="--color:#e34c26">转换翻译，每2小时更新</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://rcy1314.github.io/youtube/" target="_blank"><h3>Youtube订阅</h3></a>
+                    <p>个人Youtube订阅RSS</p>
+                    <div class="language"><div style="--color:#e34c26">Youtube订阅</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://www.noisework.cn/moyu/"target="_blank"><h3>打工人日历</h3></a>
+                    <p>提醒您适当摸鱼</p>
+                    <div class="language"><div style="--color:#e34c26">没钱可以赚，但命只有一条</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="./soso/index.html"target="_blank"><h3>Book Mark 索引</h3></a>
+                    <p>书签搜索</p>
+                    <div class="language"><div style="--color:#e34c26">从收录的上万个书签中搜索</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="./e/soso/index.html"target="_blank"><h3>JUST SOSO</h3></a>
+                    <p>个人自定义搜索</p>
+                    <div class="language"><div style="--color:#e34c26">搜软件，搜插件</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://rcy1314.github.io/douhot/"target="_blank"><h3>抖音热榜</h3></a>
+                    <p>抖音热搜榜</p>
+                    <div class="language"><div style="--color:#e34c26">抖音热搜采集</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="https://www.chronologies.io/timelines/09b94d92-1860-4349-868d-f6e18de78155"target="_blank"><h3>备忘贴</h3></a>
+                    <p>不定时资讯、工具</p>
+                    <div class="language"><div style="--color:#e34c26">基于chronologies</div></div>
+                </div>
+                <div class="project">
+                    <i class="fa-solid fa-star"></i>
+                    <a href="./fb/index.html"target="_blank"><h3>备用地址页</h3></a>
+                    <p>一些站点的备用地址</p>
+                    <div class="language"><div style="--color:#e34c26">多域名，多备用</div></div>
+                </div>
+                <a href="./home.html" target="_blank">
+                    <div id="last"><i class="fa-sharp fa-solid fa-magnifying-glass"></i><span>◉切换风格模式</span></div>
+                </a>
+                </div>
+                </div>
+                </br>
+                <!-- 音乐-->
+                <div class="work">
+                    <h2 class="chtitle"><span>音乐</span>信息栏</span></h2>
+                    <meting-js list-max-height="130px" server="netease" type="playlist" data-fixed="true" data-autoplay="false"
+                        id="128460001">
+                    </meting-js>
+                </div>
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
+                </br>
+                <!-- 友情链接 -->
+                <div class="work">
+                    <h2 class="chtitle"><span>友情</span>链接</span></h2>
+                    <div class="friendcardindex">
+                        <div class="friendlinks-container">
+                            <div class="friendlinks-card">
+                                <div class="avatar">
+                                    <a href="https://rcy1314.github.io/Idea/">
+                                        <img alt="" loading="lazy" decoding="async"
+                                            src="https://jsd.cdn.noisework.cn/gh/rcy1314/tuchuang@main/uPic/43w.jpeg">
+                                    </a>
+                                </div>
+                                <div class="info">
+                                    <a class="friendname" target="_blank" href="https://rcy1314.github.io/Idea/">idea book</a>
+                                    <p class="frienddescription">旧的专栏</p>
+                                </div>
+                            </div>
+                            <div class="friendlinks-card">
+                                <div class="avatar">
+                                    <a href="#">
+                                        <img alt="" loading="lazy" decoding="async"
+                                            src="https://jsd.cdn.noisework.cn/gh/rcy1314/tuchuang@main/uPic/33s.jpeg">
+                                    </a>
+                                </div>
+                                <div class="info">
+                                    <a class="friendname" target="_blank" href="#">待添加</a>
+                                    <p class="frienddescription">未来可期</p>
+                                </div>
+                            </div>
+                            <div class="friendlinks-card">
+                                <div class="avatar">
+                                    <a href="#">
+                                        <img alt="" loading="lazy" decoding="async"
+                                            src="https://jsd.cdn.noisework.cn/gh/rcy1314/tuchuang@main/uPic/43e.jpeg">
+                                    </a>
+                                </div>
+                                <div class="info">
+                                    <a class="friendname" target="_blank" href="#">待添加</a>
+                                    <p class="frienddescription">未来可期</p>
+                                </div>
+                            </div>
+                            <div class="friendlinks-card">
+                                <div class="avatar">
+                                    <a href="#">
+                                        <img alt="" loading="lazy" decoding="async"
+                                            src="https://jsd.cdn.noisework.cn/gh/rcy1314/tuchuang@main/uPic/335r.jpeg">
+                                    </a>
+                                </div>
+                                <div class="info">
+                                    <a class="friendname" target="_blank" href="#">待添加</a>
+                                    <p class="frienddescription">未来可期</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </br>
+                    <!-- B站收藏-->
+                    <div class="work">
+                        <h2 class="chtitle"><span>B站</span>收藏夹</span></h2>
+                        <div class="bilibiliindex" style="background-color: #1e1d1dce; height: 25vh;">
+                            <div class="bilibilititle-left">
+                                <img src="./assets/r1.png" alt="B站收藏夹" class="zoominimage">
+                            </div>
+                            <iframe src="https://www.noisework.cn/e/bili/index.html?id=3271958393" style="width: 70%; height: 100%; border: none; "></iframe>
+                            <div class="bilibilititle-right">
+                                <img src="./assets/r3.png" alt="等你来观看" class="zoominimage">
+                            </div>
+                        </div>
+		        	<!-- B站收藏结束-->
+                         </br>
+                    <!-- 评论区 -->
+                    <div class="work">
+                        <h2 class="chtitle"><span>留言</span>评论</span></h2>
+                        <div class="rommentindex">
+                            <div id="waline"></div>
+                        </div>
+                        <div class="menu-box">
+                            <!-- 图标按钮 -->
+                            <div class="menu-button">
+                                <div class="line-box">
+                                    <div class="line"></div>
+                                    <div class="line"></div>
+                                    <div class="line"></div>
+                                </div>
+                            </div>
+                            <!-- 菜单列表 -->
+                            <div>
+                                <ul class="menu-list">
+                                    <!-- <li><a style="color:rgb(243, 237, 236);" href="https://efficiency.discut.io" target="_blank"></i><span> 🎁近期动态</span></a></li> -->
+                                    <!-- <li><a style="color:rgb(252, 246, 246);" href="https://jsd.cdn.noisework.cn/gh/rcy1314/my-photo@master/20230508/赞赏.1wsad0fm5ri8.jpg" target="_blank"></i><span> 🧧赞助支持</span></a></li>-->
+                                    <!-- <li><a style="color:rgb(247, 245, 245);" href="https://www.noiseblogs.top/link/" target="_blank"></i><span>🎲常用收藏</span></a></li>-->
+                                    <li><a style="color:rgb(252, 246, 246);" href="./e/zhichi/index.html" target="_blank"></i><span>
+                                                🧧赞助支持</span></a></li>
+                                    <li><a style="color:rgb(248, 244, 244);" href="./e/newsletter/index.html"
+                                            target="_blank"></i><span>📧欢迎订阅</span></a></li>
+                                    <li><a style="color:rgb(248, 244, 244);" href="./home.html" id="check1"></i><span>🌟切换模式</span></a>
+                                    </li>
+                                    <li><a style="color:rgb(248, 244, 244);" href="./fw/index.html"
+                                            target="_blank"></i><span>🎉公共服务</span></a></li>
+                                    <li><a style="color:rgb(248, 244, 244);" href="https://docs.noisework.cn"
+                                            target="_blank"></i><span>💻配置文档</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!--隐藏式页脚-->
+                    <div id="footer">
+                        <p>本站已运行: <span id="days"></span></p>
+                        <p> ღゝ◡╹ノ♡ <a href="https://www.noisework.cn">Noise主页</a></p>
+                    </div>
+                    <!--音乐-->
+                    <link rel="stylesheet" href="css/APlayer.min.css">
+                    
+                    <script src="js/APlayer.min.js"></script>
+                    <script src="js/Meting.min.js"></script>
+                    <!--向下滑动监听-->
+                    <script>
+                        window.addEventListener('DOMContentLoaded', (event) => {
+                    var scrollDown = document.querySelector('.scroll-down');
+                    function handleScroll() {
+                // 检查屏幕宽度是否小于或等于768px
+                if (window.innerWidth <= 768) {
+                    var scrollPos = window.pageYOffset;
+                    var windowHeight = window.innerHeight;
+                    var documentHeight = document.documentElement.scrollHeight;
+        
+                    if (scrollPos + windowHeight >= documentHeight) {
+                        scrollDown.style.display = 'none';
+                    } else {
+                        scrollDown.style.display = 'block';
+                    }
+                }
+            }
+  
+            function handleButtonClick() {
+                window.scrollBy({
+                    top: window.innerHeight,
+                    behavior: 'smooth'
+                });
+            }
+        
+            scrollDown.addEventListener('click', handleButtonClick);
+            window.addEventListener('scroll', handleScroll);
+            window.addEventListener('resize', handleScroll); // 添加resize事件监听，以便在窗口大小变化时重新检查
+        
+            // 初始化滚动监听
+            handleScroll();
+        });
+        </script>     
+    <!--向下滑动监听结束-->    
+    <!--所有弹出图片js-->  
+    <script>
+        //微信图
+        function showImage1() {
+            var imagePath = "./lianxi/weixin.png";
+            document.getElementById('popupImage1').src = imagePath;
+            document.getElementById('imageOverlay1').style.display = 'block';
+        }
+    
+        document.getElementById('imageOverlay1').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.getElementById('popupImage1').src = '';
+        });
+        //公众号图
+        function showImage2() {
+            var imagePath = "./assets/gongzhonghao.jpg";
+            document.getElementById('popupImage2').src = imagePath;
+            document.getElementById('imageOverlay2').style.display = 'block';
+        }
+    
+        document.getElementById('imageOverlay2').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.getElementById('popupImage2').src = '';
+        });
+    </script>
+    <!-- 引入评论 -->		
+    <script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+    init({
+      el: '#waline',
+      serverURL: 'https://ment.noisework.cn',
+	  meta: ['nick','mail','link'],
+      requiredMeta: ['mail','nick'],
+      pageview: true,
+      search: false,
+      wordLimit: 50,
+      pageSize: 5,
+      avatar: 'monsterid',
+	  emoji: [
+             'https://unpkg.com/@waline/emojis@1.2.0/tieba',
+         ],
+         //禁止图片上传按钮
+         imageUploader: false,
+         //不显示版权标志
+         copyright: false,
+     });
+  </script>
+    <!--聊天室-->  
+    <script>
+        window['CboxReady'] = function (Cbox) {
+            Cbox('button', '3-3523748-9k93aT');
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="./js/emb.js" async></script>
+    <script src="js/nodecursor-jquery.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/tab.js"></script>
+    <script src="js/AD.js"></script>
+    <script src="js/Text.js"></script>
+    <script src="js/rss.js"></script>
+    <script src="js/sound.js"></script>
+</body>
 </html>
