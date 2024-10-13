@@ -284,7 +284,7 @@
             data: {
                 username: 'admin',
                 inputUsername: '',
-                userAvatar: 'http://pic.gwozai.com:9000/picshow/imfree08/202409141007562.png',
+                userAvatar: 'https://www.esafety.gov.au/sites/default/files/2019-08/wits_-_about-landing.jpg',
                 newItem: {
                     name: '',
                     image: ''
@@ -320,7 +320,7 @@
                     if (savedAvatar) {
                         this.userAvatar = savedAvatar;
                     } else if (this.username === 'admin') {
-                        this.userAvatar = 'http://pic.gwozai.com:9000/picshow/imfree08/202409141007562.png';
+                        this.userAvatar = 'https://www.esafety.gov.au/sites/default/files/2019-08/wits_-_about-landing.jpg';
                     }
                 },
                 saveItems() {
@@ -339,7 +339,7 @@
                         const now = new Date();
                         this.items.push({
                             name: this.newItem.name,
-                            image: this.newItem.image || 'https://via.placeholder.com/60',
+                            image: this.newItem.image || 'https://www.esafety.gov.au/sites/default/files/2019-08/wits_-_about-landing.jpg',
                             completed: false,
                             quantity: 1,
                             createdAt: now,
