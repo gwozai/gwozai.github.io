@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机图片</title>
+    <!-- 引入 Vue.js CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'PingFang SC', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        .image-container {
+            background: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+        }
+        .button-group {
+            margin-top: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .refresh-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        .refresh-btn:hover {
+            background-color: #2980b9;
+        }
+        .refresh-btn:active {
+            background-color: #1f6692;
+        }
+        .save-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .save-btn:hover {
+            background-color: #27ae60;
+        }
+        .save-btn:active {
+            background-color: #219653;
+        }
+        .loading::after {
+            content: " 加载中...";
+            font-size: 12px;
+            color: #666;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            button {
+                padding: 8px 16px;
+                font-size: 12px;
+                margin: 0 5px;
+            }
+            .image-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>随机图片API演示页面</h1>
+        
+        <div class="image-container">
+            <h2>1. 樱花API - 随机二次元图像</h2>
+            <img :src="sakuraImage" alt="随机二次元图像" id="sakuraImage">
+            <div class="button-group">
+                <button 
+                    class="refresh-btn" 
+                    :class="{ loading: sakuraLoading }" 
+                    :disabled="sakuraLoading"
+                    @click="refreshImage('sakura')"
+                >刷新</button>
+                <button class="save-btn" @click="saveImage('sakuraImage')">保存图片</button>
+            </div>
+        </div>
+        
+        <div class="image-container">
+            <h2>2. EEE.DOG API - 随机动漫风格图像</h2>
+            <img :src="moeImage" alt="随机动漫图像" id="moeImage">
+            <div class="button-group">
+                <button 
+                    class="refresh-btn" 
+                    :class="{ loading: moeLoading }" 
+                    :disabled="moeLoading"
+                    @click="refreshImage('moe')"
+                >刷新</button>
+                <button class="save-btn" @click="saveImage('moeImage')">保存图片</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    sakuraImage: 'https://www.dmoe.cc/random.php',
+                    moeImage: 'https://api.yimian.xyz/img?type=moe',
+                    sakuraLoading: false,
+                    moeLoading: false
+                }
+            },
+            methods: {
+                refreshImage(type) {
+                    const isSakura = type === 'sakura'
+                    const imgElement = document.getElementById(`${type}Image`)
+                    
+                    // 设置加载状态
+                    this[`${type}Loading`] = true
+
+                    // 更新图片源
+                    const newSrc = `${isSakura ? 'https://www.dmoe.cc/random.php' : 'https://api.yimian.xyz/img?type=moe'}?${new Date().getTime()}`
+                    this[`${type}Image`] = newSrc
+
+                    // 处理图片加载事件
+                    imgElement.onload = () => {
+                        this[`${type}Loading`] = false
+                    }
+                    imgElement.onerror = () => {
+                        this[`${type}Loading`] = false
+                        alert('图片加载失败，请稍后重试。')
+                    }
+                },
+                saveImage(imgId) {
+                    const img = document.getElementById(imgId)
+                    const link = document.createElement('a')
+                    link.href = img.src
+                    link.download = `${imgId}_${new Date().getTime()}.jpg`
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
