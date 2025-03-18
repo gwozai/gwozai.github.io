@@ -39,6 +39,14 @@
             color: var(--primary-color);
         }
 
+        .category-title {
+            margin: 2rem 0 1rem;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -99,6 +107,9 @@
 <body>
     <div class="container">
         <h1 class="page-title">网页导航</h1>
+
+        <!-- 主页分类 -->
+        <h2 class="category-title">主页集合</h2>
         <div class="grid">
             <a href="index.html" class="card">
                 <div>
@@ -111,27 +122,6 @@
                 <div>
                     <h2 class="card-title">home.html</h2>
                     <p class="card-description">主页/首页</p>
-                </div>
-                <span class="card-link">访问页面</span>
-            </a>
-            <a href="conda_path_generator.html" class="card">
-                <div>
-                    <h2 class="card-title">conda_path_generator.html</h2>
-                    <p class="card-description">Conda路径生成工具</p>
-                </div>
-                <span class="card-link">访问页面</span>
-            </a>
-            <a href="random.html" class="card">
-                <div>
-                    <h2 class="card-title">random.html</h2>
-                    <p class="card-description">随机图片</p>
-                </div>
-                <span class="card-link">访问页面</span>
-            </a>
-            <a href="sese.html" class="card">
-                <div>
-                    <h2 class="card-title">sese.html</h2>
-                    <p class="card-description">网址导航</p>
                 </div>
                 <span class="card-link">访问页面</span>
             </a>
@@ -153,6 +143,37 @@
                 <div>
                     <h2 class="card-title">index3.html</h2>
                     <p class="card-description">主页3</p>
+                </div>
+                <span class="card-link">访问页面</span>
+            </a>
+        </div>
+
+        <!-- 工具分类 -->
+        <h2 class="category-title">工具页面</h2>
+        <div class="grid">
+            <a href="conda_path_generator.html" class="card">
+                <div>
+                    <h2 class="card-title">conda_path_generator.html</h2>
+                    <p class="card-description">Conda路径生成工具</p>
+                </div>
+                <span class="card-link">访问页面</span>
+            </a>
+        </div>
+
+        <!-- 功能页面 -->
+        <h2 class="category-title">功能页面</h2>
+        <div class="grid">
+            <a href="random.html" class="card">
+                <div>
+                    <h2 class="card-title">random.html</h2>
+                    <p class="card-description">随机图片</p>
+                </div>
+                <span class="card-link">访问页面</span>
+            </a>
+            <a href="sese.html" class="card">
+                <div>
+                    <h2 class="card-title">sese.html</h2>
+                    <p class="card-description">网址导航</p>
                 </div>
                 <span class="card-link">访问页面</span>
             </a>
