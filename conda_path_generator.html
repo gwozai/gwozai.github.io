@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Conda 环境变量路径生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            background-color: #e7f3fe;
+            padding: 10px;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Conda 环境变量路径生成器</h2>
+        <input 
+            type="text" 
+            id="condaPath" 
+            placeholder="请输入 Conda 安装路径（例如 D:\ProgramData\anaconda3）"
+        >
+        <button onclick="generatePath()">生成路径</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function generateCondaPathEnvVar(condaBasePath) {
+            // 定义需要添加的子路径
+            const subpaths = [
+                '',
+                '\\Scripts',
+                '\\Library\\mingw-w64\\bin',
+                '\\Library\\bin'
+            ];
+
+            // 生成完整路径列表
+            const fullPaths = subpaths.map(path => condaBasePath + path);
+
+            // 生成环境变量格式的路径字符串
+            return ';' + fullPaths.join(';') + ';';
+        }
+
+        function generatePath() {
+            const condaPathInput = document.getElementById('condaPath');
+            const resultDiv = document.getElementById('result');
+            const condaPath = condaPathInput.value.trim();
+
+            // 简单的路径有效性检查
+            if (condaPath && condaPath.includes(':')) {
+                const result = generateCondaPathEnvVar(condaPath);
+                resultDiv.innerHTML = `
+                    <strong>生成的环境变量路径：</strong><br>
+                    ${result}
+                `;
+            } else {
+                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+            }
+        }
+
+        // 支持回车键触发生成
+        document.getElementById('condaPath').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                generatePath();
+            }
+        });
+    </script>
+</body>
+</html>
