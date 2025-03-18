@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Java 开发环境变量生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .env-var-container {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .env-var-generator {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            background-color: #e7f3fe;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            word-wrap: break-word;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="env-var-container">
+        <h1>Java 开发环境变量生成器</h1>
+
+        <!-- JDK 环境变量生成器 -->
+        <div class="env-var-generator">
+            <h2>JDK 环境变量生成器</h2>
+            <input 
+                type="text" 
+                id="jdkPath" 
+                placeholder="请输入 JDK 安装路径（例如 C:\Program Files\Java\jdk-17）"
+            >
+            <button onclick="generateJDKPath()">生成 JDK 环境变量</button>
+            <div id="jdkResult" class="result"></div>
+        </div>
+
+        <!-- Maven 环境变量生成器 -->
+        <div class="env-var-generator">
+            <h2>Maven 环境变量生成器</h2>
+            <input 
+                type="text" 
+                id="mavenPath" 
+                placeholder="请输入 Maven 安装路径（例如 C:\apache-maven-3.9.6）"
+            >
+            <button onclick="generateMavenPath()">生成 Maven 环境变量</button>
+            <div id="mavenResult" class="result"></div>
+        </div>
+
+        <!-- Tomcat 环境变量生成器 -->
+        <div class="env-var-generator">
+            <h2>Tomcat 环境变量生成器</h2>
+            <input 
+                type="text" 
+                id="tomcatPath" 
+                placeholder="请输入 Tomcat 安装路径（例如 C:\apache-tomcat-10.1.XX）"
+            >
+            <button onclick="generateTomcatPath()">生成 Tomcat 环境变量</button>
+            <div id="tomcatResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // JDK 环境变量生成函数
+        function generateJDKPath() {
+            const jdkPathInput = document.getElementById('jdkPath');
+            const resultDiv = document.getElementById('jdkResult');
+            const jdkPath = jdkPathInput.value.trim();
+
+            if (jdkPath && jdkPath.includes(':')) {
+                const envVars = [
+                    `# JDK 环境变量配置`,
+                    `# 1. 设置 JAVA_HOME 变量`,
+                    `JAVA_HOME=${jdkPath}`,
+                    ``,
+                    `# 2. 修改 Path 变量`,
+                    `Path=%JAVA_HOME%\\bin;%Path%`,
+                    ``,
+                    `# 3. 设置 CLASSPATH（可选）`,
+                    `CLASSPATH=.;%JAVA_HOME%\\lib;%JAVA_HOME%\\lib\\dt.jar;%JAVA_HOME%\\lib\\tools.jar`,
+                    ``,
+                    `# 验证方法：`,
+                    `# 1. 打开命令提示符`,
+                    `# 2. 输入 java -version`,
+                    `# 3. 输入 javac -version`
+                ];
+
+                resultDiv.innerHTML = `
+                    <strong>JDK 环境变量配置：</strong><br>
+                    <pre>${envVars.join('\n')}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+            }
+        }
+
+        // Maven 环境变量生成函数
+        function generateMavenPath() {
+            const mavenPathInput = document.getElementById('mavenPath');
+            const resultDiv = document.getElementById('mavenResult');
+            const mavenPath = mavenPathInput.value.trim();
+
+            if (mavenPath && mavenPath.includes(':')) {
+                const envVars = [
+                    `# Maven 环境变量配置`,
+                    `# 1. 设置 M2_HOME 变量`,
+                    `M2_HOME=${mavenPath}`,
+                    ``,
+                    `# 2. 设置 MAVEN_HOME 变量（兼容性）`,
+                    `MAVEN_HOME=%M2_HOME%`,
+                    ``,
+                    `# 3. 修改 Path 变量`,
+                    `Path=%M2_HOME%\\bin;%Path%`,
+                    ``,
+                    `# 4. 可选：配置本地仓库路径`,
+                    `# 在 %M2_HOME%\\conf\\settings.xml 中配置`,
+                    ``,
+                    `# 验证方法：`,
+                    `# 1. 打开命令提示符`,
+                    `# 2. 输入 mvn -version`
+                ];
+
+                resultDiv.innerHTML = `
+                    <strong>Maven 环境变量配置：</strong><br>
+                    <pre>${envVars.join('\n')}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+            }
+        }
+
+        // Tomcat 环境变量生成函数
+        function generateTomcatPath() {
+            const tomcatPathInput = document.getElementById('tomcatPath');
+            const resultDiv = document.getElementById('tomcatResult');
+            const tomcatPath = tomcatPathInput.value.trim();
+
+            if (tomcatPath && tomcatPath.includes(':')) {
+                const envVars = [
+                    `# Tomcat 环境变量配置`,
+                    `# 1. 设置 CATALINA_HOME 变量`,
+                    `CATALINA_HOME=${tomcatPath}`,
+                    ``,
+                    `# 2. 设置 CATALINA_BASE 变量（可选）`,
+                    `CATALINA_BASE=%CATALINA_HOME%`,
+                    ``,
+                    `# 3. 修改 Path 变量`,
+                    `Path=%CATALINA_HOME%\\bin;%Path%`,
+                    ``,
+                    `# 启动 Tomcat 方法：`,
+                    `# 1. 打开命令提示符`,
+                    `# 2. 进入 %CATALINA_HOME%\\bin 目录`,
+                    `# 3. 执行 startup.bat`,
+                    ``,
+                    `# 验证方法：`,
+                    `# 1. 浏览器访问 http://localhost:8080`,
+                    `# 2. 确认 Tomcat 启动页面显示`
+                ];
+
+                resultDiv.innerHTML = `
+                    <strong>Tomcat 环境变量配置：</strong><br>
+                    <pre>${envVars.join('\n')}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+            }
+        }
+
+        // 回车键事件监听器
+        document.getElementById('jdkPath').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') generateJDKPath();
+        });
+
+        document.getElementById('mavenPath').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') generateMavenPath();
+        });
+
+        document.getElementById('tomcatPath').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') generateTomcatPath();
+        });
+    </script>
+</body>
+</html>
