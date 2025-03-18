@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
@@ -42,11 +42,89 @@
             border-radius: 4px;
             word-wrap: break-word;
         }
+        details {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Conda 环境变量路径生成器</h2>
+
+        <details>
+            <summary>功能说明</summary>
+            <h3>环境变量路径生成需求</h3>
+
+            <h4>输入参数</h4>
+            <p>基础路径：D:\ProgramData\anaconda3</p>
+
+            <h4>生成要求</h4>
+            <ol>
+                <li>使用分号分隔</li>
+                <li>包含以下子目录：
+                    <ul>
+                        <li>主目录</li>
+                        <li>Scripts</li>
+                        <li>Library\mingw-w64\bin</li>
+                        <li>Library\bin</li>
+                    </ul>
+                </li>
+                <li>每个路径前后不需要额外空格</li>
+                <li>以分号开头和结尾</li>
+            </ol>
+
+            <h4>期望输出格式</h4>
+            <pre>;路径1;路径2;路径3;路径4;</pre>
+
+            <h4>示例期望</h4>
+            <pre>;D:\ProgramData\anaconda3;D:\ProgramData\anaconda3\Scripts;D:\ProgramData\anaconda3\Library\mingw-w64\bin;D:\ProgramData\anaconda3\Library\bin;</pre>
+        </details>
+
+        <details>
+            <summary>Python 源代码</summary>
+            <pre>
+def generate_conda_path_env_var(conda_base_path):
+    """
+    生成 Conda 环境变量路径字符串
+
+    参数:
+    conda_base_path (str): Conda 的基础安装路径
+
+    返回:
+    str: 格式化的环境变量路径字符串
+    """
+    # 定义需要添加的子路径
+    subpaths = [
+        '',             # 主目录
+        r'\Scripts',    # Scripts 目录
+        r'\Library\mingw-w64\bin',  # mingw-w64 bin 目录
+        r'\Library\bin'  # Library bin 目录
+    ]
+
+    # 生成完整路径列表
+    full_paths = [conda_base_path + path for path in subpaths]
+
+    # 生成环境变量格式的路径字符串
+    env_var_path = ';' + ';'.join(full_paths) + ';'
+
+    return env_var_path
+            </pre>
+        </details>
+
         <input 
             type="text" 
             id="condaPath" 
@@ -57,8 +135,8 @@
     </div>
 
     <script>
+        // 之前的 JavaScript 代码保持不变
         function generateCondaPathEnvVar(condaBasePath) {
-            // 定义需要添加的子路径
             const subpaths = [
                 '',
                 '\\Scripts',
@@ -66,10 +144,8 @@
                 '\\Library\\bin'
             ];
 
-            // 生成完整路径列表
             const fullPaths = subpaths.map(path => condaBasePath + path);
 
-            // 生成环境变量格式的路径字符串
             return ';' + fullPaths.join(';') + ';';
         }
 
@@ -78,7 +154,6 @@
             const resultDiv = document.getElementById('result');
             const condaPath = condaPathInput.value.trim();
 
-            // 简单的路径有效性检查
             if (condaPath && condaPath.includes(':')) {
                 const result = generateCondaPathEnvVar(condaPath);
                 resultDiv.innerHTML = `
@@ -90,7 +165,6 @@
             }
         }
 
-        // 支持回车键触发生成
         document.getElementById('condaPath').addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 generatePath();
