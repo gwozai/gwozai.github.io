@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合视频播放器</title>
+</head>
+<body>
+    <h1>综合视频播放器</h1>
+
+    <!-- 视频播放器 -->
+    <video id="videoPlayer" width="640" height="360" controls>
+        <source id="videoSource" src="" type="video/mp4">
+        您的浏览器不支持 HTML5 视频播放。
+    </video>
+
+    <h2>播放选项</h2>
+
+    <!-- 播放在线视频 -->
+    <div>
+        <label for="onlineUrl">输入在线视频 URL：</label>
+        <input type="text" id="onlineUrl" placeholder="例如：https://example.com/video.mp4" style="width: 400px;">
+        <button onclick="playOnlineVideo()">播放</button>
+    </div>
+
+    <!-- 播放本地文件 -->
+    <div>
+        <label for="localFile">选择本地视频文件：</label>
+        <input type="file" id="localFile" accept="video/*" onchange="playLocalVideo()">
+    </div>
+
+    <!-- 视频列表 -->
+    <h2>视频列表</h2>
+    <ul id="videoList">
+        <!-- 视频列表将通过 JavaScript 动态生成 -->
+    </ul>
+
+    <script>
+        // 手动维护视频列表，包括特殊字符的文件名
+        const videos = [
+            { name: "视频 1 (～o￣3￣)～", path: "videos/(～o￣3￣)～.mp4" },
+            { name: "视频 2 no7gwj", path: "videos/no7gwj.mp4" }
+        ];
+
+        // 动态生成视频列表
+        const videoList = document.getElementById('videoList');
+        videos.forEach(video => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = "#";
+            link.textContent = video.name;
+            link.onclick = () => playVideo(video.path);
+            listItem.appendChild(link);
+            videoList.appendChild(listItem);
+        });
+
+        // 播放在线视频
+        function playOnlineVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const onlineUrl = document.getElementById('onlineUrl').value;
+
+            if (onlineUrl) {
+                videoSource.src = onlineUrl; // 设置视频源为用户输入的 URL
+                videoPlayer.load(); // 重新加载视频
+                videoPlayer.play(); // 自动播放
+            } else {
+                alert('请输入有效的在线视频 URL！');
+            }
+        }
+
+        // 播放本地视频文件
+        function playLocalVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const localFile = document.getElementById('localFile').files[0]; // 获取用户选择的文件
+
+            if (localFile) {
+                const fileURL = URL.createObjectURL(localFile); // 创建本地文件的 URL
+                videoSource.src = fileURL; // 设置视频源为本地文件 URL
+                videoPlayer.load(); // 重新加载视频
+                videoPlayer.play(); // 自动播放
+            } else {
+                alert('请选择一个本地视频文件！');
+            }
+        }
+
+        // 切换视频播放（从视频列表中选择）
+        function playVideo(videoPath) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            videoSource.src = encodeURI(videoPath); // 对路径进行编码，处理特殊字符
+            videoPlayer.load(); // 重新加载视频
+            videoPlayer.play(); // 自动播放
+        }
+    </script>
+</body>
+</html>
