@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频播放器对比</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Clappr -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <!-- OPlayer -->
+    <script src="https://cdn.jsdelivr.net/npm/oplayer/dist/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/oplayer/dist/index.min.css">
+    <!-- Chimee -->
+    <script src="https://cdn.jsdelivr.net/npm/chimee/dist/chimee.min.js"></script>
+    <!-- xgplayer -->
+    <script src="https://cdn.jsdelivr.net/npm/xgplayer/browser/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xgplayer/browser/index.min.css">
+    <!-- Meister Web Player -->
+    <script src="https://cdn.jsdelivr.net/npm/meisterplayer/dist/meisterplayer.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-6 shadow-md">
+        <h1 class="text-center text-2xl font-bold">视频播放器对比</h1>
+    </header>
+
+    <main class="max-w-5xl mx-auto mt-10 px-4 space-y-12">
+        <!-- Clappr -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Clappr</h2>
+            <div id="clappr-player" class="rounded-lg overflow-hidden shadow-lg border border-gray-200"></div>
+            <button onclick="loadClapprVideo('videos/video1.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 1</button>
+            <button onclick="loadClapprVideo('videos/video2.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 2</button>
+        </section>
+
+        <!-- OPlayer -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">OPlayer</h2>
+            <div id="oplayer-container" class="rounded-lg overflow-hidden shadow-lg border border-gray-200"></div>
+            <button onclick="loadOPlayerVideo('videos/video1.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 1</button>
+            <button onclick="loadOPlayerVideo('videos/video2.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 2</button>
+        </section>
+
+        <!-- Chimee -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Chimee</h2>
+            <video id="chimee-player" class="rounded-lg overflow-hidden shadow-lg border border-gray-200"></video>
+            <button onclick="loadChimeeVideo('videos/video1.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 1</button>
+            <button onclick="loadChimeeVideo('videos/video2.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 2</button>
+        </section>
+
+        <!-- xgplayer -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">xgplayer</h2>
+            <div id="xgplayer-container" class="rounded-lg overflow-hidden shadow-lg border border-gray-200"></div>
+            <button onclick="loadXGPlayerVideo('videos/video1.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 1</button>
+            <button onclick="loadXGPlayerVideo('videos/video2.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 2</button>
+        </section>
+
+        <!-- Meister Web Player -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Meister Web Player</h2>
+            <div id="meister-container" class="rounded-lg overflow-hidden shadow-lg border border-gray-200"></div>
+            <button onclick="loadMeisterVideo('videos/video1.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 1</button>
+            <button onclick="loadMeisterVideo('videos/video2.mp4')" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">播放视频 2</button>
+        </section>
+    </main>
+
+    <footer class="text-center py-6 mt-12 text-sm text-gray-500">
+        © 2025 视频播放器对比 - 使用多种播放器构建
+    </footer>
+
+    <script>
+        // Clappr
+        let clapprPlayer = new Clappr.Player({
+            parentId: "#clappr-player",
+            width: "100%",
+            height: "360px",
+            source: "videos/video1.mp4",
+            autoPlay: true,
+            loop: true
+        });
+        function loadClapprVideo(url) {
+            clapprPlayer.load(url);
+        }
+
+        // OPlayer
+        let oplayer = new OPlayer({
+            el: "#oplayer-container",
+            url: "videos/video1.mp4",
+            autoplay: true,
+            loop: true,
+            theme: "dark"
+        });
+        function loadOPlayerVideo(url) {
+            oplayer.switchVideo({ url });
+        }
+
+        // Chimee
+        const chimee = new Chimee({
+            wrapper: "#chimee-player",
+            src: "videos/video1.mp4",
+            autoplay: true,
+            loop: true,
+            controls: true
+        });
+        function loadChimeeVideo(url) {
+            chimee.load(url);
+        }
+
+        // xgplayer
+        let xgplayer = new Player({
+            id: "xgplayer-container",
+            url: "videos/video1.mp4",
+            autoplay: true,
+            loop: true
+        });
+        function loadXGPlayerVideo(url) {
+            xgplayer.src = url;
+        }
+
+        // Meister Web Player
+        const meisterPlayer = new Meister("#meister-container", {
+            src: "videos/video1.mp4",
+            autoplay: true,
+            loop: true
+        });
+        function loadMeisterVideo(url) {
+            meisterPlayer.setSrc(url);
+        }
+    </script>
+</body>
+</html>
