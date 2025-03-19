@@ -1,112 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>熊曰加密工具</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Base62 编码函数
-    function base62Encode(data) {
-      const base64Encoded = btoa(data);
-      return base64Encoded.replace(/=/g, ''); // 去掉填充符号 "="
-    }
-
-    function base62Decode(data) {
-      try {
-        return atob(data);
-      } catch (e) {
-        return "解密失败：无效的加密字符串";
-      }
-    }
-
-    // AES 加密与解密（简单实现）
-    function aesEncrypt(data, key) {
-      const textEncoder = new TextEncoder();
-      const keyBytes = textEncoder.encode(key.padEnd(16, '0').slice(0, 16)); // 确保密钥长度为16字节
-      const dataBytes = textEncoder.encode(data);
-
-      // 简单异或加密（模拟 AES）
-      const encryptedBytes = dataBytes.map((byte, i) => byte ^ keyBytes[i % keyBytes.length]);
-      return btoa(String.fromCharCode(...encryptedBytes));
-    }
-
-    function aesDecrypt(data, key) {
-      try {
-        const textEncoder = new TextEncoder();
-        const keyBytes = textEncoder.encode(key.padEnd(16, '0').slice(0, 16));
-        const dataBytes = new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)));
-
-        // 简单异或解密（模拟 AES）
-        const decryptedBytes = dataBytes.map((byte, i) => byte ^ keyBytes[i % keyBytes.length]);
-        return new TextDecoder().decode(decryptedBytes);
-      } catch (e) {
-        return "解密失败：无效的加密字符串或密钥";
-      }
-    }
-
-    // 映射字符集
-    const customCharset = "熊曰天地玄黄宇宙洪荒日月盈昃辰宿列张";
-
-    function customMap(data) {
-      return Array.from(data).map(c => customCharset[c.charCodeAt(0) % customCharset.length]).join('');
-    }
-
-    function reverseMap(data) {
-      return Array.from(data).map(c => String.fromCharCode(customCharset.indexOf(c))).join('');
-    }
-
-    // 加密流程
-    function encryptLink() {
-      const link = document.getElementById("input-link").value;
-      const key = document.getElementById("input-key").value;
-
-      if (!link || !key) {
-        alert("请输入链接和密钥！");
-        return;
-      }
-
-      const compressed = base62Encode(link);
-      const encrypted = aesEncrypt(compressed, key);
-      const mapped = customMap(encrypted);
-
-      document.getElementById("output").textContent = `加密结果：${mapped}`;
-    }
-
-    // 解密流程
-    function decryptLink() {
-      const encryptedLink = document.getElementById("input-link").value;
-      const key = document.getElementById("input-key").value;
-
-      if (!encryptedLink || !key) {
-        alert("请输入加密字符串和密钥！");
-        return;
-      }
-
-      const reversed = reverseMap(encryptedLink);
-      const decrypted = aesDecrypt(reversed, key);
-      const decompressed = base62Decode(decrypted);
-
-      document.getElementById("output").textContent = `解密结果：${decompressed}`;
-    }
-  </script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
-    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">熊曰加密工具</h1>
-    <div class="mb-4">
-      <label for="input-link" class="block text-gray-700 font-medium mb-2">输入链接或加密字符串：</label>
-      <input id="input-link" type="text" placeholder="请输入链接或加密字符串" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+<html>
+  <head>
+    <script src="https://cdn.rawgit.com/CryptoStore/crypto-js/3.1.2/rollups/aes.js"></script>
+  </head>
+  <body>
+    <h1>简单加密和解密</h1>
+    <div>
+      <label for="plainText">明文：</label>
+      <textarea id="plainText" rows="4" cols="50"></textarea>
     </div>
-    <div class="mb-4">
-      <label for="input-key" class="block text-gray-700 font-medium mb-2">输入密钥：</label>
-      <input id="input-key" type="text" placeholder="请输入密钥" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <div>
+      <button id="encryptBtn">加密</button>
+      <button id="decryptBtn">解密</button>
     </div>
-    <div class="flex justify-between">
-      <button onclick="encryptLink()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none">加密</button>
-      <button onclick="decryptLink()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none">解密</button>
+    <div>
+      <label for="encryptedText">密文：</label>
+      <textarea id="encryptedText" rows="4" cols="50"></textarea>
     </div>
-    <div id="output" class="mt-6 text-gray-800 font-medium"></div>
-  </div>
-</body>
+    <script>
+      const encryptBtn = document.getElementById('encryptBtn');
+      const decryptBtn = document.getElementById('decryptBtn');
+      const plainText = document.getElementById('plainText');
+      const encryptedText = document.getElementById('encryptedText');
+
+      encryptBtn.addEventListener('click', function() {
+        const text = plainText.value;
+        const key = 'your_secret_key_here'; // 替换为用户提供的密钥
+        const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+        encryptedText.value = encrypted;
+      });
+
+      decryptBtn.addEventListener('click', function() {
+        const encrypted = encryptedText.value;
+        const key = 'your_secret_key_here'; // 替换为用户提供的密钥
+        const decrypted = CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8);
+        plainText.value = decrypted;
+      });
+    </script>
+  </body>
 </html>
