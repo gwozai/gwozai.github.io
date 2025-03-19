@@ -2,121 +2,71 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conda 环境变量路径生成器</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            background-color: #f4f4f4;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #result {
-            margin-top: 20px;
-            background-color: #e7f3fe;
-            padding: 10px;
-            border-radius: 4px;
-            word-wrap: break-word;
-        }
-        details {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            margin-top: 10px;
-        }
-        details summary {
-            cursor: pointer;
-            font-weight: bold;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
-        .content-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-        .content-section ul {
-            padding-left: 20px;
-        }
-        .content-section a {
-            text-decoration: none;
-            color: #333;
-        }
-        .content-section a:hover {
-            color: #4CAF50;
-        }
-        .content-section img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h2>Conda 环境变量路径生成器</h2>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- 页面标题 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-green-600">Conda 环境变量路径生成器</h1>
+            <p class="text-gray-600 mt-2">快速生成 Conda 环境变量路径，提升效率</p>
+        </header>
 
-        <details>
-            <summary>功能说明</summary>
-            <h3>环境变量路径生成需求</h3>
+        <!-- 主功能区 -->
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">生成路径</h2>
+            <input 
+                type="text" 
+                id="condaPath" 
+                placeholder="请输入 Conda 安装路径（例如 D:\\ProgramData\\anaconda3）"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+            <button 
+                onclick="generatePath()" 
+                class="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:scale-105 transition transform"
+            >
+                生成路径
+            </button>
+            <div id="result" class="mt-4 bg-blue-50 p-4 rounded-lg text-sm text-gray-700 hidden"></div>
+        </div>
 
-            <h4>输入参数</h4>
-            <p>基础路径：D:\ProgramData\anaconda3</p>
+        <!-- 功能说明 -->
+        <details class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <summary class="text-lg font-semibold cursor-pointer text-gray-700">功能说明</summary>
+            <div class="mt-4">
+                <h3 class="text-xl font-semibold text-gray-800">环境变量路径生成需求</h3>
+                <h4 class="text-lg font-medium text-gray-700 mt-4">输入参数</h4>
+                <p class="text-gray-600">基础路径：D:\ProgramData\anaconda3</p>
 
-            <h4>生成要求</h4>
-            <ol>
-                <li>使用分号分隔</li>
-                <li>包含以下子目录：
-                    <ul>
-                        <li>主目录</li>
-                        <li>Scripts</li>
-                        <li>Library\mingw-w64\bin</li>
-                        <li>Library\bin</li>
-                    </ul>
-                </li>
-                <li>每个路径前后不需要额外空格</li>
-                <li>以分号开头和结尾</li>
-            </ol>
+                <h4 class="text-lg font-medium text-gray-700 mt-4">生成要求</h4>
+                <ol class="list-decimal list-inside text-gray-600">
+                    <li>使用分号分隔</li>
+                    <li>包含以下子目录：
+                        <ul class="list-disc list-inside ml-4">
+                            <li>主目录</li>
+                            <li>Scripts</li>
+                            <li>Library\mingw-w64\bin</li>
+                            <li>Library\bin</li>
+                        </ul>
+                    </li>
+                    <li>每个路径前后不需要额外空格</li>
+                    <li>以分号开头和结尾</li>
+                </ol>
 
-            <h4>期望输出格式</h4>
-            <pre>;路径1;路径2;路径3;路径4;</pre>
+                <h4 class="text-lg font-medium text-gray-700 mt-4">期望输出格式</h4>
+                <pre class="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 overflow-x-auto">;路径1;路径2;路径3;路径4;</pre>
 
-            <h4>示例期望</h4>
-            <pre>;D:\ProgramData\anaconda3;D:\ProgramData\anaconda3\Scripts;D:\ProgramData\anaconda3\Library\mingw-w64\bin;D:\ProgramData\anaconda3\Library\bin;</pre>
+                <h4 class="text-lg font-medium text-gray-700 mt-4">示例期望</h4>
+                <pre class="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 overflow-x-auto">;D:\ProgramData\anaconda3;D:\ProgramData\anaconda3\Scripts;D:\ProgramData\anaconda3\Library\mingw-w64\bin;D:\ProgramData\anaconda3\Library\bin;</pre>
+            </div>
         </details>
 
-        <details>
-            <summary>Python 源代码</summary>
-            <pre>
+        <!-- Python 源代码 -->
+        <details class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <summary class="text-lg font-semibold cursor-pointer text-gray-700">Python 源代码</summary>
+            <pre class="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 overflow-x-auto mt-4">
 def generate_conda_path_env_var(conda_base_path):
     """
     生成 Conda 环境变量路径字符串
@@ -145,86 +95,38 @@ def generate_conda_path_env_var(conda_base_path):
             </pre>
         </details>
 
-        <input 
-            type="text" 
-            id="condaPath" 
-            placeholder="请输入 Conda 安装路径（例如 D:\ProgramData\anaconda3）"
-        >
-        <button onclick="generatePath()">生成路径</button>
-        <div id="result"></div>
-    </div>
+        <!-- 安装教程 -->
+        <details class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <summary class="text-lg font-semibold cursor-pointer text-gray-700">安装教程</summary>
+            <div class="mt-4">
+                <h2 class="text-xl font-semibold text-gray-800">一、Anaconda 简介</h2>
+                <p class="text-gray-600 mt-2">Anaconda 是专门为了方便使用 Python 进行数据科学研究而建立的一组软件包，涵盖了数据科学领域常见的 Python 库，并且自带了专门用来解决软件环境依赖问题的 conda 包管理系统。</p>
 
-    <div class="content-section">
-        <h2>目录</h2>
-        <ul>
-            <li><a href="#Anaconda_1">一、Anaconda 简介</a></li>
-            <li><a href="#Anaconda_11">二、Anaconda 安装</a>
-                <ul>
-                    <li><a href="#21_Anaconda_12">2.1 Anaconda 下载</a></li>
-                    <li><a href="#22_Anaconda_24">2.2 Anaconda 安装</a></li>
-                    <li><a href="#23__51">2.3 配置环境变量</a></li>
+                <h2 class="text-xl font-semibold text-gray-800 mt-6">二、Anaconda 安装</h2>
+                <h3 class="text-lg font-medium text-gray-700 mt-4">2.1 Anaconda 下载</h3>
+                <p class="text-gray-600">推荐两种下载方式：</p>
+                <ul class="list-disc list-inside text-gray-600 ml-4">
+                    <li>官网地址：<a href="https://www.anaconda.com/products/distribution" class="text-green-500 hover:underline">https://www.anaconda.com/products/distribution</a></li>
+                    <li>镜像下载：<a href="https://mirrors.bfsu.edu.cn/anaconda/archive/" class="text-green-500 hover:underline">https://mirrors.bfsu.edu.cn/anaconda/archive/</a></li>
                 </ul>
-            </li>
-            <li><a href="#condapython_91">三、通过 conda 配置 python 环境</a>
-                <ul>
-                    <li><a href="#31__92">3.1 创建并激活虚拟环境</a></li>
-                    <li><a href="#32__134">3.2 管理虚拟环境</a></li>
-                </ul>
-            </li>
-        </ul>
 
-        <h2 id="Anaconda_1">一、Anaconda 简介</h2>
-        <p>Anaconda 是专门为了方便使用 Python 进行数据科学研究而建立的一组软件包，涵盖了数据科学领域常见的 Python 库，并且自带了专门用来解决软件环境依赖问题的 conda 包管理系统。主要是提供了包管理与环境管理的功能，可以很方便地解决多版本 python 并存、切换以及各种第三方包安装问题。</p>
+                <h3 class="text-lg font-medium text-gray-700 mt-4">2.2 Anaconda 安装</h3>
+                <p class="text-gray-600">按照安装向导完成安装，选择默认路径即可。</p>
 
-        <p>conda 可以理解为一个工具，也是一个可执行命令，其核心功能是包管理与环境管理。包管理与 pip 的使用类似，环境管理则允许用户方便地安装不同版本的 python 并可以快速切换。</p>
-
-        <p>Anaconda 则是一个打包的集合，里面预装好了 conda、某个版本的 python、众多 packages、科学计算工具等等，所以也称为 Python 的一种发行版。其实还有 Miniconda，它只包含最基本的内容——python 与 conda，以及相关的必须依赖项，对于空间要求严格的用户，Miniconda 是一种选择。</p>
-
-        <p>conda 将几乎所有的工具、第三方包都当做 package 对待，甚至包括 python 和 conda 自身！因此，conda 打破了包管理与环境管理的约束，能非常方便地安装各种版本 python、各种 package 并方便地切换。</p>
-
-        <h2 id="Anaconda_11">二、Anaconda 安装</h2>
-
-        <h3 id="21_Anaconda_12">2.1 Anaconda 下载</h3>
-        <p>这里推荐两种下载方式一是官网下载，二是镜像下载；官网下载太慢可选用镜像下载</p>
-
-        <ol>
-            <li>下载地址：官网（<a href="https://www.anaconda.com/products/distribution">https://www.anaconda.com/products/distribution</a>）</li>
-            <li>镜像下载：<a href="https://mirrors.bfsu.edu.cn/anaconda/archive/">开源镜像站</a>（https://mirrors.bfsu.edu.cn/anaconda/archive/）</li>
-        </ol>
-
-        <h3 id="22_Anaconda_24">2.2 Anaconda 安装</h3>
-        <p>安装步骤详细描述（由于图片无法直接嵌入，这里省略图片说明）</p>
-
-        <h3 id="23__51">2.3 配置环境变量</h3>
-        <p>将如下路径添加到系统 path：</p>
-        <pre>
-E:\ANACONDA
-E:\ANACONDA\Scripts
-E:\ANACONDA\Library\mingw-w64\bin
-E:\ANACONDA\Library\bin
-        </pre>
-
-        <h2 id="condapython_91">三、通过 conda 配置 python 环境</h2>
-
-        <h3 id="31__92">3.1 创建并激活虚拟环境</h3>
-        <p>创建虚拟环境命令：</p>
-        <pre>conda create --name tensorflow python=3.8.8</pre>
-
-        <h3 id="32__134">3.2 管理虚拟环境</h3>
-        <p>常用 conda 命令：</p>
-        <pre>
-conda list：查看环境中的所有包
-conda install XXX：安装 XXX 包
-conda remove XXX：删除 XXX 包
-conda env list：列出所有环境
-conda create -n XXX：创建名为 XXX 的环境
-activate noti：启用/激活环境
-conda env remove -n noti：删除指定环境
-deactivate：退出环境
-        </pre>
+                <h3 class="text-lg font-medium text-gray-700 mt-4">2.3 配置环境变量</h3>
+                <p class="text-gray-600">将以下路径添加到系统 PATH：</p>
+                <pre class="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 overflow-x-auto">
+D:\ProgramData\anaconda3
+D:\ProgramData\anaconda3\Scripts
+D:\ProgramData\anaconda3\Library\mingw-w64\bin
+D:\ProgramData\anaconda3\Library\bin
+                </pre>
+            </div>
+        </details>
     </div>
 
     <script>
+        // 生成路径函数
         function generateCondaPathEnvVar(condaBasePath) {
             const subpaths = [
                 '',
@@ -246,19 +148,25 @@ deactivate：退出环境
             if (condaPath && condaPath.includes(':')) {
                 const result = generateCondaPathEnvVar(condaPath);
                 resultDiv.innerHTML = `
-                    <strong>生成的环境变量路径：</strong><br>
-                    ${result}
+                    <strong>生成的环境变量路径：</strong>
+                    <pre class="bg-gray-100 p-2 rounded-lg">${result}</pre>
+                    <button onclick="copyToClipboard('${result}')" class="mt-2 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                        复制到剪贴板
+                    </button>
                 `;
+                resultDiv.classList.remove('hidden');
             } else {
-                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+                resultDiv.innerHTML = '<strong class="text-red-500">无效的路径，请重新输入。</strong>';
+                resultDiv.classList.remove('hidden');
             }
         }
 
-        document.getElementById('condaPath').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                generatePath();
-            }
-        });
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制到剪贴板！');
+            });
+        }
     </script>
 </body>
 </html>

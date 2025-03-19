@@ -2,227 +2,186 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Java 开发环境变量生成器</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .env-var-container {
-            background-color: #f4f4f4;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .env-var-generator {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .result {
-            background-color: #e7f3fe;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            word-wrap: break-word;
-        }
-        h2 {
-            color: #333;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="env-var-container">
-        <h1>Java 开发环境变量生成器</h1>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- 页面标题 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-green-600">Java 开发环境变量生成器</h1>
+            <p class="text-gray-600 mt-2">快速生成 JDK、Maven 和 Tomcat 的环境变量配置</p>
+        </header>
 
         <!-- JDK 环境变量生成器 -->
-        <div class="env-var-generator">
-            <h2>JDK 环境变量生成器</h2>
+        <section class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">JDK 环境变量生成器</h2>
             <input 
                 type="text" 
                 id="jdkPath" 
-                placeholder="请输入 JDK 安装路径（例如 C:\Program Files\Java\jdk-17）"
+                placeholder="请输入 JDK 安装路径（例如 C:\\Program Files\\Java\\jdk-17）"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+                oninput="validatePath('jdkPath', 'jdkError')"
             >
-            <button onclick="generateJDKPath()">生成 JDK 环境变量</button>
-            <div id="jdkResult" class="result"></div>
-        </div>
+            <p id="jdkError" class="text-red-500 text-sm hidden">无效的路径，请重新输入。</p>
+            <button 
+                onclick="generateJDKPath()" 
+                class="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:scale-105 transition transform"
+            >
+                生成 JDK 环境变量
+            </button>
+            <div id="jdkResult" class="mt-4 bg-blue-50 p-4 rounded-lg text-sm text-gray-700 hidden"></div>
+        </section>
 
         <!-- Maven 环境变量生成器 -->
-        <div class="env-var-generator">
-            <h2>Maven 环境变量生成器</h2>
+        <section class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">Maven 环境变量生成器</h2>
             <input 
                 type="text" 
                 id="mavenPath" 
-                placeholder="请输入 Maven 安装路径（例如 C:\apache-maven-3.9.6）"
+                placeholder="请输入 Maven 安装路径（例如 C:\\apache-maven-3.9.6）"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+                oninput="validatePath('mavenPath', 'mavenError')"
             >
-            <button onclick="generateMavenPath()">生成 Maven 环境变量</button>
-            <div id="mavenResult" class="result"></div>
-        </div>
+            <p id="mavenError" class="text-red-500 text-sm hidden">无效的路径，请重新输入。</p>
+            <button 
+                onclick="generateMavenPath()" 
+                class="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:scale-105 transition transform"
+            >
+                生成 Maven 环境变量
+            </button>
+            <div id="mavenResult" class="mt-4 bg-blue-50 p-4 rounded-lg text-sm text-gray-700 hidden"></div>
+        </section>
+
+        <!-- Maven 镜像配置 -->
+        <section class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">Maven 镜像配置</h2>
+            <p class="text-gray-600 mb-4">将以下内容添加到 Maven 的 <code class="bg-gray-100 px-1 rounded">settings.xml</code> 文件中：</p>
+            <pre class="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 overflow-x-auto">
+&lt;mirror&gt;
+    &lt;id&gt;nexus-aliyun&lt;/id&gt;
+    &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;
+    &lt;name&gt;Nexus aliyun&lt;/name&gt;
+    &lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public&lt;/url&gt;
+&lt;/mirror&gt;
+            </pre>
+        </section>
 
         <!-- Tomcat 环境变量生成器 -->
-        <div class="env-var-generator">
-            <h2>Tomcat 环境变量生成器</h2>
+        <section class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">Tomcat 环境变量生成器</h2>
             <input 
                 type="text" 
                 id="tomcatPath" 
-                placeholder="请输入 Tomcat 安装路径（例如 C:\apache-tomcat-10.1.XX）"
+                placeholder="请输入 Tomcat 安装路径（例如 C:\\apache-tomcat-10.1.XX）"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+                oninput="validatePath('tomcatPath', 'tomcatError')"
             >
-            <button onclick="generateTomcatPath()">生成 Tomcat 环境变量</button>
-            <div id="tomcatResult" class="result"></div>
-        </div>
+            <p id="tomcatError" class="text-red-500 text-sm hidden">无效的路径，请重新输入。</p>
+            <button 
+                onclick="generateTomcatPath()" 
+                class="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:scale-105 transition transform"
+            >
+                生成 Tomcat 环境变量
+            </button>
+            <div id="tomcatResult" class="mt-4 bg-blue-50 p-4 rounded-lg text-sm text-gray-700 hidden"></div>
+        </section>
+
+        <!-- IntelliJ IDEA 下载链接 -->
+        <section class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">IntelliJ IDEA 下载链接</h2>
+            <p class="text-gray-600 mb-4">点击以下链接下载 IntelliJ IDEA：</p>
+            <a 
+                href="https://www.jetbrains.com/zh-cn/idea/download/other.html" 
+                target="_blank" 
+                class="text-green-500 hover:underline"
+            >
+                IntelliJ IDEA 官方下载页面
+            </a>
+        </section>
     </div>
 
     <script>
-        // JDK 环境变量生成函数
+        // 验证路径是否合法
+        function validatePath(inputId, errorId) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+            if (input.value.trim() && input.value.includes(':')) {
+                error.classList.add('hidden');
+            } else {
+                error.classList.remove('hidden');
+            }
+        }
+
+        // 生成 JDK 环境变量
         function generateJDKPath() {
-            const jdkPathInput = document.getElementById('jdkPath');
+            const jdkPath = document.getElementById('jdkPath').value.trim();
             const resultDiv = document.getElementById('jdkResult');
-            const jdkPath = jdkPathInput.value.trim();
-
             if (jdkPath && jdkPath.includes(':')) {
-                const envVars = [
-                    `# JDK 环境变量配置`,
-                    `# 1. 设置 JAVA_HOME 变量`,
-                    `JAVA_HOME=${jdkPath}`,
-                    ``,
-                    `# 2. 修改 Path 变量`,
-                    `Path=%JAVA_HOME%\\bin;%Path%`,
-                    ``,
-                    `# 3. 设置 CLASSPATH（可选）`,
-                    `CLASSPATH=.;%JAVA_HOME%\\lib;%JAVA_HOME%\\lib\\dt.jar;%JAVA_HOME%\\lib\\tools.jar`,
-                    ``,
-                    `# 验证方法：`,
-                    `# 1. 打开命令提示符`,
-                    `# 2. 输入 java -version`,
-                    `# 3. 输入 javac -version`
-                ];
-
-                resultDiv.innerHTML = `
-                    <strong>JDK 环境变量配置：</strong><br>
-                    <pre>${envVars.join('\n')}</pre>
+                const envVars = `
+JAVA_HOME=${jdkPath}
+Path=%JAVA_HOME%\\bin;%Path%
+CLASSPATH=.;%JAVA_HOME%\\lib;%JAVA_HOME%\\lib\\dt.jar;%JAVA_HOME%\\lib\\tools.jar
                 `;
-            } else {
-                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+                resultDiv.innerHTML = `
+                    <strong>JDK 环境变量配置：</strong>
+                    <pre class="bg-gray-100 p-2 rounded-lg">${envVars}</pre>
+                    <button onclick="copyToClipboard(\`${envVars}\`)" class="mt-2 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                        复制到剪贴板
+                    </button>
+                `;
+                resultDiv.classList.remove('hidden');
             }
         }
 
-        // Maven 环境变量生成函数
+        // 生成 Maven 环境变量
         function generateMavenPath() {
-            const mavenPathInput = document.getElementById('mavenPath');
+            const mavenPath = document.getElementById('mavenPath').value.trim();
             const resultDiv = document.getElementById('mavenResult');
-            const mavenPath = mavenPathInput.value.trim();
-
             if (mavenPath && mavenPath.includes(':')) {
-                const envVars = [
-                    `# Maven 环境变量配置`,
-                    `# 1. 设置 M2_HOME 变量`,
-                    `M2_HOME=${mavenPath}`,
-                    ``,
-                    `# 2. 设置 MAVEN_HOME 变量（兼容性）`,
-                    `MAVEN_HOME=%M2_HOME%`,
-                    ``,
-                    `# 3. 修改 Path 变量`,
-                    `Path=%M2_HOME%\\bin;%Path%`,
-                    ``,
-                    `# 4. 可选：配置本地仓库路径`,
-                    `# 在 %M2_HOME%\\conf\\settings.xml 中配置`,
-                    ``,
-                    `# 验证方法：`,
-                    `# 1. 打开命令提示符`,
-                    `# 2. 输入 mvn -version`
-                ];
-
-                resultDiv.innerHTML = `
-                    <strong>Maven 环境变量配置：</strong><br>
-                    <pre>${envVars.join('\n')}</pre>
+                const envVars = `
+M2_HOME=${mavenPath}
+MAVEN_HOME=%M2_HOME%
+Path=%M2_HOME%\\bin;%Path%
                 `;
-            } else {
-                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+                resultDiv.innerHTML = `
+                    <strong>Maven 环境变量配置：</strong>
+                    <pre class="bg-gray-100 p-2 rounded-lg">${envVars}</pre>
+                    <button onclick="copyToClipboard(\`${envVars}\`)" class="mt-2 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                        复制到剪贴板
+                    </button>
+                `;
+                resultDiv.classList.remove('hidden');
             }
         }
 
-        // Tomcat 环境变量生成函数
+        // 生成 Tomcat 环境变量
         function generateTomcatPath() {
-            const tomcatPathInput = document.getElementById('tomcatPath');
+            const tomcatPath = document.getElementById('tomcatPath').value.trim();
             const resultDiv = document.getElementById('tomcatResult');
-            const tomcatPath = tomcatPathInput.value.trim();
-
             if (tomcatPath && tomcatPath.includes(':')) {
-                const envVars = [
-                    `# Tomcat 环境变量配置`,
-                    `# 1. 设置 CATALINA_HOME 变量`,
-                    `CATALINA_HOME=${tomcatPath}`,
-                    ``,
-                    `# 2. 设置 CATALINA_BASE 变量（可选）`,
-                    `CATALINA_BASE=%CATALINA_HOME%`,
-                    ``,
-                    `# 3. 修改 Path 变量`,
-                    `Path=%CATALINA_HOME%\\bin;%Path%`,
-                    ``,
-                    `# 启动 Tomcat 方法：`,
-                    `# 1. 打开命令提示符`,
-                    `# 2. 进入 %CATALINA_HOME%\\bin 目录`,
-                    `# 3. 执行 startup.bat`,
-                    ``,
-                    `# 验证方法：`,
-                    `# 1. 浏览器访问 http://localhost:8080`,
-                    `# 2. 确认 Tomcat 启动页面显示`
-                ];
-
-                resultDiv.innerHTML = `
-                    <strong>Tomcat 环境变量配置：</strong><br>
-                    <pre>${envVars.join('\n')}</pre>
+                const envVars = `
+CATALINA_HOME=${tomcatPath}
+Path=%CATALINA_HOME%\\bin;%Path%
                 `;
-            } else {
-                resultDiv.innerHTML = '<strong>无效的路径，请重新输入。</strong>';
+                resultDiv.innerHTML = `
+                    <strong>Tomcat 环境变量配置：</strong>
+                    <pre class="bg-gray-100 p-2 rounded-lg">${envVars}</pre>
+                    <button onclick="copyToClipboard(\`${envVars}\`)" class="mt-2 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                        复制到剪贴板
+                    </button>
+                `;
+                resultDiv.classList.remove('hidden');
             }
         }
 
-        // 回车键事件监听器
-        document.getElementById('jdkPath').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') generateJDKPath();
-        });
-
-        document.getElementById('mavenPath').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') generateMavenPath();
-        });
-
-        document.getElementById('tomcatPath').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') generateTomcatPath();
-        });
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制到剪贴板！');
+            });
+        }
     </script>
 </body>
 </html>
