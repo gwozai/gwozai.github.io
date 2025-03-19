@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>压缩加密工具</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">压缩加密工具</h2>
+        
+        <!-- 输入区域 -->
+        <textarea id="inputText" rows="5" placeholder="输入文本（支持多行）" 
+            class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y mb-4"></textarea>
+        <input type="file" id="fileInput" 
+            class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-600 mb-4">
+        <input type="text" id="key" placeholder="输入密钥（默认: secretkey）" 
+            class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+        
+        <!-- 按钮 -->
+        <div class="flex flex-wrap gap-2 justify-center mb-4">
+            <button onclick="encrypt()" 
+                class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">加密</button>
+            <button onclick="decrypt()" 
+                class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition">解密</button>
+            <button onclick="copyResult()" 
+                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">复制结果</button>
+            <button onclick="clearAll()" 
+                class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">清空</button>
+        </div>
+        
+        <!-- 结果区域 -->
+        <textarea id="result" rows="5" readonly placeholder="结果将显示在这里" 
+            class="w-full p-3 border border-gray-300 rounded-md bg-gray-50 resize-y mb-4"></textarea>
+        <div class="flex justify-between items-center mb-4">
+            <canvas id="hashCanvas" width="100" height="100" class="border border-gray-200 rounded-md"></canvas>
+            <div id="qrcode" class="flex justify-center"></div>
+        </div>
+        
+        <!-- 历史记录 -->
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">历史记录</h3>
+        <div id="history" class="text-sm text-gray-600 space-y-1 max-h-40 overflow-y-auto"></div>
+    </div>
+    
+    <!-- 依赖库 -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    
+    <script>
+        // 历史记录
+        let history = JSON.parse(localStorage.getItem('cryptoHistory')) || [];
+        updateHistoryDisplay();
+
+        // 获取密钥
+        function getKey() {
+            const keyInput = document.getElementById('key').value.trim();
+            return keyInput || 'secretkey'; // 默认密钥
+        }
+
+        // 加密函数（压缩后加密）
+        function encrypt() {
+            const input = document.getElementById('inputText').value;
+            const key = getKey();
+            if (!input.trim()) {
+                document.getElementById('result').value = '';
+                return;
+            }
+
+            const lines = input.split('\n');
+            const results = lines.map(line => {
+                if (!line.trim()) return '';
+                // 先压缩
+                const compressed = LZString.compressToBase64(line);
+                // 再加密
+                return CryptoJS.AES.encrypt(compressed, key).toString();
+            });
+            const resultText = results.join('\n');
+            document.getElementById('result').value = resultText;
+
+            if (results[0]) {
+                drawHashVisual(results[0]);
+                generateQR(results[0]);
+                saveToHistory(input, resultText, '加密');
+            }
+        }
+
+        // 解密函数（解密后解压）
+        function decrypt() {
+            const input = document.getElementById('inputText').value;
+            const key = getKey();
+            if (!input.trim()) {
+                document.getElementById('result').value = '';
+                return;
+            }
+
+            const lines = input.split('\n');
+            const results = lines.map(line => {
+                if (!line.trim()) return '';
+                try {
+                    // 先解密
+                    const bytes = CryptoJS.AES.decrypt(line, key);
+                    const compressed = bytes.toString(CryptoJS.enc.Utf8);
+                    if (!compressed) return '解密失败（密钥错误或无效密文）';
+                    // 再解压
+                    return LZString.decompressFromBase64(compressed) || '解压失败';
+                } catch (e) {
+                    return '解密失败（密钥错误或无效密文）';
+                }
+            });
+            const resultText = results.join('\n');
+            document.getElementById('result').value = resultText;
+
+            if (results[0] && !results[0].startsWith('解密失败') && !results[0].startsWith('解压失败')) {
+                drawHashVisual(results[0]);
+                generateQR(results[0]);
+                saveToHistory(input, resultText, '解密');
+            }
+        }
+
+        // 文件处理
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('inputText').value = e.target.result;
+                encrypt();
+            };
+            reader.readAsText(file);
+        });
+
+        // 复制结果
+        function copyResult() {
+            const result = document.getElementById('result');
+            result.select();
+            document.execCommand('copy');
+            alert('已复制到剪贴板！');
+        }
+
+        // 清空
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('result').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('key').value = '';
+            document.getElementById('hashCanvas').getContext('2d').clearRect(0, 0, 100, 100);
+            document.getElementById('qrcode').innerHTML = '';
+        }
+
+        // 可视化（基于结果字符串）
+        function drawHashVisual(text) {
+            const canvas = document.getElementById('hashCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const hash = CryptoJS.MD5(text).toString(); // 用MD5生成可视化数据
+            for (let i = 0; i < 16; i++) {
+                const value = parseInt(hash.substr(i * 2, 2), 16);
+                ctx.fillStyle = `hsl(${value}, 50%, 50%)`;
+                ctx.fillRect((i % 4) * 25, Math.floor(i / 4) * 25, 25, 25);
+            }
+        }
+
+        // 生成二维码
+        function generateQR(text) {
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            QRCode.toCanvas(text, { errorCorrectionLevel: 'H', width: 100 }, (err, canvas) => {
+                if (!err) qrDiv.appendChild(canvas);
+            });
+        }
+
+        // 保存和更新历史记录
+        function saveToHistory(input, result, type) {
+            history.unshift({ input, result, type, time: new Date().toLocaleString() });
+            history = history.slice(0, 10);
+            localStorage.setItem('cryptoHistory', JSON.stringify(history));
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = history.map(h => 
+                `<div>${h.time} (${h.type}): ${h.input.slice(0, 20)}... → ${h.result.slice(0, 20)}...</div>`
+            ).join('');
+        }
+    </script>
+</body>
+</html>
