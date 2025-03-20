@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,58 +8,109 @@
     <style>
         @media print {
             .no-print {
-                display: none
+                display: none;
             }
         }
 
         .command {
-            font-family: Consolas, Monaco, 'Andale Mono', monospace
-        }
-
-        .img-container {
-            margin: 15px 0;
-            text-align: center
-        }
-
-        .img-container img {
-            max-width: 100%;
-            border: 1px solid #e5e7eb;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
         }
     </style>
 </head>
-
 <body class="bg-gray-50 text-gray-800">
     <div class="container mx-auto px-4 py-8 max-w-5xl">
         <h1 class="text-3xl font-bold text-center text-blue-600 mb-8">MySQL 安装配置工具</h1>
+
+        <!-- 配置信息部分 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-xl font-semibold text-blue-600 mb-4">1. 配置信息</h2>
-            <div class="mb-4"><label for="mysqlPath" class="block text-sm font-medium text-gray-700 mb-1">MySQL 安装路径:</label><input type="text" id="mysqlPath" value="D:\Server\mysql-8.0\mysql-8.0.30-winx64" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+
+            <div class="mb-4">
+                <label for="mysqlPath" class="block text-sm font-medium text-gray-700 mb-1">MySQL 安装路径:</label>
+                <input type="text" id="mysqlPath" value="D:\Server\mysql-8.0\mysql-8.0.30-winx64" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label for="port" class="block text-sm font-medium text-gray-700 mb-1">端口号:</label><input type="number" id="port" value="3306" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                <div><label for="charset" class="block text-sm font-medium text-gray-700 mb-1">默认字符集:</label><select id="charset" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <div>
+                    <label for="port" class="block text-sm font-medium text-gray-700 mb-1">端口号:</label>
+                    <input type="number" id="port" value="3306" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="charset" class="block text-sm font-medium text-gray-700 mb-1">默认字符集:</label>
+                    <select id="charset" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <option value="utf8mb4" selected>utf8mb4</option>
                         <option value="utf8">utf8</option>
                         <option value="latin1">latin1</option>
-                    </select></div>
-                <div><label for="maxConnections" class="block text-sm font-medium text-gray-700 mb-1">最大连接数:</label><input type="number" id="maxConnections" value="200" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                <div><label for="timezone" class="block text-sm font-medium text-gray-700 mb-1">时区设置:</label><input type="text" id="timezone" value="+8:00" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                <div><label for="defaultPassword" class="block text-sm font-medium text-gray-700 mb-1">默认密码:</label><input type="text" id="defaultPassword" value="123456" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-            </div><button onclick="generateIniFile()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">生成 my.ini 配置文件</button>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="maxConnections" class="block text-sm font-medium text-gray-700 mb-1">最大连接数:</label>
+                    <input type="number" id="maxConnections" value="200" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="timezone" class="block text-sm font-medium text-gray-700 mb-1">时区设置:</label>
+                    <input type="text" id="timezone" value="+8:00" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="defaultPassword" class="block text-sm font-medium text-gray-700 mb-1">默认密码:</label>
+                    <input type="text" id="defaultPassword" value="123456" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <button onclick="generateIniFile()" 
+                class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                生成 my.ini 配置文件
+            </button>
         </div>
+
+        <!-- my.ini 配置文件部分 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold text-blue-600 mb-4">2. my.ini 配置文件</h2><textarea id="iniContent" readonly class="w-full h-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"></textarea>
-            <div class="mt-4 flex flex-wrap gap-2"><button onclick="downloadIniFile()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">下载 my.ini 文件</button><button onclick="copyIniContent()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">复制配置内容</button></div>
+            <h2 class="text-xl font-semibold text-blue-600 mb-4">2. my.ini 配置文件</h2>
+
+            <textarea id="iniContent" readonly 
+                class="w-full h-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"></textarea>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="downloadIniFile()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    下载 my.ini 文件
+                </button>
+
+                <button onclick="copyIniContent()" 
+                    class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    复制配置内容
+                </button>
+            </div>
         </div>
+
+        <!-- 安装步骤部分 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-blue-600">3. 安装步骤</h2><button onclick="window.print()" class="no-print bg-gray-600 hover:bg-gray-700 text-white font-medium py-1 px-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">打印步骤</button>
+                <h2 class="text-xl font-semibold text-blue-600">3. 安装步骤</h2>
+                <button onclick="window.print()" class="no-print bg-gray-600 hover:bg-gray-700 text-white font-medium py-1 px-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    打印步骤
+                </button>
             </div>
-            <div id="installSteps" class="space-y-6"></div>
+
+            <div id="installSteps" class="space-y-6">
+                <!-- 安装步骤将在这里动态生成 -->
+            </div>
         </div>
+
+        <!-- 常见问题部分 -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold text-blue-600 mb-4">4. 常见问题解决</h2>
+
             <div class="space-y-4">
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-2">忘记 MySQL 密码怎么办？</h3>
@@ -82,6 +132,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</sp
                         </ol>
                     </div>
                 </div>
+
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-2">如何为已安装的 MySQL 添加配置文件？</h3>
                     <div class="pl-4 border-l-4 border-blue-200">
@@ -96,42 +147,19 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</sp
                 </div>
             </div>
         </div>
+
         <footer class="mt-8 text-center text-gray-500 text-sm">
-            <p>MySQL 命令行安装配置工具 &copy; 2025</p>
+            <p>MySQL 安装配置工具 &copy; 2025</p>
         </footer>
     </div>
+
     <script>
-       const images = {
-    "downloadMysql": "./img/4cc3c67b996ff7909a4e4bf63cb36917.png",
-    "myiniLocation": "./img/affc30806db6662047125862f606e630.png",
-    "cmdAdmin": "./img/5066be03edc234f1d5b5ca37050edadf.png",
-    "initPassword": "./img/577a24863ea7d1a88557eedc554cd279.png",
-    "dataFolder": "./img/76bee9147a12e2f39045c0e2fb19727b.png",
-    "startMysql": "./img/a02e31b836e85400dbe8ca10d5deae6d.png",
-    "loginMysql": "./img/7e89cf4eed3dbe7a84952ebcef73ad5e.png",
-    "changePassword": "./img/f371df9be03194c2933c9d01af3d672a.png",
-    "verifyConfig": "./img/37ad034deb7e32a9924e718d109d6897.png",
-    "exitMysql": "./img/fbb9bc3e866b487b869aba3523c9b168.png",
-    "oneLineLogin": "./img/80d47025ea8d7953a141db6897eacbab.png",
-    "envVariable1": "./img/326377e4af19e6f1918c2aad53f1174c.png",
-    "envVariable2": "./img/f3abb4fb034ec19345615c3f8af77c16.png",
-    "envVariable3": "./img/8cfd9d22253125ea29c3ede9cb2eebca.png",
-    "verifyEnv": "./img/3d2fbbb3e61f3fc7a5895a5b1406e8b3.png",
-    "stopMysql": "./img/5e5e626684a16feeace8a3d999cba6ee.png",
-    "deleteDataFolder": "./img/a1315e940e30e8cccb1ff894247e4478.png",
-    "skipPassword": "./img/d653e5c47e3ff4897a56c031a336fe10.png",
-    "noPasswordLogin": "./img/32e7a393eb9275a9aeb2d4b9a79f7709.png",
-    "resetPassword": "./img/fb7c8d5610a17b15d99fa02562fff117.png",
-    "closeCmd": "./img/2cdbc841a977404d482ad730b6258e0d.png",
-    "restartMysql": "./img/3d5e599e51b165445c8ff69b07352d5e.png",
-    "emptyPasswordLogin": "./img/b1dab3925dd28da0009fc1953abb3be3.png",
-    "setNewPassword": "./img/8f61b5c696df5d13fb4549dbb4d51159.png",
-    "exitAfterReset": "./img/69110d60be44e8034ab933fee5b513c4.png"
-};
+        // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
             generateIniFile();
         });
 
+        // 生成 my.ini 配置文件
         function generateIniFile() {
             const mysqlPath = document.getElementById('mysqlPath').value;
             const port = document.getElementById('port').value;
@@ -139,7 +167,10 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</sp
             const maxConnections = document.getElementById('maxConnections').value;
             const timezone = document.getElementById('timezone').value;
             const defaultPassword = document.getElementById('defaultPassword').value;
+
+            // 提取安装目录
             const dataDir = `${mysqlPath}\\data`;
+
             const iniContent = `[client]
 # 设置mysql客户端连接服务端时默认使用的端口
 port=${port}
@@ -179,17 +210,18 @@ default-storage-engine=INNODB
 
 # 配置时区
 default-time_zone='${timezone}'`;
+
             document.getElementById('iniContent').value = iniContent;
             document.getElementById('resetPassword').textContent = defaultPassword;
             updateInstallSteps();
         }
 
+        // 下载 my.ini 文件
         function downloadIniFile() {
             const iniContent = document.getElementById('iniContent').value;
-            const blob = new Blob([iniContent], {
-                type: 'text/plain'
-            });
+            const blob = new Blob([iniContent], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
+
             const a = document.createElement('a');
             a.href = url;
             a.download = 'my.ini';
@@ -199,15 +231,19 @@ default-time_zone='${timezone}'`;
             URL.revokeObjectURL(url);
         }
 
+        // 复制配置内容
         function copyIniContent() {
             const iniContent = document.getElementById('iniContent');
             iniContent.select();
             document.execCommand('copy');
+
+            // 显示复制成功提示
             const button = event.target;
             const originalText = button.textContent;
             button.textContent = '复制成功!';
             button.classList.remove('bg-gray-600', 'hover:bg-gray-700');
             button.classList.add('bg-green-600', 'hover:bg-green-700');
+
             setTimeout(() => {
                 button.textContent = originalText;
                 button.classList.remove('bg-green-600', 'hover:bg-green-700');
@@ -215,17 +251,11 @@ default-time_zone='${timezone}'`;
             }, 2000);
         }
 
-        function createImageContainer(imgSrc, caption = '') {
-            return `
-            <div class="img-container">
-                <img src="${imgSrc}" alt="${caption}" class="mx-auto">
-                ${caption?`<p class="text-sm text-gray-500 mt-1">${caption}</p>`:''}
-            </div>`;
-        }
-
+        // 更新安装步骤
         function updateInstallSteps() {
             const mysqlPath = document.getElementById('mysqlPath').value;
             const defaultPassword = document.getElementById('defaultPassword').value;
+
             const installStepsHTML = `
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 1: 删除以前安装的 MySQL 服务</h3>
@@ -239,107 +269,60 @@ default-time_zone='${timezone}'`;
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 2: 下载 MySQL 二进制包</h3>
                     <p class="mb-2 text-gray-600">从 <a href="https://dev.mysql.com/downloads/mysql/" target="_blank" class="text-blue-600 hover:text-blue-800 underline">MySQL官网</a> 下载二进制包</p>
-                    ${createImageContainer(images.downloadMysql,"MySQL 下载页面")}
                 </div>
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 3: 解压二进制包，放置 my.ini 配置文件</h3>
                     <p class="mb-2 text-gray-600">将下载的二进制包解压到 <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span> 目录下</p>
                     <p class="mb-2 text-gray-600">将生成的 my.ini 文件放在 MySQL 根目录下</p>
-                    ${createImageContainer(images.myiniLocation,"my.ini 文件位置")}
                 </div>
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 4: 安装并配置 MySQL</h3>
                     <p class="mb-2 text-gray-600">以管理员身份运行命令提示符，切换到 MySQL 的 bin 目录：</p>
-                    ${createImageContainer(images.cmdAdmin,"以管理员身份运行命令提示符")}
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">cd ${mysqlPath}\\bin</div>
                     <p class="mb-2 text-gray-600">安装 MySQL 服务并指定配置文件：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --install "MySQL" --defaults-file="${mysqlPath}\\my.ini"</div>
                     <p class="mb-2 text-gray-600">初始化 MySQL：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --initialize --console</div>
-                    ${createImageContainer(images.initPassword,"初始化生成随机密码")}
                     <p class="mb-2 text-gray-600 font-semibold">注意：记住初始化生成的临时密码</p>
-                    ${createImageContainer(images.dataFolder,"初始化生成的 data 文件夹")}
                     <p class="mb-2 text-gray-600">启动 MySQL 服务：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command">net start mysql</div>
-                    ${createImageContainer(images.startMysql,"启动 MySQL 服务")}
                 </div>
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 5: 登录并修改密码</h3>
                     <p class="mb-2 text-gray-600">使用临时密码登录：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -p</div>
-                    ${createImageContainer(images.loginMysql,"使用临��密码登录")}
                     <p class="mb-2 text-gray-600">修改 root 密码为 ${defaultPassword}：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';</div>
-                    ${createImageContainer(images.changePassword,"修改 root 密码")}
-                    <p class="mb-2 text-gray-600">验证配置文件是否生效：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">\\s</div>
-                    ${createImageContainer(images.verifyConfig,"验证配置文件是否生效")}
                     <p class="mb-2 text-gray-600">退出 MySQL：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command">\\q</div>
-                    ${createImageContainer(images.exitMysql,"退出 MySQL")}
                 </div>
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 6: 配置环境变量</h3>
-                    <p class="mb-2 text-gray-600">1. 新建系统变量 MYSQL_HOME，值为：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span></p>
-                    ${createImageContainer(images.envVariable1,"新建系统变量 MYSQL_HOME")}
-                    <p class="mb-2 text-gray-600">2. 编辑系统变量 Path，添加：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">%MYSQL_HOME%\\bin</span></p>
-                    ${createImageContainer(images.envVariable2,"双击打开 Path 系统变量")}
-                    ${createImageContainer(images.envVariable3,"添加 %MYSQL_HOME%\\bin")}
-                    <p class="mb-2 text-gray-600">3. 验证环境变量是否配置成功：</p>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                        <li>新建系统变量 MYSQL_HOME，值为：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span></li>
+                        <li>编辑系统变量 Path，添加：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">%MYSQL_HOME%\\bin</span></li>
+                        <li>验证环境变量是否配置成功：</li>
+                    </ol>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mt-2">mysql --version</div>
-                    ${createImageContainer(images.verifyEnv,"验证 MySQL 环境变量")}
                 </div>
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 7: 验证安装</h3>
                     <p class="mb-2 text-gray-600">一行命令登录 MySQL：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -hlocalhost -p${defaultPassword}</div>
-                    ${createImageContainer(images.oneLineLogin,"一行命令登录 MySQL")}
-                </div>
-
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-800 mb-3">忘记密码解决方法</h3>
-                    <p class="mb-2 text-gray-600">1. 关闭 MySQL 服务：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">net stop mysql</div>
-                    ${createImageContainer(images.stopMysql,"关闭 MySQL 服务")}
-
-                    <p class="mb-2 text-gray-600">2. 跳过 MySQL 密码验证：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --console --skip-grant-tables --shared-memory</div>
-                    ${createImageContainer(images.skipPassword,"跳过 MySQL 密码验证")}
-
-                    <p class="mb-2 text-gray-600">3. 在新的命令窗口中，无密码方式进入 MySQL：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -p</div>
-                    ${createImageContainer(images.noPasswordLogin,"无密码方式进入 MySQL")}
-
-                    <p class="mb-2 text-gray-600">4. 将登录密码设置为空：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">use mysql;</div>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">update user set authentication_string='' where user='root';</div>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">\\q</div>
-                    ${createImageContainer(images.resetPassword,"将登录密码设置为空")}
-
-                    <p class="mb-2 text-gray-600">5. 关闭第二步的 cmd 窗口：</p>
-                    ${createImageContainer(images.closeCmd,"关闭第二步的 cmd 窗口")}
-
-                    <p class="mb-2 text-gray-600">6. 启动 MySQL 服务：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">net start mysql</div>
-                    ${createImageContainer(images.restartMysql,"启动 MySQL 服务")}
-
-                    <p class="mb-2 text-gray-600">7. 无密码方式登录 MySQL：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -p</div>
-                    ${createImageContainer(images.emptyPasswordLogin,"无密码方式登录 MySQL")}
-
-                    <p class="mb-2 text-gray-600">8. 修改密码为 ${defaultPassword}：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';</div>
-                    ${createImageContainer(images.setNewPassword,"修改密码")}
+                    <p class="mb-2 text-gray-600">验证配置文件是否生效：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">\\s</div>
+                    <p class="mb-2 text-gray-600">退出 MySQL：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command">\\q</div>
                 </div>
             `;
+
             document.getElementById('installSteps').innerHTML = installStepsHTML;
         }
     </script>
 </body>
-
 </html>
