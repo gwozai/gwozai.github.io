@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySQL 安装配置工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+
+        .command {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-8">MySQL 安装配置工具</h1>
+
+        <!-- 配置信息部分 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-600 mb-4">1. 配置信息</h2>
+
+            <div class="mb-4">
+                <label for="mysqlPath" class="block text-sm font-medium text-gray-700 mb-1">MySQL 安装路径:</label>
+                <input type="text" id="mysqlPath" value="D:\Server\mysql-8.0\mysql-8.0.30-winx64" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="port" class="block text-sm font-medium text-gray-700 mb-1">端口号:</label>
+                    <input type="number" id="port" value="3306" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="charset" class="block text-sm font-medium text-gray-700 mb-1">默认字符集:</label>
+                    <select id="charset" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="utf8mb4" selected>utf8mb4</option>
+                        <option value="utf8">utf8</option>
+                        <option value="latin1">latin1</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="maxConnections" class="block text-sm font-medium text-gray-700 mb-1">最大连接数:</label>
+                    <input type="number" id="maxConnections" value="200" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="timezone" class="block text-sm font-medium text-gray-700 mb-1">时区设置:</label>
+                    <input type="text" id="timezone" value="+8:00" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="defaultPassword" class="block text-sm font-medium text-gray-700 mb-1">默认密码:</label>
+                    <input type="text" id="defaultPassword" value="123456" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <button onclick="generateIniFile()" 
+                class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                生成 my.ini 配置文件
+            </button>
+        </div>
+
+        <!-- my.ini 配置文件部分 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-600 mb-4">2. my.ini 配置文件</h2>
+
+            <textarea id="iniContent" readonly 
+                class="w-full h-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"></textarea>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="downloadIniFile()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    下载 my.ini 文件
+                </button>
+
+                <button onclick="copyIniContent()" 
+                    class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    复制配置内容
+                </button>
+            </div>
+        </div>
+
+        <!-- 安装步骤部分 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-blue-600">3. 安装步骤</h2>
+                <button onclick="window.print()" class="no-print bg-gray-600 hover:bg-gray-700 text-white font-medium py-1 px-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    打印步骤
+                </button>
+            </div>
+
+            <div id="installSteps" class="space-y-6">
+                <!-- 安装步骤将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 常见问题部分 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-blue-600 mb-4">4. 常见问题解决</h2>
+
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">忘记 MySQL 密码怎么办？</h3>
+                    <div class="pl-4 border-l-4 border-blue-200">
+                        <ol class="list-decimal list-inside space-y-2 text-sm">
+                            <li>关闭 MySQL 服务：<code class="bg-gray-100 px-1 py-0.5 rounded">net stop mysql</code></li>
+                            <li>以跳过密码验证方式启动：<code class="bg-gray-100 px-1 py-0.5 rounded">mysqld --console --skip-grant-tables --shared-memory</code></li>
+                            <li>新开命令窗口，无密码登录：<code class="bg-gray-100 px-1 py-0.5 rounded">mysql -uroot -p</code> (直接回车)</li>
+                            <li>重置密码：
+                                <pre class="bg-gray-100 p-2 rounded mt-1 overflow-x-auto"><code>use mysql;
+update user set authentication_string='' where user='root';
+\q</code></pre>
+                            </li>
+                            <li>关闭第2步的命令窗口，重启MySQL服务：<code class="bg-gray-100 px-1 py-0.5 rounded">net start mysql</code></li>
+                            <li>无密码登录并设置新密码：
+                                <pre class="bg-gray-100 p-2 rounded mt-1 overflow-x-auto"><code>mysql -uroot -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</span>';</code></pre>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">如何为已安装的 MySQL 添加配置文件？</h3>
+                    <div class="pl-4 border-l-4 border-blue-200">
+                        <ol class="list-decimal list-inside space-y-2 text-sm">
+                            <li>关闭 MySQL 服务：<code class="bg-gray-100 px-1 py-0.5 rounded">net stop mysql</code></li>
+                            <li>删除 MySQL 服务：<code class="bg-gray-100 px-1 py-0.5 rounded">sc delete mysql</code></li>
+                            <li>删除 data 文件夹（注意备份数据）</li>
+                            <li>放置生成的 my.ini 文件到 MySQL 根目录</li>
+                            <li>重新安装 MySQL 服务并初始化</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+            <p>MySQL 安装配置工具 &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            generateIniFile();
+        });
+
+        // 生成 my.ini 配置文件
+        function generateIniFile() {
+            const mysqlPath = document.getElementById('mysqlPath').value;
+            const port = document.getElementById('port').value;
+            const charset = document.getElementById('charset').value;
+            const maxConnections = document.getElementById('maxConnections').value;
+            const timezone = document.getElementById('timezone').value;
+            const defaultPassword = document.getElementById('defaultPassword').value;
+
+            // 提取安装目录
+            const dataDir = `${mysqlPath}\\data`;
+
+            const iniContent = `[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=${port}
+
+# 默认编码
+default-character-set = ${charset}
+
+[mysql]
+# MySQL 提示符配置
+# 用户名@主机名+mysql版本号+数据库名
+prompt=\\\\u@\\\\h \\\\v [\\\\d]>\\\\_
+
+# 设置mysql客户端默认字符集
+default-character-set = ${charset}
+
+[mysqld]
+# 默认连接端口
+port=${port}
+
+# MySQL安装根目录的路径
+basedir=${mysqlPath.replace(/\\/g, '\\\\')}
+
+# MySQL服务器数据目录的路径
+datadir=${dataDir.replace(/\\/g, '\\\\')}
+
+# 允许最大连接数
+max_connections=${maxConnections}
+
+# 允许连接失败的次数
+max_connect_errors=10
+
+# 服务端默认编码
+character_set_server = ${charset}
+
+# 在创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+
+# 配置时区
+default-time_zone='${timezone}'`;
+
+            document.getElementById('iniContent').value = iniContent;
+            document.getElementById('resetPassword').textContent = defaultPassword;
+            updateInstallSteps();
+        }
+
+        // 下载 my.ini 文件
+        function downloadIniFile() {
+            const iniContent = document.getElementById('iniContent').value;
+            const blob = new Blob([iniContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'my.ini';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 复制配置内容
+        function copyIniContent() {
+            const iniContent = document.getElementById('iniContent');
+            iniContent.select();
+            document.execCommand('copy');
+
+            // 显示复制成功提示
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '复制成功!';
+            button.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+            button.classList.add('bg-green-600', 'hover:bg-green-700');
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                button.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            }, 2000);
+        }
+
+        // 更新安装步骤
+        function updateInstallSteps() {
+            const mysqlPath = document.getElementById('mysqlPath').value;
+            const defaultPassword = document.getElementById('defaultPassword').value;
+
+            const installStepsHTML = `
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 1: 删除以前安装的 MySQL 服务</h3>
+                    <p class="mb-2 text-gray-600">以管理员身份运行命令提示符，执行以下命令：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">sc query mysql</div>
+                    <p class="mb-2 text-gray-600">如果有结果，需要停止并删除服务：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">net stop mysql</div>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command">sc delete mysql</div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 2: 下载 MySQL 二进制包</h3>
+                    <p class="mb-2 text-gray-600">从 <a href="https://dev.mysql.com/downloads/mysql/" target="_blank" class="text-blue-600 hover:text-blue-800 underline">MySQL官网</a> 下载二进制包</p>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 3: 解压二进制包，放置 my.ini 配置文件</h3>
+                    <p class="mb-2 text-gray-600">将下载的二进制包解压到 <span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span> 目录下</p>
+                    <p class="mb-2 text-gray-600">将生成的 my.ini 文件放在 MySQL 根目录下</p>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 4: 安装并配置 MySQL</h3>
+                    <p class="mb-2 text-gray-600">以管理员身份运行命令提示符，切换到 MySQL 的 bin 目录：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">cd ${mysqlPath}\\bin</div>
+                    <p class="mb-2 text-gray-600">安装 MySQL 服务并指定配置文件：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --install "MySQL" --defaults-file="${mysqlPath}\\my.ini"</div>
+                    <p class="mb-2 text-gray-600">初始化 MySQL：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --initialize --console</div>
+                    <p class="mb-2 text-gray-600 font-semibold">注意：记住初始化生成的临时密码</p>
+                    <p class="mb-2 text-gray-600">启动 MySQL 服务：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command">net start mysql</div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 5: 登录并修改密码</h3>
+                    <p class="mb-2 text-gray-600">使用临时密码登录：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -p</div>
+                    <p class="mb-2 text-gray-600">修改 root 密码为 ${defaultPassword}：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';</div>
+                    <p class="mb-2 text-gray-600">退出 MySQL：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command">\\q</div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 6: 配置环境变量</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                        <li>新建系统变量 MYSQL_HOME，值为：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span></li>
+                        <li>编辑系统变量 Path，添加：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">%MYSQL_HOME%\\bin</span></li>
+                        <li>验证环境变量是否配置成功：</li>
+                    </ol>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mt-2">mysql --version</div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 7: 验证安装</h3>
+                    <p class="mb-2 text-gray-600">一行命令登录 MySQL：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -hlocalhost -p${defaultPassword}</div>
+                    <p class="mb-2 text-gray-600">验证配置文件是否生效：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">\\s</div>
+                    <p class="mb-2 text-gray-600">退出 MySQL：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command">\\q</div>
+                </div>
+            `;
+
+            document.getElementById('installSteps').innerHTML = installStepsHTML;
+        }
+    </script>
+</body>
+</html>
