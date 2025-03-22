@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>循环弹幕墙</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+        body {
+            overflow: hidden;
+            background-color: #0f172a;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .danmu-container {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .danmu {
+            position: absolute;
+            white-space: nowrap;
+            padding: 4px 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            will-change: transform;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* 全屏模式下控制面板样式 */
+        .fullscreen .control-panel {
+            opacity: 0;
+        }
+
+        .fullscreen .control-panel:hover {
+            opacity: 1;
+        }
+
+        /* 全屏按钮图标切换 */
+        .fullscreen-icon, .exit-fullscreen-icon {
+            transition: all 0.3s ease;
+        }
+
+        .fullscreen .fullscreen-icon {
+            display: none;
+        }
+
+        .fullscreen .exit-fullscreen-icon {
+            display: block;
+        }
+
+        .exit-fullscreen-icon {
+            display: none;
+        }
+
+        /* 移动设备适配 */
+        @media (max-width: 640px) {
+            .control-panel {
+                padding: 8px 12px;
+                gap: 5px;
+            }
+
+            .control-btn {
+                padding: 6px 10px;
+                font-size: 0.875rem;
+            }
+
+            .btn-icon {
+                width: 1rem;
+                height: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-slate-900 text-white">
+    <div class="danmu-container" id="danmu-container">
+        <!-- 弹幕将通过JS动态生成 -->
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <button id="refresh-btn" class="control-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 sm:px-6 rounded-full transition-all duration-300 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span class="hidden sm:inline">刷新</span>
+        </button>
+
+        <button id="add-btn" class="control-btn bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 sm:px-6 rounded-full transition-all duration-300 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="hidden sm:inline">添加</span>
+        </button>
+
+        <button id="fullscreen-btn" class="control-btn bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 sm:px-6 rounded-full transition-all duration-300 flex items-center">
+            <!-- 全屏图标 -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="fullscreen-icon btn-icon h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            </svg>
+            <!-- 退出全屏图标 -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="exit-fullscreen-icon btn-icon h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span class="hidden sm:inline fullscreen-text">全屏</span>
+            <span class="hidden sm:inline exit-fullscreen-text" style="display: none;">退出</span>
+        </button>
+    </div>
+
+    <script>
+        // 配置
+        const CONFIG = {
+            maxDanmu: 100,           // 最大弹幕数量
+            spawnInterval: 500,      // 生成新弹幕的间隔(毫秒)
+            minSpeed: 5,             // 最小速度(秒)
+            maxSpeed: 15,            // 最大速度(秒)
+            minFontSize: 14,         // 最小字体大小(px)
+            maxFontSize: 24,         // 最大字体大小(px)
+            trackCount: 20,          // 轨道数量
+            colors: [
+                'bg-blue-500', 'bg-indigo-500', 'bg-purple-500', 'bg-pink-500', 
+                'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-yellow-500',
+                'bg-lime-500', 'bg-green-500', 'bg-emerald-500', 'bg-teal-500', 
+                'bg-cyan-500', 'bg-sky-500', 'bg-violet-500', 'bg-fuchsia-500'
+            ],
+            opacities: ['bg-opacity-80', 'bg-opacity-70', 'bg-opacity-90'],
+            fontWeights: ['font-normal', 'font-medium', 'font-semibold'],
+            refreshInterval: 30000,  // 自动刷新间隔(毫秒)
+        };
+
+        let sentences = [];
+        let danmuCount = 0;
+        let tracks = [];
+        let isFullscreen = false;
+        let spawnIntervalId = null;
+        let autoRefreshId = null;
+
+        // 随机选择数组中的一个元素
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // 获取随机数字(min到max之间)
+        function getRandomNumber(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // 获取随机句子
+        function getRandomSentence() {
+            if (sentences.length === 0) return "加载中...";
+            return sentences[Math.floor(Math.random() * sentences.length)];
+        }
+
+        // 初始化轨道
+        function initTracks() {
+            const container = document.getElementById('danmu-container');
+            const trackHeight = container.clientHeight / CONFIG.trackCount;
+
+            tracks = [];
+            for (let i = 0; i < CONFIG.trackCount; i++) {
+                tracks.push({
+                    y: i * trackHeight,
+                    height: trackHeight,
+                    danmus: []
+                });
+            }
+        }
+
+        // 创建并添加一个弹幕
+        function createDanmu() {
+            if (danmuCount >= CONFIG.maxDanmu) return;
+
+            const container = document.getElementById('danmu-container');
+            const track = getRandomItem(tracks);
+
+            // 创建弹幕元素
+            const danmu = document.createElement('div');
+            danmu.className = `danmu ${getRandomItem(CONFIG.colors)} ${getRandomItem(CONFIG.opacities)} ${getRandomItem(CONFIG.fontWeights)}`;
+            danmu.textContent = getRandomSentence();
+
+            // 设置弹幕样式
+            const fontSize = getRandomNumber(CONFIG.minFontSize, CONFIG.maxFontSize);
+            danmu.style.fontSize = `${fontSize}px`;
+            danmu.style.top = `${track.y + (track.height - fontSize) / 2}px`;
+            danmu.style.right = `-${danmu.textContent.length * fontSize}px`; // 初始位置在屏幕右侧外
+
+            // 添加到容器
+            container.appendChild(danmu);
+            track.danmus.push(danmu);
+            danmuCount++;
+
+            // 设置动画
+            const speed = getRandomNumber(CONFIG.minSpeed, CONFIG.maxSpeed);
+            const distance = container.clientWidth + danmu.offsetWidth;
+
+            // 使用CSS动画
+            danmu.style.transition = `transform ${speed}s linear`;
+
+            // 延迟一帧以确保初始位置已应用
+            requestAnimationFrame(() => {
+                danmu.style.transform = `translateX(-${distance}px)`;
+            });
+
+            // 动画结束后移除弹幕
+            danmu.addEventListener('transitionend', () => {
+                if (danmu.parentNode) {
+                    danmu.parentNode.removeChild(danmu);
+                    const index = track.danmus.indexOf(danmu);
+                    if (index > -1) {
+                        track.danmus.splice(index, 1);
+                    }
+                    danmuCount--;
+                }
+            });
+        }
+
+        // 开始生成弹幕
+        function startDanmuGeneration() {
+            if (spawnIntervalId) clearInterval(spawnIntervalId);
+
+            // 立即创建一些弹幕
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createDanmu(), i * 100);
+            }
+
+            // 定期创建新弹幕
+            spawnIntervalId = setInterval(createDanmu, CONFIG.spawnInterval);
+
+            // 定期刷新所有弹幕
+            if (autoRefreshId) clearInterval(autoRefreshId);
+            autoRefreshId = setInterval(refreshAllDanmu, CONFIG.refreshInterval);
+        }
+
+        // 刷新所有弹幕
+        function refreshAllDanmu() {
+            const container = document.getElementById('danmu-container');
+            container.innerHTML = '';
+            danmuCount = 0;
+
+            // 重新初始化轨道
+            initTracks();
+
+            // 重新开始生成弹幕
+            startDanmuGeneration();
+        }
+
+        // 添加多个新弹幕
+        function addMultipleDanmu() {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(createDanmu, i * 100);
+            }
+        }
+
+        // 切换全屏
+        function toggleFullscreen() {
+            const container = document.getElementById('danmu-container');
+
+            if (!isFullscreen) {
+                // 进入全屏
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.mozRequestFullScreen) {
+                    container.mozRequestFullScreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+            } else {
+                // 退出全屏
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        // 监听全屏变化
+        function handleFullscreenChange() {
+            isFullscreen = !!document.fullscreenElement || 
+                           !!document.mozFullScreenElement || 
+                           !!document.webkitFullscreenElement || 
+                           !!document.msFullscreenElement;
+
+            document.body.classList.toggle('fullscreen', isFullscreen);
+
+            // 更新按钮文本
+            const fullscreenText = document.querySelector('.fullscreen-text');
+            const exitFullscreenText = document.querySelector('.exit-fullscreen-text');
+
+            if (fullscreenText && exitFullscreenText) {
+                if (isFullscreen) {
+                    fullscreenText.style.display = 'none';
+                    exitFullscreenText.style.display = 'inline';
+                } else {
+                    fullscreenText.style.display = 'inline';
+                    exitFullscreenText.style.display = 'none';
+                }
+            }
+
+            // 全屏变化后重新计算轨道和刷新弹幕
+            setTimeout(() => {
+                initTracks();
+                refreshAllDanmu();
+            }, 100);
+        }
+
+        // 加载JSON数据
+        async function loadSentences() {
+            try {
+                const response = await fetch('combined_unique.json');
+                const data = await response.json();
+                sentences = data.map(item => {
+                    // 根据实际JSON结构调整
+                    return item.content || item.text || item.sentence || JSON.stringify(item);
+                });
+
+                // 过滤掉过长的句子
+                sentences = sentences.filter(sentence => sentence.length < 50);
+
+                // 数据加载完成后初始化弹幕
+                initTracks();
+                startDanmuGeneration();
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                sentences = ["无法加载数据，请检查JSON文件。"];
+                initTracks();
+                startDanmuGeneration();
+            }
+        }
+
+        // 页面加载时获取数据
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSentences();
+
+            // 刷新按钮事件
+            document.getElementById('refresh-btn').addEventListener('click', refreshAllDanmu);
+
+            // 添加弹幕按钮事件
+            document.getElementById('add-btn').addEventListener('click', addMultipleDanmu);
+
+            // 全屏按钮事件
+            document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+
+            // 监听全屏变化
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('msfullscreenchange', handleFullscreenChange);
+        });
+
+        // 窗口大小改变时重新计算
+        window.addEventListener('resize', () => {
+            initTracks();
+            // 不立即刷新所有弹幕，只重新计算轨道位置
+        });
+    </script>
+</body>
+</html>

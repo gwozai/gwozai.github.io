@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机句子</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        accent: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        .fade-transition {
+            animation: fadeEffect 0.8s ease-in-out;
+        }
+
+        @keyframes fadeEffect {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .bg-texture {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 bg-texture min-h-screen flex items-center justify-center p-4 font-sans text-slate-700">
+
+    <div class="max-w-4xl w-full relative">
+        <!-- 主卡片 -->
+        <div id="sentence-container" 
+             class="bg-white backdrop-blur-sm bg-opacity-80 rounded-2xl shadow-lg p-12 sm:p-16 cursor-pointer transition-all duration-500 hover:shadow-xl border border-slate-100 group">
+
+            <p id="random-sentence" 
+               class="text-2xl sm:text-3xl md:text-4xl font-medium leading-relaxed tracking-wide text-center fade-transition">
+                点击此处显示随机句子
+            </p>
+
+            <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="text-accent-500 flex items-center text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    点击刷新
+                </div>
+            </div>
+        </div>
+
+        <!-- 刷新按钮 -->
+        <button id="refresh-btn" 
+                class="absolute -bottom-5 left-1/2 transform -translate-x-1/2 bg-accent-500 hover:bg-accent-600 text-white font-medium py-3 px-8 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            换一句
+        </button>
+    </div>
+
+    <script>
+        let sentences = [];
+        let currentIndex = -1;
+
+        async function loadSentences() {
+            try {
+                const response = await fetch('combined_unique.json');
+                const data = await response.json();
+                sentences = data.map(item => {
+                    // 根据实际JSON结构调整
+                    return item.content || item.text || item.sentence || JSON.stringify(item);
+                });
+
+                if (sentences.length > 0) {
+                    getRandomSentence();
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                document.getElementById('random-sentence').textContent = '无法加载数据，请检查JSON文件。';
+            }
+        }
+
+        function getRandomSentence() {
+            if (sentences.length === 0) {
+                document.getElementById('random-sentence').textContent = '没有可用的句子数据。';
+                return;
+            }
+
+            // 确保不重复显示同一句话
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * sentences.length);
+            } while (newIndex === currentIndex && sentences.length > 1);
+
+            currentIndex = newIndex;
+            const sentenceElement = document.getElementById('random-sentence');
+
+            // 重新应用动画
+            sentenceElement.classList.remove('fade-transition');
+            void sentenceElement.offsetWidth; // 触发重排
+            sentenceElement.classList.add('fade-transition');
+
+            sentenceElement.textContent = sentences[currentIndex];
+        }
+
+        // 页面加载时获取数据
+        document.addEventListener('DOMContentLoaded', loadSentences);
+
+        // 点击句子区域刷新
+        document.getElementById('sentence-container').addEventListener('click', getRandomSentence);
+
+        // 点击刷新按钮
+        document.getElementById('refresh-btn').addEventListener('click', getRandomSentence);
+    </script>
+</body>
+</html>
