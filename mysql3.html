@@ -53,14 +53,32 @@
             <h2 class="text-xl font-semibold text-blue-600 mb-4">2. my.ini 配置文件</h2><textarea id="iniContent" readonly class="w-full h-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"></textarea>
             <div class="mt-4 flex flex-wrap gap-2"><button onclick="downloadIniFile()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">下载 my.ini 文件</button><button onclick="copyIniContent()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">复制配置内容</button></div>
         </div>
+
+        <!-- 新增的密码提取工具 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-600 mb-4">3. MySQL 临时密码提取工具</h2>
+            <div class="mb-4">
+                <label for="logOutput" class="block text-sm font-medium text-gray-700 mb-1">粘贴 MySQL 初始化日志:</label>
+                <textarea id="logOutput" class="w-full h-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"></textarea>
+            </div>
+            <button onclick="autoExtractPassword()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">提取密码</button>
+            <div class="mt-4">
+                <label for="loginCommand" class="block text-sm font-medium text-gray-700 mb-1">生成的登录命令:</label>
+                <div class="flex">
+                    <input type="text" id="loginCommand" readonly class="flex-grow px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm">
+                    <button onclick="copyLoginCommand()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-r-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">复制</button>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-blue-600">3. 安装步骤</h2><button onclick="window.print()" class="no-print bg-gray-600 hover:bg-gray-700 text-white font-medium py-1 px-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">打印步骤</button>
+                <h2 class="text-xl font-semibold text-blue-600">4. 安装步骤</h2><button onclick="window.print()" class="no-print bg-gray-600 hover:bg-gray-700 text-white font-medium py-1 px-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">打印步骤</button>
             </div>
             <div id="installSteps" class="space-y-6"></div>
         </div>
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-blue-600 mb-4">4. 常见问题解决</h2>
+            <h2 class="text-xl font-semibold text-blue-600 mb-4">5. 常见问题解决</h2>
             <div class="space-y-4">
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-2">忘记 MySQL 密码怎么办？</h3>
@@ -139,8 +157,8 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</sp
             const maxConnections = document.getElementById('maxConnections').value;
             const timezone = document.getElementById('timezone').value;
             const defaultPassword = document.getElementById('defaultPassword').value;
-            const dataDir = `${mysqlPath}\\data`;
-            const iniContent = `[client]
+            const dataDir = ```${mysqlPath}\\data```;
+            const iniContent = ```[client]
 # 设置mysql客户端连接服务端时默认使用的端口
 port=${port}
 
@@ -178,7 +196,7 @@ character_set_server = ${charset}
 default-storage-engine=INNODB
 
 # 配置时区
-default-time_zone='${timezone}'`;
+default-time_zone='${timezone}'```;
             document.getElementById('iniContent').value = iniContent;
             document.getElementById('resetPassword').textContent = defaultPassword;
             updateInstallSteps();
@@ -215,12 +233,52 @@ default-time_zone='${timezone}'`;
             }, 2000);
         }
 
+        // 新增的密码提取功能
+        function extractMysqlPassword(logText) {
+            // 使用正则表达式匹配包含临时密码的行
+            const passwordPattern = /A temporary password is generated for root@localhost: ([^\s]+)/;
+            const match = logText.match(passwordPattern);
+
+            if (match) {
+                const password = match[1];
+                // 拼接为mysql -uroot -p加密码的形式
+                const loginCommand = ```mysql -uroot -p${password}```;
+                return loginCommand;
+            } else {
+                return "未找到密码，无法生成登录命令";
+            }
+        }
+
+        function autoExtractPassword() {
+            const logText = document.getElementById('logOutput').value;
+            const loginCommand = extractMysqlPassword(logText);
+            document.getElementById('loginCommand').value = loginCommand;
+        }
+
+        function copyLoginCommand() {
+            const loginCommand = document.getElementById('loginCommand');
+            loginCommand.select();
+            document.execCommand('copy');
+
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '已复制!';
+            button.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+            button.classList.add('bg-green-600', 'hover:bg-green-700');
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                button.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            }, 2000);
+        }
+
         function createImageContainer(imgSrc, caption = '') {
-            return `
+            return ```
             <div class="img-container">
                 <img src="${imgSrc}" alt="${caption}" class="mx-auto">
-                ${caption?`<p class="text-sm text-gray-500 mt-1">${caption}</p>`:''}
-            </div>`;
+                ${caption?```<p class="text-sm text-gray-500 mt-1">${caption}</p>```:''}
+            </div>```;
         }
 
         function updateInstallSteps() {
@@ -259,7 +317,7 @@ default-time_zone='${timezone}'`;
                     <p class="mb-2 text-gray-600">初始化 MySQL：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --initialize --console</div>
                     ${createImageContainer(images.initPassword,"初始化生成随机密码")}
-                    <p class="mb-2 text-gray-600 font-semibold">注意：记住初始化生成的临时密码</p>
+                    <p class="mb-2 text-gray-600 font-semibold">注意：记住初始化生成的临时密码，或使用上方的密码提取工具自动提取</p>
                     ${createImageContainer(images.dataFolder,"初始化生成的 data 文件夹")}
                     <p class="mb-2 text-gray-600">启动 MySQL 服务：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command">net start mysql</div>
@@ -270,7 +328,7 @@ default-time_zone='${timezone}'`;
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 5: 登录并修改密码</h3>
                     <p class="mb-2 text-gray-600">使用临时密码登录：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -p</div>
-                    ${createImageContainer(images.loginMysql,"使用临��密码登录")}
+                    ${createImageContainer(images.loginMysql,"使用临时密码登录")}
                     <p class="mb-2 text-gray-600">修改 root 密码为 ${defaultPassword}：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';</div>
                     ${createImageContainer(images.changePassword,"修改 root 密码")}
@@ -341,5 +399,4 @@ default-time_zone='${timezone}'`;
         }
     </script>
 </body>
-
 </html>

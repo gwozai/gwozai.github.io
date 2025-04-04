@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySQL 安装工具</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        h1 { text-align: center; color: #1a56db; margin-top: 0; }
+        h2 { color: #1a56db; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; }
+        textarea { font-family: monospace; font-size: 14px; }
+        button { background: #1a56db; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #1e429f; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .code-block { background: #1e293b; color: white; padding: 12px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; overflow-x: auto; }
+        .mb { margin-bottom: 16px; }
+        .flex { display: flex; gap: 8px; }
+        label { display: block; margin-bottom: 4px; font-weight: 500; }
+        .success { background: #10b981; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MySQL 安装工具</h1>
+
+        <div class="card">
+            <h2>1. 基本配置</h2>
+            <div class="mb">
+                <label for="mysqlPath">MySQL 安装路径:</label>
+                <input type="text" id="mysqlPath" value="D:\mysql-8.0.41-winx64">
+            </div>
+            <div class="grid mb">
+                <div>
+                    <label for="port">端口号:</label>
+                    <input type="number" id="port" value="3306">
+                </div>
+                <div>
+                    <label for="defaultPassword">默认密码:</label>
+                    <input type="text" id="defaultPassword" value="123456">
+                </div>
+            </div>
+            <button onclick="generateAll()">生成配置和命令</button>
+        </div>
+
+        <div class="card">
+            <h2>2. my.ini 配置文件</h2>
+            <textarea id="iniContent" rows="12" readonly></textarea>
+            <div class="flex" style="margin-top: 12px;">
+                <button onclick="copyIniContent()" id="copyIniBtn">复制配置内容</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. 安装命令</h2>
+            <div class="code-block" id="allCommands"></div>
+            <div class="flex" style="margin-top: 12px;">
+                <button onclick="copyAllCommands()" id="copyCommandsBtn">复制所有命令</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. 临时密码提取</h2>
+            <div class="mb">
+                <label for="logOutput">粘贴 MySQL 初始化日志:</label>
+                <textarea id="logOutput" rows="8" placeholder="粘贴包含 'A temporary password is generated for root@localhost:' 的日志内容"></textarea>
+            </div>
+            <div class="flex mb">
+                <button onclick="autoExtractPassword()">提取密码</button>
+                <button onclick="copyLoginCommand()" id="copyLoginBtn">复制登录命令</button>
+            </div>
+            <div>
+                <label for="loginCommand">登录命令:</label>
+                <input type="text" id="loginCommand" readonly>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时生成配置和命令
+        document.addEventListener('DOMContentLoaded', function() {
+            generateAll();
+        });
+
+        // 生成所有内容
+        function generateAll() {
+            generateIniFile();
+            generateCommands();
+        }
+
+        // 生成 my.ini 配置文件
+        function generateIniFile() {
+            const mysqlPath = document.getElementById('mysqlPath').value;
+            const port = document.getElementById('port').value;
+            const dataDir = ```${mysqlPath}\\data```;
+
+            const iniContent = ```[client]
+port=${port}
+default-character-set=utf8mb4
+
+[mysql]
+prompt=\\\\u@\\\\h \\\\v [\\\\d]>\\\\_
+default-character-set=utf8mb4
+
+[mysqld]
+port=${port}
+basedir=${mysqlPath.replace(/\\/g, '\\\\')}
+datadir=${dataDir.replace(/\\/g, '\\\\')}
+max_connections=200
+max_connect_errors=10
+character_set_server=utf8mb4
+default-storage-engine=INNODB
+default-time_zone='+8:00'```;
+
+            document.getElementById('iniContent').value = iniContent;
+        }
+
+        // 生成安装命令
+        function generateCommands() {
+            const mysqlPath = document.getElementById('mysqlPath').value;
+            const defaultPassword = document.getElementById('defaultPassword').value;
+
+            const commands = ```# 1. 删除旧服务
+sc query mysql
+net stop mysql
+sc delete mysql
+
+# 2. 安装服务
+cd ${mysqlPath}\\bin
+mysqld --install "MySQL" --defaults-file="${mysqlPath}\\my.ini"
+
+# 3. 初始化数据库
+mysqld --initialize --console
+
+# 4. 启动服务
+net start mysql
+
+# 5. 修改密码
+# 使用提取的临时密码登录
+mysql -uroot -p
+# 登录后执行:
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';
+\\q```;
+
+            document.getElementById('allCommands').textContent = commands;
+        }
+
+        // 复制 my.ini 内容
+        function copyIniContent() {
+            const iniContent = document.getElementById('iniContent');
+            iniContent.select();
+            document.execCommand('copy');
+
+            const button = document.getElementById('copyIniBtn');
+            button.textContent = '复制成功!';
+            button.style.background = '#10b981';
+
+            setTimeout(() => {
+                button.textContent = '复制配置内容';
+                button.style.background = '#1a56db';
+            }, 2000);
+        }
+
+        // 复制所有命令
+        function copyAllCommands() {
+            const allCommands = document.getElementById('allCommands').textContent;
+
+            // 创建临时文本区域
+            const textarea = document.createElement('textarea');
+            textarea.value = allCommands;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const button = document.getElementById('copyCommandsBtn');
+            button.textContent = '复制成功!';
+            button.style.background = '#10b981';
+
+            setTimeout(() => {
+                button.textContent = '复制所有命令';
+                button.style.background = '#1a56db';
+            }, 2000);
+        }
+
+        // 提取 MySQL 临时密码
+        function extractMysqlPassword(logText) {
+            const passwordPattern = /A temporary password is generated for root@localhost: ([^\s]+)/;
+            const match = logText.match(passwordPattern);
+
+            if (match) {
+                const password = match[1];
+                return ```mysql -uroot -p${password}```;
+            } else {
+                return "未找到密码，无法生成登录命令";
+            }
+        }
+
+        // 自动提取密码
+        function autoExtractPassword() {
+            const logText = document.getElementById('logOutput').value;
+            const loginCommand = extractMysqlPassword(logText);
+            document.getElementById('loginCommand').value = loginCommand;
+        }
+
+        // 复制登录命令
+        function copyLoginCommand() {
+            const loginCommand = document.getElementById('loginCommand');
+            loginCommand.select();
+            document.execCommand('copy');
+
+            const button = document.getElementById('copyLoginBtn');
+            button.textContent = '复制成功!';
+            button.style.background = '#10b981';
+
+            setTimeout(() => {
+                button.textContent = '复制登录命令';
+                button.style.background = '#1a56db';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
