@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当前目录下的所有HTML文件</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">当前目录下的所有HTML文件</h1>
+
+        <div id="file-list" class="mt-4">
+            <p class="text-gray-500 italic">正在加载文件列表...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取当前目录下的所有文件
+            fetch('./')
+                .then(response => response.text())
+                .then(html => {
+                    // 创建一个临时的DOM元素来解析HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // 获取所有链接
+                    const links = Array.from(doc.querySelectorAll('a'));
+
+                    // 过滤出HTML文件（排除当前文件all.html）
+                    const htmlFiles = links
+                        .map(link => link.getAttribute('href'))
+                        .filter(href => href && href.toLowerCase().endsWith('.html') && href.toLowerCase() !== 'all.html');
+
+                    const fileListElement = document.getElementById('file-list');
+
+                    if (htmlFiles.length === 0) {
+                        fileListElement.innerHTML = '<p class="text-gray-500 italic">没有找到HTML文件</p>';
+                        return;
+                    }
+
+                    // 创建文件列表
+                    const ul = document.createElement('ul');
+                    ul.className = 'space-y-3';
+
+                    htmlFiles.forEach(file => {
+                        const li = document.createElement('li');
+                        li.className = 'bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 overflow-hidden';
+
+                        const a = document.createElement('a');
+                        a.href = file;
+                        a.className = 'block p-4 hover:bg-gray-50 transition-colors duration-200';
+
+                        const fileName = document.createElement('div');
+                        fileName.className = 'text-blue-600 font-medium text-lg hover:underline';
+                        fileName.textContent = file;
+
+                        const fileInfo = document.createElement('div');
+                        fileInfo.className = 'text-gray-500 text-sm mt-1';
+                        fileInfo.textContent = '加载中...';
+
+                        // 获取文件信息
+                        fetch(file, { method: 'HEAD' })
+                            .then(response => {
+                                const lastModified = response.headers.get('last-modified');
+                                if (lastModified) {
+                                    const date = new Date(lastModified);
+                                    fileInfo.textContent = ```最后修改: ${date.toLocaleString()}```;
+                                } else {
+                                    fileInfo.textContent = '';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('获取文件信息失败:', error);
+                                fileInfo.textContent = '';
+                            });
+
+                        a.appendChild(fileName);
+                        a.appendChild(fileInfo);
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    });
+
+                    fileListElement.innerHTML = '';
+                    fileListElement.appendChild(ul);
+                })
+                .catch(error => {
+                    console.error('获取文件列表失败:', error);
+                    document.getElementById('file-list').innerHTML = 
+                        '<p class="text-red-500">获取文件列表失败，请确保在Web服务器环境下运行此页面</p>';
+                });
+        });
+    </script>
+</body>
+</html>
