@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件下载解压工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">文件下载解压工具</h1>
+
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <input id="baseUrl" type="text" placeholder="输入基础网络地址" class="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="generateCommands()" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition duration-200">生成命令</button>
+            </div>
+            <p class="text-sm text-gray-600">提示：输入文件所在的基础URL，例如 https://example.com/downloads/</p>
+        </div>
+
+        <div id="commandsContainer" class="hidden">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">下载解压命令</h2>
+
+            <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                    <h3 class="font-medium text-gray-700">Windows PowerShell 命令</h3>
+                    <button onclick="copyAllCommands('windows')" class="text-blue-500 hover:text-blue-700 text-sm">复制全部</button>
+                </div>
+                <div id="windowsCommands" class="bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"></div>
+            </div>
+
+            <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                    <h3 class="font-medium text-gray-700">Linux/Mac 命令</h3>
+                    <button onclick="copyAllCommands('linux')" class="text-blue-500 hover:text-blue-700 text-sm">复制全部</button>
+                </div>
+                <div id="linuxCommands" class="bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"></div>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">文件列表</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="py-2 px-4 border-b text-left">文件名</th>
+                            <th class="py-2 px-4 border-b text-left">最后修改</th>
+                            <th class="py-2 px-4 border-b text-left">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-maven-3.6.3.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 12:59</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-maven-3.6.3.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-maven-3.6.3.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-maven-3.8.5.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 12:59</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-maven-3.8.5.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-maven-3.8.5.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-maven-3.9.5.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 13:00</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-maven-3.9.5.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-maven-3.9.5.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-maven-3.9.9-bin.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 12:59</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-maven-3.9.9-bin.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-maven-3.9.9-bin.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-tomcat-10.1.28-windows-x64.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 12:59</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-tomcat-10.1.28-windows-x64.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-tomcat-10.1.28-windows-x64.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-tomcat-8.5.88.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 13:02</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-tomcat-8.5.88.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-tomcat-8.5.88.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">apache-tomcat-9.0.89-windows-x64.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 12:59</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('apache-tomcat-9.0.89-windows-x64.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('apache-tomcat-9.0.89-windows-x64.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">win.zip</td>
+                            <td class="py-2 px-4 border-b">Today, 12:30</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="copyCommand('win.zip', 'windows')" class="text-blue-500 hover:text-blue-700 mr-2">复制 Windows 命令</button>
+                                <button onclick="copyCommand('win.zip', 'linux')" class="text-green-500 hover:text-green-700">复制 Linux 命令</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const files = [
+            "apache-maven-3.6.3.zip",
+            "apache-maven-3.8.5.zip",
+            "apache-maven-3.9.5.zip",
+            "apache-maven-3.9.9-bin.zip",
+            "apache-tomcat-10.1.28-windows-x64.zip",
+            "apache-tomcat-8.5.88.zip",
+            "apache-tomcat-9.0.89-windows-x64.zip",
+            "win.zip"
+        ];
+
+        function generateCommands() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            if (!baseUrl) {
+                alert('请输入基础网络地址');
+                return;
+            }
+
+            const windowsCommandsContainer = document.getElementById('windowsCommands');
+            const linuxCommandsContainer = document.getElementById('linuxCommands');
+
+            windowsCommandsContainer.innerHTML = '';
+            linuxCommandsContainer.innerHTML = '';
+
+            files.forEach(file => {
+                const folderName = file.replace('.zip', '');
+                const url = baseUrl.endsWith('/') ? baseUrl + file : baseUrl + '/' + file;
+
+                // Windows PowerShell command
+                const windowsCommand = `Invoke-WebRequest -Uri "${url}" -OutFile "${file}"; Expand-Archive -Path "${file}" -DestinationPath "${folderName}"`;
+                const windowsCommandElement = document.createElement('div');
+                windowsCommandElement.className = 'mb-2';
+                windowsCommandElement.innerHTML = `
+                    <p class="text-sm font-medium mb-1">${file}:</p>
+                    <code class="text-xs block bg-gray-100 p-2 rounded">${windowsCommand}</code>
+                `;
+                windowsCommandsContainer.appendChild(windowsCommandElement);
+
+                // Linux/Mac command
+                const linuxCommand = `wget "${url}" -O "${file}" && unzip "${file}" -d "${folderName}"`;
+                const linuxCommandElement = document.createElement('div');
+                linuxCommandElement.className = 'mb-2';
+                linuxCommandElement.innerHTML = `
+                    <p class="text-sm font-medium mb-1">${file}:</p>
+                    <code class="text-xs block bg-gray-100 p-2 rounded">${linuxCommand}</code>
+                `;
+                linuxCommandsContainer.appendChild(linuxCommandElement);
+            });
+
+            document.getElementById('commandsContainer').classList.remove('hidden');
+        }
+
+        function copyCommand(fileName, platform) {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            if (!baseUrl) {
+                alert('请先输入基础网络地址并生成命令');
+                return;
+            }
+
+            const folderName = fileName.replace('.zip', '');
+            const url = baseUrl.endsWith('/') ? baseUrl + fileName : baseUrl + '/' + fileName;
+
+            let command = '';
+            if (platform === 'windows') {
+                command = `Invoke-WebRequest -Uri "${url}" -OutFile "${fileName}"; Expand-Archive -Path "${fileName}" -DestinationPath "${folderName}"`;
+            } else {
+                command = `wget "${url}" -O "${fileName}" && unzip "${fileName}" -d "${folderName}"`;
+            }
+
+            navigator.clipboard.writeText(command).then(() => {
+                alert(`已复制 ${fileName} 的${platform === 'windows' ? 'Windows' : 'Linux/Mac'}命令到剪贴板`);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+
+        function copyAllCommands(platform) {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            if (!baseUrl) {
+                alert('请先输入基础网络地址并生成命令');
+                return;
+            }
+
+            let allCommands = '';
+            files.forEach(file => {
+                const folderName = file.replace('.zip', '');
+                const url = baseUrl.endsWith('/') ? baseUrl + file : baseUrl + '/' + file;
+
+                if (platform === 'windows') {
+                    allCommands += `Invoke-WebRequest -Uri "${url}" -OutFile "${file}"; Expand-Archive -Path "${file}" -DestinationPath "${folderName}"\n\n`;
+                } else {
+                    allCommands += `wget "${url}" -O "${file}" && unzip "${file}" -d "${folderName}"\n\n`;
+                }
+            });
+
+            navigator.clipboard.writeText(allCommands).then(() => {
+                alert(`已复制所有${platform === 'windows' ? 'Windows' : 'Linux/Mac'}命令到剪贴板`);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+    </script>
+</body>
+</html>
