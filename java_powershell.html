@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>环境变量配置工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">环境变量配置工具</h1>
+
+            <div class="mb-8">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold mr-3">1</div>
+                    <h2 class="text-xl font-semibold text-gray-700">输入环境路径</h2>
+                </div>
+                <p class="text-gray-600 mb-4 pl-11">请输入需要配置的环境路径，留空则不配置</p>
+
+                <div class="space-y-4 pl-11">
+                    <div>
+                        <label for="javaPath" class="block text-sm font-medium text-gray-700 mb-1">Java 路径</label>
+                        <input type="text" id="javaPath" placeholder="例如: C:\Program Files\Java\jdk-17" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                        <div id="javaPathError" class="hidden text-danger text-sm mt-1"></div>
+                    </div>
+
+                    <div>
+                        <label for="mavenPath" class="block text-sm font-medium text-gray-700 mb-1">Maven 路径</label>
+                        <input type="text" id="mavenPath" placeholder="例如: D:\Program Files\apache-maven-3.8.5" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                        <div id="mavenPathError" class="hidden text-danger text-sm mt-1"></div>
+                    </div>
+
+                    <div>
+                        <label for="tomcatPath" class="block text-sm font-medium text-gray-700 mb-1">Tomcat 路径</label>
+                        <input type="text" id="tomcatPath" placeholder="例如: D:\Program Files\apache-tomcat-10.1.28" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                        <div id="tomcatPathError" class="hidden text-danger text-sm mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold mr-3">2</div>
+                    <h2 class="text-xl font-semibold text-gray-700">生成脚本</h2>
+                </div>
+                <div class="pl-11">
+                    <button id="generateBtn" class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                        生成 PowerShell 脚本
+                    </button>
+                </div>
+            </div>
+
+            <div id="scriptSection" class="mb-8 hidden">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold mr-3">3</div>
+                    <h2 class="text-xl font-semibold text-gray-700">PowerShell 脚本</h2>
+                </div>
+                <div class="pl-11">
+                    <div class="bg-gray-800 rounded-md p-4 relative">
+                        <button id="copyBtn" class="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                            复制
+                        </button>
+                        <pre id="scriptContent" class="text-gray-200 overflow-x-auto whitespace-pre-wrap text-sm"></pre>
+                    </div>
+                    <div class="mt-4 text-gray-600">
+                        <p class="mb-2">使用说明:</p>
+                        <ol class="list-decimal list-inside space-y-1 text-sm">
+                            <li>复制上面的脚本内容</li>
+                            <li>以管理员身份打开 PowerShell</li>
+                            <li>粘贴并运行脚本</li>
+                            <li>脚本将自动配置环境变量并刷新当前会话</li>
+                        </ol>
+                    </div>
+                    <div class="mt-4">
+                        <button id="downloadBtn" class="bg-secondary hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                            下载脚本文件
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="errorSection" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
+                <p id="errorMessage"></p>
+            </div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-500 text-sm">
+            <p>© 2025 环境变量配置工具</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const javaPathInput = document.getElementById('javaPath');
+            const mavenPathInput = document.getElementById('mavenPath');
+            const tomcatPathInput = document.getElementById('tomcatPath');
+            const generateBtn = document.getElementById('generateBtn');
+            const scriptSection = document.getElementById('scriptSection');
+            const scriptContent = document.getElementById('scriptContent');
+            const copyBtn = document.getElementById('copyBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const errorSection = document.getElementById('errorSection');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // 预填充示例路径
+            javaPathInput.value = "C:\\Program Files\\Java\\jdk-17";
+            mavenPathInput.value = "D:\\Program Files\\apache-maven-3.8.5";
+            tomcatPathInput.value = "D:\\Program Files\\apache-tomcat-10.1.28";
+
+            generateBtn.addEventListener('click', function() {
+                const javaPath = javaPathInput.value.trim();
+                const mavenPath = mavenPathInput.value.trim();
+                const tomcatPath = tomcatPathInput.value.trim();
+
+                // 检查是否至少有一个路径
+                if (!javaPath && !mavenPath && !tomcatPath) {
+                    showError("请至少输入一个环境路径");
+                    return;
+                }
+
+                // 生成脚本
+                const script = createPowershellScript(javaPath, mavenPath, tomcatPath);
+                scriptContent.textContent = script;
+                scriptSection.classList.remove('hidden');
+                errorSection.classList.add('hidden');
+
+                // 滚动到脚本部分
+                scriptSection.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(scriptContent.textContent)
+                    .then(() => {
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '已复制!';
+                        copyBtn.classList.add('bg-green-700');
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                            copyBtn.classList.remove('bg-green-700');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        showError("复制失败: " + err);
+                    });
+            });
+
+            downloadBtn.addEventListener('click', function() {
+                const script = scriptContent.textContent;
+                const blob = new Blob([script], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'setup_environment.ps1';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorSection.classList.remove('hidden');
+            }
+
+            function createPowershellScript(javaPath, mavenPath, tomcatPath) {
+                let script = `# 环境变量配置脚本
+# 生成时间: ${new Date().toLocaleString()}
+
+# 刷新环境变量函数
+function Refresh-Environment {
+    $locations = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment',
+                 'HKCU:\\Environment'
+
+    $locations | ForEach-Object {
+        $k = Get-Item $_
+        $k.GetValueNames() | ForEach-Object {
+            $name = $_
+            $value = $k.GetValue($_)
+            Set-Item -Path Env:$name -Value $value
+        }
+    }
+
+    $env:Path = [System.Environment]::ExpandEnvironmentVariables($env:Path)
+}
+
+`;
+
+                // 添加Java配置
+                if (javaPath) {
+                    script += `
+# 配置Java环境
+[Environment]::SetEnvironmentVariable("JAVA_HOME", "${javaPath}", "Machine")
+$env:JAVA_HOME = "${javaPath}"
+Write-Host "已设置JAVA_HOME: ${javaPath}" -ForegroundColor Green
+
+`;
+                }
+
+                // 添加Maven配置
+                if (mavenPath) {
+                    script += `
+# 配置Maven环境
+[Environment]::SetEnvironmentVariable("MAVEN_HOME", "${mavenPath}", "Machine")
+$env:MAVEN_HOME = "${mavenPath}"
+Write-Host "已设置MAVEN_HOME: ${mavenPath}" -ForegroundColor Green
+
+`;
+                }
+
+                // 添加Tomcat配置
+                if (tomcatPath) {
+                    script += `
+# 配置Tomcat环境
+[Environment]::SetEnvironmentVariable("CATALINA_HOME", "${tomcatPath}", "Machine")
+$env:CATALINA_HOME = "${tomcatPath}"
+Write-Host "已设置CATALINA_HOME: ${tomcatPath}" -ForegroundColor Green
+
+`;
+                }
+
+                // 更新PATH变量
+                const pathUpdates = [];
+                if (javaPath) pathUpdates.push("%JAVA_HOME%\\bin");
+                if (mavenPath) pathUpdates.push("%MAVEN_HOME%\\bin");
+                if (tomcatPath) pathUpdates.push("%CATALINA_HOME%\\bin");
+
+                if (pathUpdates.length > 0) {
+                    const pathAddition = ";" + pathUpdates.join(";");
+                    script += `
+# 更新PATH变量
+$path = [Environment]::GetEnvironmentVariable("Path", "Machine")
+$newPath = $path + "${pathAddition}"
+[Environment]::SetEnvironmentVariable("Path", $newPath, "Machine")
+Write-Host "已更新PATH变量" -ForegroundColor Green
+
+`;
+                }
+
+                // 刷新环境
+                script += `
+# 刷新当前会话的环境变量
+Refresh-Environment
+Write-Host "已刷新环境变量" -ForegroundColor Green
+
+# 验证配置
+Write-Host "\`n环境变量配置验证:" -ForegroundColor Cyan
+`;
+
+                if (javaPath) {
+                    script += `
+try {
+    $javaVersion = java -version 2>&1
+    Write-Host "Java配置成功: " -ForegroundColor Green -NoNewline
+    Write-Host $javaVersion[0]
+} catch {
+    Write-Host "Java配置验证失败" -ForegroundColor Red
+}
+`;
+                }
+
+                if (mavenPath) {
+                    script += `
+try {
+    $mvnVersion = mvn -version 2>&1
+    Write-Host "Maven配置成功: " -ForegroundColor Green -NoNewline
+    Write-Host $mvnVersion[0]
+} catch {
+    Write-Host "Maven配置验证失败" -ForegroundColor Red
+}
+`;
+                }
+
+                if (tomcatPath) {
+                    script += `
+try {
+    $catalinaVersion = catalina version 2>&1
+    Write-Host "Tomcat配置成功" -ForegroundColor Green
+} catch {
+    Write-Host "Tomcat配置验证失败" -ForegroundColor Red
+}
+`;
+                }
+
+                script += `
+Write-Host "\`n配置过程完成!" -ForegroundColor Cyan
+Write-Host "注意: 某些程序可能需要重启才能识别新环境变量" -ForegroundColor Yellow
+`;
+
+                return script;
+            }
+        });
+    </script>
+</body>
+</html>
