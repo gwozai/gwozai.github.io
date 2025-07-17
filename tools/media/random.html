@@ -3,175 +3,1827 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>随机图片</title>
-    <!-- 引入 Vue.js CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>智能随机图片浏览器</title>
+    <!-- desc: 精美的自动加载随机图片浏览器，支持瀑布流展示和智能轮播 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- PhotoSwipe CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/photoswipe.css" rel="stylesheet">
+    <!-- AOS Animation CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'PingFang SC', Arial, sans-serif;
-            max-width: 900px;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        /* 动态背景层 */
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .background-layer.active {
+            opacity: 1;
+        }
+
+        /* 背景遮罩层 */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            transition: all 0.5s ease;
+        }
+
+        /* 无背景模式 */
+        body.no-background {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+
+        body.no-background .background-overlay {
+            opacity: 0;
+        }
+
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 30px 20px;
-            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .image-card.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .image-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-card.error {
+            border: 2px solid #e74c3c;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        }
+
+        .image-card.retrying {
+            border: 2px solid #f39c12;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+        }
+
+        .error-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .error-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .error-placeholder .error-message {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .retry-button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .retry-button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .retry-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .image-wrapper {
+            position: relative;
+            overflow: hidden;
+            height: 300px;
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .image-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+
+        .image-card:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .image-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .image-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .image-source {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 20px;
+            height: 400px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .load-more-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .load-more-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .load-more-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .load-more-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auto-load-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .auto-load-indicator.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 背景设置面板 */
+        .background-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 400px;
+            max-width: 90vw;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            z-index: 3000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .background-panel.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .background-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .background-panel-header h3 {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-panel {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-panel:hover {
+            background: rgba(0, 0, 0, 0.1);
             color: #333;
         }
-        h1 {
+
+        .background-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .background-option {
             text-align: center;
-            font-size: 28px;
-            margin-bottom: 30px;
-        }
-        .image-container {
-            background: #fff;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-            display: block;
-            margin: 0 auto;
-        }
-        .button-group {
-            margin-top: 15px;
-            text-align: center;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 14px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            padding: 15px 10px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
-        .refresh-btn {
-            background-color: #3498db;
-            color: white;
+
+        .background-option:hover {
+            background: rgba(102, 126, 234, 0.1);
         }
-        .refresh-btn:hover {
-            background-color: #2980b9;
+
+        .background-option.active {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
         }
-        .refresh-btn:active {
-            background-color: #1f6692;
+
+        .option-preview {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            margin: 0 auto 8px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #667eea;
         }
-        .save-btn {
-            background-color: #2ecc71;
-            color: white;
+
+        .gradient-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         }
-        .save-btn:hover {
-            background-color: #27ae60;
+
+        .bing-preview, .gallery-preview {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
         }
-        .save-btn:active {
-            background-color: #219653;
+
+        .background-option span {
+            font-size: 0.85rem;
+            color: #333;
+            font-weight: 500;
         }
-        .loading::after {
-            content: " 加载中...";
-            font-size: 12px;
+
+        .background-controls {
+            space-y: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-right: 10px;
+            accent-color: #667eea;
+        }
+
+        .control-group span {
+            font-size: 0.85rem;
             color: #666;
+            font-weight: 500;
+            float: right;
         }
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 24px;
-            }
-            h2 {
-                font-size: 18px;
-            }
-            button {
-                padding: 8px 16px;
-                font-size: 12px;
-                margin: 0 5px;
-            }
-            .image-container {
+
+        /* 背景面板遮罩 */
+        .panel-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .panel-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
                 padding: 15px;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .control-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .stats {
+                gap: 20px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn {
+                width: 200px;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <h1>随机图片API演示页面</h1>
-        
-        <div class="image-container">
-            <h2>1. 樱花API - 随机二次元图像</h2>
-            <img :src="sakuraImage" alt="随机二次元图像" id="sakuraImage">
-            <div class="button-group">
-                <button 
-                    class="refresh-btn" 
-                    :class="{ loading: sakuraLoading }" 
-                    :disabled="sakuraLoading"
-                    @click="refreshImage('sakura')"
-                >刷新</button>
-                <button class="save-btn" @click="saveImage('sakuraImage')">保存图片</button>
+    <!-- 动态背景层 -->
+    <div class="background-layer" id="backgroundLayer"></div>
+    <div class="background-overlay" id="backgroundOverlay"></div>
+
+    <!-- 面板遮罩 -->
+    <div class="panel-backdrop" id="panelBackdrop"></div>
+
+    <!-- 背景设置面板 -->
+    <div class="background-panel" id="backgroundPanel">
+        <div class="background-panel-header">
+            <h3><i class="fas fa-palette"></i> 背景设置</h3>
+            <button class="close-panel" id="closePanelBtn">&times;</button>
+        </div>
+        <div class="background-options">
+            <div class="background-option active" data-type="none">
+                <div class="option-preview gradient-preview"></div>
+                <span>默认渐变</span>
+            </div>
+            <div class="background-option" data-type="bing">
+                <div class="option-preview bing-preview">
+                    <i class="fas fa-image"></i>
+                </div>
+                <span>Bing壁纸</span>
+            </div>
+            <div class="background-option" data-type="gallery">
+                <div class="option-preview gallery-preview">
+                    <i class="fas fa-photos"></i>
+                </div>
+                <span>画廊图片</span>
             </div>
         </div>
-        
-        <div class="image-container">
-            <h2>2. EEE.DOG API - 随机动漫风格图像</h2>
-            <img :src="moeImage" alt="随机动漫图像" id="moeImage">
-            <div class="button-group">
-                <button 
-                    class="refresh-btn" 
-                    :class="{ loading: moeLoading }" 
-                    :disabled="moeLoading"
-                    @click="refreshImage('moe')"
-                >刷新</button>
-                <button class="save-btn" @click="saveImage('moeImage')">保存图片</button>
+        <div class="background-controls">
+            <div class="control-group">
+                <label>背景透明度</label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="70">
+                <span id="opacityValue">70%</span>
+            </div>
+            <div class="control-group">
+                <label>背景模糊</label>
+                <input type="range" id="blurSlider" min="0" max="20" value="2">
+                <span id="blurValue">2px</span>
             </div>
         </div>
     </div>
 
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-images"></i> 智能随机图片浏览器</h1>
+            <p>自动加载精美二次元图片，享受视觉盛宴</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 10px;">
+                🎨 包含随机二次元图片 + 每日精选Bing壁纸
+            </p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="loadedCount">0</span>
+                    <span class="stat-label">已加载</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCount">3</span>
+                    <span class="stat-label">图片源</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="successRate">100%</span>
+                    <span class="stat-label">成功率</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="preloadedCount">0</span>
+                    <span class="stat-label">预加载</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" id="autoLoadBtn">
+                <i class="fas fa-play"></i>
+                <span>开启自动加载</span>
+            </button>
+            <button class="control-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i>
+                <span>刷新图片</span>
+            </button>
+            <button class="control-btn" id="clearBtn">
+                <i class="fas fa-trash"></i>
+                <span>清空画廊</span>
+            </button>
+            <button class="control-btn" id="downloadAllBtn">
+                <i class="fas fa-download"></i>
+                <span>批量下载</span>
+            </button>
+            <button class="control-btn" id="preloadBtn">
+                <i class="fas fa-rocket"></i>
+                <span>加速预加载</span>
+            </button>
+            <button class="control-btn" id="backgroundBtn">
+                <i class="fas fa-palette"></i>
+                <span>背景设置</span>
+            </button>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <!-- 图片将动态加载到这里 -->
+        </div>
+
+        <div class="load-more-section">
+            <button class="load-more-btn" id="loadMoreBtn">
+                <i class="fas fa-plus"></i>
+                加载更多图片
+            </button>
+        </div>
+    </div>
+
+    <!-- 自动加载指示器 -->
+    <div class="auto-load-indicator" id="autoLoadIndicator">
+        <i class="fas fa-sync-alt fa-spin"></i>
+        自动加载中...
+    </div>
+
+    <!-- 图片查看模态框 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <img id="modalImage" src="" alt="">
+        </div>
+    </div>
+
     <script>
-        const { createApp } = Vue
-
-        createApp({
-            data() {
-                return {
-                    sakuraImage: 'https://www.dmoe.cc/random.php',
-                    moeImage: 'https://api.yimian.xyz/img?type=moe',
-                    sakuraLoading: false,
-                    moeLoading: false
-                }
-            },
-            methods: {
-                refreshImage(type) {
-                    const isSakura = type === 'sakura'
-                    const imgElement = document.getElementById(`${type}Image`)
-                    
-                    // 设置加载状态
-                    this[`${type}Loading`] = true
-
-                    // 更新图片源
-                    const newSrc = `${isSakura ? 'https://www.dmoe.cc/random.php' : 'https://api.yimian.xyz/img?type=moe'}?${new Date().getTime()}`
-                    this[`${type}Image`] = newSrc
-
-                    // 处理图片加载事件
-                    imgElement.onload = () => {
-                        this[`${type}Loading`] = false
+        class RandomImageGallery {
+            constructor() {
+                this.gallery = document.getElementById('gallery');
+                this.loadedCount = 0;
+                this.failedCount = 0;
+                this.autoLoadInterval = null;
+                this.isAutoLoading = false;
+                this.preloadedImages = new Map(); // 预加载图片缓存
+                this.preloadQueue = []; // 预加载队列
+                this.maxPreloadCount = 15; // 最大预加载数量
+                this.isPreloading = false;
+                this.imageAPIs = [
+                    {
+                        name: '樱花API',
+                        url: 'https://www.dmoe.cc/random.php',
+                        addTimestamp: true,
+                        type: 'random'
+                    },
+                    {
+                        name: 'EEE.DOG API',
+                        url: 'https://api.yimian.xyz/img?type=moe',
+                        addTimestamp: true,
+                        type: 'random'
+                    },
+                    {
+                        name: 'Bing每日壁纸',
+                        url: 'https://api.dujin.org/bing/1920.php',
+                        addTimestamp: false,
+                        type: 'daily',
+                        loaded: false
                     }
-                    imgElement.onerror = () => {
-                        this[`${type}Loading`] = false
-                        alert('图片加载失败，请稍后重试。')
+                ];
+
+                this.initializeEventListeners();
+                this.loadInitialImages();
+                this.updateStats();
+                this.startPreloading(); // 开始预加载
+                
+                // 延迟检查并绑定事件，确保初始图片可以点击
+                setTimeout(() => {
+                    this.forceBindAllEvents();
+                }, 2000);
+            }
+
+            initializeEventListeners() {
+                // 自动加载按钮
+                document.getElementById('autoLoadBtn').addEventListener('click', () => {
+                    this.toggleAutoLoad();
+                });
+
+                // 刷新按钮
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    this.refreshGallery();
+                });
+
+                // 清空按钮
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearGallery();
+                });
+
+                // 批量下载按钮
+                document.getElementById('downloadAllBtn').addEventListener('click', () => {
+                    this.downloadAllImages();
+                });
+
+                // 加速预加载按钮
+                document.getElementById('preloadBtn').addEventListener('click', () => {
+                    this.boostPreload();
+                });
+
+                // 背景设置按钮
+                document.getElementById('backgroundBtn').addEventListener('click', () => {
+                    this.toggleBackgroundPanel();
+                });
+
+                // 背景面板控制
+                document.getElementById('closePanelBtn').addEventListener('click', () => {
+                    this.closeBackgroundPanel();
+                });
+
+                document.getElementById('panelBackdrop').addEventListener('click', () => {
+                    this.closeBackgroundPanel();
+                });
+
+                // 背景选项
+                document.querySelectorAll('.background-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        this.selectBackgroundType(e.currentTarget.dataset.type);
+                    });
+                });
+
+                // 滑块控制
+                document.getElementById('opacitySlider').addEventListener('input', (e) => {
+                    this.updateBackgroundOpacity(e.target.value);
+                });
+
+                document.getElementById('blurSlider').addEventListener('input', (e) => {
+                    this.updateBackgroundBlur(e.target.value);
+                });
+
+                // 加载更多按钮
+                document.getElementById('loadMoreBtn').addEventListener('click', () => {
+                    this.loadMoreImages();
+                });
+
+                // 模态框关闭
+                document.getElementById('modalClose').addEventListener('click', () => {
+                    this.closeModal();
+                });
+
+                document.getElementById('imageModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'imageModal') {
+                        this.closeModal();
                     }
-                },
-                saveImage(imgId) {
-                    const img = document.getElementById(imgId)
-                    const link = document.createElement('a')
-                    link.href = img.src
-                    link.download = `${imgId}_${new Date().getTime()}.jpg`
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
+                });
+
+                // 键盘事件
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeModal();
+                    }
+                });
+
+                // 滚动加载
+                window.addEventListener('scroll', () => {
+                    if (this.isAutoLoading && this.isNearBottom()) {
+                        this.loadMoreImages();
+                    }
+                });
+            }
+
+            async loadInitialImages() {
+                this.showLoadingSkeletons(6);
+                await this.loadImages(6);
+                this.hideLoadingSkeletons();
+                
+                // 确保初始图片也能正确绑定事件
+                setTimeout(() => {
+                    this.refreshImageEvents();
+                }, 1000);
+            }
+
+            showLoadingSkeletons(count) {
+                for (let i = 0; i < count; i++) {
+                    const skeleton = document.createElement('div');
+                    skeleton.className = 'loading-skeleton';
+                    skeleton.setAttribute('data-skeleton', 'true');
+                    this.gallery.appendChild(skeleton);
                 }
             }
-        }).mount('#app')
+
+            hideLoadingSkeletons() {
+                const skeletons = this.gallery.querySelectorAll('[data-skeleton="true"]');
+                skeletons.forEach(skeleton => skeleton.remove());
+            }
+
+            async loadImages(count = 3) {
+                const promises = [];
+                
+                // 首次加载时，先加载Bing每日壁纸
+                const bingAPI = this.imageAPIs.find(api => api.type === 'daily');
+                if (!bingAPI.loaded) {
+                    promises.push(this.createImageCard(bingAPI));
+                    bingAPI.loaded = true;
+                    count--;
+                }
+                
+                // 其余用随机API填充
+                const randomAPIs = this.imageAPIs.filter(api => api.type === 'random');
+                for (let i = 0; i < count; i++) {
+                    const api = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                    promises.push(this.createImageCard(api));
+                }
+
+                try {
+                    await Promise.allSettled(promises);
+                } catch (error) {
+                    console.error('加载图片时出错:', error);
+                }
+            }
+
+            async createImageCard(api) {
+                return new Promise((resolve) => {
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    
+                    const timestamp = api.addTimestamp ? `?t=${Date.now()}&r=${Math.random()}` : '';
+                    const imageUrl = `${api.url}${timestamp}`;
+
+                    card.innerHTML = `
+                        <div class="image-wrapper" data-pswp-width="1920" data-pswp-height="1080">
+                            <img src="${imageUrl}" alt="随机图片" loading="lazy" class="gallery-image">
+                            <div class="image-overlay">
+                                <div class="image-actions">
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-search-plus"></i>
+                                        放大
+                                    </button>
+                                    <button class="action-btn download-btn">
+                                        <i class="fas fa-download"></i>
+                                        下载
+                                    </button>
+                                    <button class="action-btn refresh-btn">
+                                        <i class="fas fa-sync-alt"></i>
+                                        刷新
+                                    </button>
+                                    <button class="action-btn bg-btn">
+                                        <i class="fas fa-paint-brush"></i>
+                                        背景
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image-info">
+                            <div class="image-title">精美二次元图片</div>
+                            <div class="image-source">来源: ${api.name}</div>
+                        </div>
+                    `;
+                    
+                    // 添加AOS动画
+                    card.setAttribute('data-aos', 'fade-up');
+                    card.setAttribute('data-aos-duration', '600');
+                    card.setAttribute('data-aos-delay', Math.random() * 300);
+
+                    const img = card.querySelector('img');
+                    const viewBtn = card.querySelector('.view-btn');
+                    const downloadBtn = card.querySelector('.download-btn');
+                    const refreshBtn = card.querySelector('.refresh-btn');
+                    const bgBtn = card.querySelector('.bg-btn');
+
+                    // 图片加载事件
+                    img.onload = () => {
+                        this.loadedCount++;
+                        this.updateStats();
+                        setTimeout(() => {
+                            card.classList.add('loaded');
+                            // 确保图片加载完成后再绑定点击事件
+                            this.bindImageEvents(card, img, api);
+                        }, Math.random() * 500);
+                        resolve();
+                    };
+
+                    img.onerror = () => {
+                        this.failedCount++;
+                        this.updateStats();
+                        
+                        // 不直接删除，而是尝试重新加载或显示占位符
+                        this.handleImageError(card, img, api);
+                        resolve();
+                    };
+
+                    // 基础的下载和刷新按钮事件（立即绑定）
+                    downloadBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.downloadImage(img.src, `image_${Date.now()}.jpg`);
+                    });
+
+                    refreshBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.refreshSingleImage(card, api);
+                    });
+
+                    bgBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.setAsBackground(img.src);
+                    });
+                    
+                    // 为卡片添加API类型标识和重试计数
+                    card.setAttribute('data-api-type', api.type);
+                    card.setAttribute('data-retry-count', '0');
+                    card.setAttribute('data-original-api', JSON.stringify(api));
+
+                    this.gallery.appendChild(card);
+                });
+            }
+
+            refreshSingleImage(card, api) {
+                // 如果是Bing每日壁纸，不允许刷新
+                if (api.type === 'daily') {
+                    alert('Bing每日壁纸每天只有一张，无需刷新 😊');
+                    return;
+                }
+                
+                const img = card.querySelector('img');
+                const sourceElement = card.querySelector('.image-source');
+                
+                // 尝试使用预加载的图片
+                const preloadedImage = this.getPreloadedImage();
+                if (preloadedImage) {
+                    // 使用预加载的图片，瞬间切换
+                    img.src = preloadedImage.url;
+                    sourceElement.textContent = `来源: ${preloadedImage.api.name}`;
+                    console.log('⚡ 单图刷新：使用预加载图片！');
+                    
+                    // 重新绑定事件
+                    img.removeAttribute('data-events-bound');
+                    this.bindImageEvents(card, img, preloadedImage.api);
+                } else {
+                    // 如果没有预加载图片，则正常加载
+                    const randomAPIs = this.imageAPIs.filter(api => api.type === 'random');
+                    const randomApi = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                    const timestamp = `?t=${Date.now()}&r=${Math.random()}`;
+                    const newUrl = `${randomApi.url}${timestamp}`;
+                    
+                    card.classList.remove('loaded');
+                    img.src = newUrl;
+                    sourceElement.textContent = `来源: ${randomApi.name}`;
+                    
+                    // 图片加载完成后恢复状态并重新绑定事件
+                    img.onload = () => {
+                        card.classList.add('loaded');
+                        img.removeAttribute('data-events-bound');
+                        this.bindImageEvents(card, img, randomApi);
+                    };
+                    console.log('🔄 单图刷新：预加载不足，正常加载...');
+                }
+            }
+
+            toggleAutoLoad() {
+                const btn = document.getElementById('autoLoadBtn');
+                const indicator = document.getElementById('autoLoadIndicator');
+                
+                if (this.isAutoLoading) {
+                    // 停止自动加载
+                    clearInterval(this.autoLoadInterval);
+                    this.isAutoLoading = false;
+                    btn.innerHTML = '<i class="fas fa-play"></i><span>开启自动加载</span>';
+                    btn.classList.remove('active');
+                    indicator.classList.remove('show');
+                } else {
+                    // 开始自动加载
+                    this.isAutoLoading = true;
+                    btn.innerHTML = '<i class="fas fa-pause"></i><span>停止自动加载</span>';
+                    btn.classList.add('active');
+                    indicator.classList.add('show');
+                    
+                    this.autoLoadInterval = setInterval(() => {
+                        this.loadMoreImages(2);
+                    }, 5000); // 每5秒加载2张图片
+                }
+            }
+
+            async loadMoreImages(count = 3) {
+                const btn = document.getElementById('loadMoreBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
+                
+                await this.loadImages(count);
+                
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus"></i> 加载更多图片';
+            }
+
+            refreshGallery() {
+                const images = this.gallery.querySelectorAll('.image-card img');
+                const randomAPIs = this.imageAPIs.filter(api => api.type === 'random');
+                
+                images.forEach((img, index) => {
+                    setTimeout(() => {
+                        // 获取当前图片的来源信息
+                        const sourceElement = img.closest('.image-card').querySelector('.image-source');
+                        const currentSource = sourceElement.textContent;
+                        
+                        // 如果是Bing每日壁纸，跳过刷新
+                        if (currentSource.includes('Bing每日壁纸')) {
+                            return;
+                        }
+                        
+                        // 尝试使用预加载的图片
+                        const preloadedImage = this.getPreloadedImage();
+                        if (preloadedImage) {
+                            // 使用预加载的图片，瞬间切换
+                            img.src = preloadedImage.url;
+                            sourceElement.textContent = `来源: ${preloadedImage.api.name}`;
+                            console.log('⚡ 使用预加载图片，瞬间切换！');
+                            
+                            // 重新绑定事件
+                            img.removeAttribute('data-events-bound');
+                            this.bindImageEvents(img.closest('.image-card'), img, preloadedImage.api);
+                        } else {
+                            // 如果没有预加载图片，则正常加载
+                            const api = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                            const timestamp = `?t=${Date.now()}&r=${Math.random()}&i=${index}`;
+                            img.src = `${api.url}${timestamp}`;
+                            sourceElement.textContent = `来源: ${api.name}`;
+                            console.log('🔄 预加载图片不足，正常加载...');
+                            
+                            // 图片加载完成后重新绑定事件
+                            img.onload = () => {
+                                img.removeAttribute('data-events-bound');
+                                this.bindImageEvents(img.closest('.image-card'), img, api);
+                            };
+                        }
+                    }, index * 50); // 缩短间隔，因为预加载图片切换更快
+                });
+            }
+
+            clearGallery() {
+                if (confirm('确定要清空所有图片吗？')) {
+                    this.gallery.innerHTML = '';
+                    this.loadedCount = 0;
+                    this.failedCount = 0;
+                    
+                    // 重置Bing API的加载状态，允许重新加载
+                    const bingAPI = this.imageAPIs.find(api => api.type === 'daily');
+                    if (bingAPI) {
+                        bingAPI.loaded = false;
+                    }
+                    
+                    this.updateStats();
+                    this.loadInitialImages();
+                }
+            }
+
+            async downloadAllImages() {
+                const images = this.gallery.querySelectorAll('.image-card img');
+                if (images.length === 0) {
+                    alert('没有可下载的图片');
+                    return;
+                }
+
+                if (confirm(`确定要下载所有 ${images.length} 张图片吗？`)) {
+                    for (let i = 0; i < images.length; i++) {
+                        setTimeout(() => {
+                            this.downloadImage(images[i].src, `batch_image_${i + 1}.jpg`);
+                        }, i * 500);
+                    }
+                }
+            }
+
+            downloadImage(url, filename) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            openModal(src) {
+                const modal = document.getElementById('imageModal');
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = src;
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeModal() {
+                const modal = document.getElementById('imageModal');
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            updateStats() {
+                const totalCards = this.gallery.querySelectorAll('.image-card').length;
+                const errorCards = this.gallery.querySelectorAll('.image-card.error').length;
+                const retryingCards = this.gallery.querySelectorAll('.image-card.retrying').length;
+                const successfulCards = totalCards - errorCards - retryingCards;
+                
+                document.getElementById('loadedCount').textContent = totalCards;
+                
+                const successRate = totalCards > 0 
+                    ? Math.round((successfulCards / totalCards) * 100)
+                    : 100;
+                document.getElementById('successRate').textContent = `${successRate}%`;
+                document.getElementById('preloadedCount').textContent = this.preloadedImages.size;
+                
+                // 在控制台显示详细统计
+                if (errorCards > 0 || retryingCards > 0) {
+                    console.log(`📊 图片状态: 总共${totalCards}张, 成功${successfulCards}张, 错误${errorCards}张, 重试中${retryingCards}张`);
+                }
+            }
+
+            isNearBottom() {
+                return window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000;
+            }
+
+            // 预加载系统
+            async startPreloading() {
+                if (this.isPreloading) return;
+                this.isPreloading = true;
+                
+                // 持续预加载图片
+                this.preloadImages();
+                
+                // 每30秒补充预加载队列
+                setInterval(() => {
+                    if (this.preloadedImages.size < this.maxPreloadCount) {
+                        this.preloadImages();
+                    }
+                }, 30000);
+            }
+
+            async preloadImages() {
+                const randomAPIs = this.imageAPIs.filter(api => api.type === 'random');
+                const needCount = this.maxPreloadCount - this.preloadedImages.size;
+                
+                if (needCount <= 0) return;
+                
+                console.log(`🔄 开始预加载 ${needCount} 张图片...`);
+                
+                const promises = [];
+                for (let i = 0; i < needCount; i++) {
+                    const api = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                    promises.push(this.preloadSingleImage(api));
+                }
+                
+                await Promise.allSettled(promises);
+                console.log(`✅ 预加载完成，缓存中共有 ${this.preloadedImages.size} 张图片`);
+                this.updatePreloadIndicator();
+            }
+
+            async preloadSingleImage(api) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    const timestamp = api.addTimestamp ? `?t=${Date.now()}&r=${Math.random()}` : '';
+                    const imageUrl = `${api.url}${timestamp}`;
+                    
+                    img.onload = () => {
+                        const imageId = Date.now() + '_' + Math.random();
+                        this.preloadedImages.set(imageId, {
+                            url: imageUrl,
+                            api: api,
+                            element: img,
+                            loadTime: Date.now()
+                        });
+                        resolve();
+                    };
+                    
+                    img.onerror = () => {
+                        resolve(); // 失败也要resolve，不阻塞其他图片
+                    };
+                    
+                    img.src = imageUrl;
+                });
+            }
+
+            // 从预加载缓存中获取图片
+            getPreloadedImage() {
+                if (this.preloadedImages.size === 0) {
+                    return null;
+                }
+                
+                // 获取最早的预加载图片
+                const firstKey = this.preloadedImages.keys().next().value;
+                const imageData = this.preloadedImages.get(firstKey);
+                this.preloadedImages.delete(firstKey);
+                
+                // 更新预加载指示器
+                this.updatePreloadIndicator();
+                
+                // 触发补充预加载
+                if (this.preloadedImages.size < 5) {
+                    setTimeout(() => this.preloadImages(), 1000);
+                }
+                
+                return imageData;
+            }
+
+            // 更新预加载指示器
+            updatePreloadIndicator() {
+                this.updateStats(); // 更新统计显示
+                
+                const preloadCount = this.preloadedImages.size;
+                const preloadElement = document.getElementById('preloadedCount');
+                
+                // 根据预加载数量改变颜色提示
+                if (preloadCount >= 10) {
+                    preloadElement.style.color = '#2ecc71'; // 绿色 - 充足
+                    console.log('🎉 预加载充足，刷新体验将非常流畅！');
+                } else if (preloadCount >= 5) {
+                    preloadElement.style.color = '#f39c12'; // 橙色 - 中等
+                } else {
+                    preloadElement.style.color = '#e74c3c'; // 红色 - 不足
+                }
+            }
+
+            // 加速预加载
+            async boostPreload() {
+                const btn = document.getElementById('preloadBtn');
+                const originalContent = btn.innerHTML;
+                
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>加速中...</span>';
+                
+                try {
+                    // 强制预加载更多图片
+                    this.maxPreloadCount = 25; // 临时增加预加载数量
+                    await this.preloadImages();
+                    
+                    // 恢复正常数量
+                    setTimeout(() => {
+                        this.maxPreloadCount = 15;
+                    }, 60000); // 1分钟后恢复
+                    
+                    // 显示成功提示
+                    btn.innerHTML = '<i class="fas fa-check"></i><span>加速完成</span>';
+                    btn.style.background = 'rgba(46, 204, 113, 0.8)';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        btn.style.background = '';
+                        btn.disabled = false;
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('预加载加速失败:', error);
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
+            }
+
+            // 背景控制方法
+            toggleBackgroundPanel() {
+                const panel = document.getElementById('backgroundPanel');
+                const backdrop = document.getElementById('panelBackdrop');
+                
+                panel.classList.toggle('show');
+                backdrop.classList.toggle('show');
+            }
+
+            closeBackgroundPanel() {
+                const panel = document.getElementById('backgroundPanel');
+                const backdrop = document.getElementById('panelBackdrop');
+                
+                panel.classList.remove('show');
+                backdrop.classList.remove('show');
+            }
+
+            selectBackgroundType(type) {
+                // 更新选中状态
+                document.querySelectorAll('.background-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+                document.querySelector(`[data-type="${type}"]`).classList.add('active');
+
+                const backgroundLayer = document.getElementById('backgroundLayer');
+                const body = document.body;
+
+                switch(type) {
+                    case 'none':
+                        body.classList.add('no-background');
+                        backgroundLayer.classList.remove('active');
+                        console.log('🎨 已切换到默认渐变背景');
+                        break;
+                    
+                    case 'bing':
+                        body.classList.remove('no-background');
+                        this.setBingBackground();
+                        console.log('🌅 已切换到Bing每日壁纸背景');
+                        break;
+                    
+                    case 'gallery':
+                        body.classList.remove('no-background');
+                        this.setRandomGalleryBackground();
+                        console.log('🎲 已切换到随机画廊图片背景');
+                        break;
+                }
+            }
+
+            async setBingBackground() {
+                const backgroundLayer = document.getElementById('backgroundLayer');
+                const bingAPI = this.imageAPIs.find(api => api.type === 'daily');
+                
+                backgroundLayer.style.backgroundImage = `url('${bingAPI.url}')`;
+                backgroundLayer.classList.add('active');
+            }
+
+            setRandomGalleryBackground() {
+                const images = this.gallery.querySelectorAll('.image-card img');
+                if (images.length === 0) {
+                    alert('画廊中暂无图片，请先加载一些图片');
+                    return;
+                }
+
+                const randomImage = images[Math.floor(Math.random() * images.length)];
+                this.setAsBackground(randomImage.src);
+            }
+
+            setAsBackground(imageUrl) {
+                const backgroundLayer = document.getElementById('backgroundLayer');
+                const body = document.body;
+                
+                body.classList.remove('no-background');
+                backgroundLayer.style.backgroundImage = `url('${imageUrl}')`;
+                backgroundLayer.classList.add('active');
+                
+                // 更新背景选项状态
+                document.querySelectorAll('.background-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+                document.querySelector('[data-type="gallery"]').classList.add('active');
+                
+                console.log('🖼️ 已设置为背景图片');
+            }
+
+            updateBackgroundOpacity(value) {
+                const overlay = document.getElementById('backgroundOverlay');
+                const opacity = (100 - value) / 100;
+                overlay.style.background = `rgba(0, 0, 0, ${opacity * 0.5})`;
+                document.getElementById('opacityValue').textContent = `${value}%`;
+            }
+
+            updateBackgroundBlur(value) {
+                const overlay = document.getElementById('backgroundOverlay');
+                overlay.style.backdropFilter = `blur(${value}px)`;
+                document.getElementById('blurValue').textContent = `${value}px`;
+            }
+
+            // PhotoSwipe 图片放大功能
+            openPhotoSwipe(imageSrc, card) {
+                // 创建 PhotoSwipe 数据源
+                const items = [{
+                    src: imageSrc,
+                    width: 1920,
+                    height: 1080,
+                    alt: '精美图片'
+                }];
+
+                // 导入并初始化 PhotoSwipe
+                import('https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/photoswipe.esm.js')
+                    .then(({ default: PhotoSwipe }) => {
+                        const lightbox = new PhotoSwipe({
+                            dataSource: items,
+                            index: 0,
+                            bgOpacity: 0.9,
+                            showHideAnimationType: 'zoom',
+                            imageClickAction: 'close',
+                            tapAction: 'close',
+                            doubleTapAction: 'zoom',
+                            preloaderDelay: 500,
+                            closeTitle: '关闭 (Esc)',
+                            zoomTitle: '缩放',
+                            arrowPrevTitle: '上一张',
+                            arrowNextTitle: '下一张',
+                            errorMsg: '图片加载失败'
+                        });
+
+                        lightbox.init();
+                        lightbox.loadAndOpen(0);
+                        
+                        console.log('🔍 PhotoSwipe 已打开图片查看器');
+                    })
+                    .catch(error => {
+                        console.error('PhotoSwipe 加载失败，使用备用模态框:', error);
+                        this.openModal(imageSrc);
+                    });
+            }
+
+            // 绑定图片相关事件
+            bindImageEvents(card, img, api) {
+                const viewBtn = card.querySelector('.view-btn');
+                
+                // 防止重复绑定
+                if (img.hasAttribute('data-events-bound')) {
+                    return;
+                }
+                
+                // 放大查看按钮 - 使用PhotoSwipe
+                if (viewBtn) {
+                    viewBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.openPhotoSwipe(img.src, card);
+                    });
+                }
+
+                // 图片点击事件 - 也支持放大查看
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.openPhotoSwipe(img.src, card);
+                });
+
+                // 标记事件已绑定
+                img.setAttribute('data-events-bound', 'true');
+                console.log('🔗 图片事件已绑定:', img.src.substring(0, 50) + '...');
+            }
+
+            // 刷新所有图片的事件绑定
+            refreshImageEvents() {
+                const images = this.gallery.querySelectorAll('.image-card');
+                images.forEach(card => {
+                    const img = card.querySelector('img');
+                    const api = this.imageAPIs.find(apiItem => 
+                        card.querySelector('.image-source').textContent.includes(apiItem.name)
+                    ) || this.imageAPIs[0];
+                    
+                    if (img && img.complete && img.naturalHeight !== 0) {
+                        this.bindImageEvents(card, img, api);
+                    }
+                });
+                console.log('🔄 已刷新所有图片事件绑定');
+            }
+
+            // 强制绑定所有图片事件（修复初始加载问题）
+            forceBindAllEvents() {
+                const images = this.gallery.querySelectorAll('.image-card img');
+                console.log(`🔧 强制检查 ${images.length} 张图片的事件绑定...`);
+                
+                images.forEach((img, index) => {
+                    if (!img.hasAttribute('data-events-bound')) {
+                        const card = img.closest('.image-card');
+                        const sourceElement = card.querySelector('.image-source');
+                        const sourceName = sourceElement ? sourceElement.textContent : '';
+                        
+                        // 根据来源信息找到对应的API
+                        const api = this.imageAPIs.find(apiItem => 
+                            sourceName.includes(apiItem.name)
+                        ) || this.imageAPIs[0];
+                        
+                        // 强制绑定事件
+                        this.bindImageEvents(card, img, api);
+                        console.log(`✅ 修复第 ${index + 1} 张图片的事件绑定`);
+                    }
+                });
+                
+                console.log('🎉 所有图片事件绑定检查完成！');
+            }
+
+            // 处理图片加载错误
+            handleImageError(card, img, api) {
+                const retryCount = parseInt(card.getAttribute('data-retry-count') || '0');
+                const maxRetries = 3;
+                
+                console.log(`❌ 图片加载失败: ${img.src.substring(0, 50)}...，重试次数: ${retryCount}/${maxRetries}`);
+                
+                if (retryCount < maxRetries) {
+                    // 还可以重试
+                    this.retryImageLoad(card, img, api, retryCount);
+                } else {
+                    // 超过重试次数，显示错误占位符
+                    this.showErrorPlaceholder(card, api);
+                }
+            }
+
+            // 重试加载图片
+            async retryImageLoad(card, img, api, currentRetryCount) {
+                const newRetryCount = currentRetryCount + 1;
+                card.setAttribute('data-retry-count', newRetryCount.toString());
+                card.classList.add('retrying');
+                
+                // 等待一段时间再重试
+                await new Promise(resolve => setTimeout(resolve, 1000 * newRetryCount));
+                
+                // 尝试使用预加载的图片
+                const preloadedImage = this.getPreloadedImage();
+                if (preloadedImage) {
+                    console.log(`🔄 第${newRetryCount}次重试：使用预加载图片`);
+                    img.src = preloadedImage.url;
+                    card.querySelector('.image-source').textContent = `来源: ${preloadedImage.api.name}`;
+                    card.classList.remove('retrying');
+                    
+                    // 重新绑定事件
+                    img.removeAttribute('data-events-bound');
+                    this.bindImageEvents(card, img, preloadedImage.api);
+                } else {
+                    // 尝试换一个API或使用时间戳强制刷新
+                    const randomAPIs = this.imageAPIs.filter(apiItem => apiItem.type === 'random');
+                    const newApi = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                    const timestamp = `?retry=${newRetryCount}&t=${Date.now()}&r=${Math.random()}`;
+                    const newUrl = `${newApi.url}${timestamp}`;
+                    
+                    console.log(`🔄 第${newRetryCount}次重试：切换API ${newApi.name}`);
+                    img.src = newUrl;
+                    card.querySelector('.image-source').textContent = `来源: ${newApi.name} (重试${newRetryCount})`;
+                }
+            }
+
+            // 显示错误占位符
+            showErrorPlaceholder(card, api) {
+                console.log('💥 图片加载彻底失败，显示错误占位符');
+                
+                card.classList.remove('retrying');
+                card.classList.add('error');
+                
+                const imageWrapper = card.querySelector('.image-wrapper');
+                imageWrapper.innerHTML = `
+                    <div class="error-placeholder">
+                        <i class="fas fa-image-slash"></i>
+                        <div class="error-message">图片加载失败</div>
+                        <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">
+                            API: ${api.name}
+                        </div>
+                        <button class="retry-button" onclick="this.closest('.image-card').retryLoad()">
+                            <i class="fas fa-redo"></i> 重新尝试
+                        </button>
+                    </div>
+                `;
+                
+                // 为卡片添加重新加载方法
+                card.retryLoad = () => {
+                    this.retryFailedImage(card, api);
+                };
+                
+                // 更新图片信息
+                const imageInfo = card.querySelector('.image-info');
+                imageInfo.innerHTML = `
+                    <div class="image-title" style="color: #e74c3c;">加载失败</div>
+                    <div class="image-source">来源: ${api.name}</div>
+                `;
+            }
+
+            // 重新尝试加载失败的图片
+            async retryFailedImage(card, api) {
+                console.log('🔄 用户手动重试加载图片');
+                
+                const retryButton = card.querySelector('.retry-button');
+                retryButton.disabled = true;
+                retryButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 重试中...';
+                
+                // 重置重试计数
+                card.setAttribute('data-retry-count', '0');
+                card.classList.remove('error');
+                card.classList.add('retrying');
+                
+                // 尝试使用预加载图片或新的随机图片
+                const preloadedImage = this.getPreloadedImage();
+                if (preloadedImage) {
+                    this.replaceFailedImage(card, preloadedImage.url, preloadedImage.api);
+                } else {
+                    // 使用新的随机API
+                    const randomAPIs = this.imageAPIs.filter(apiItem => apiItem.type === 'random');
+                    const newApi = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                    const timestamp = `?manual_retry=${Date.now()}&r=${Math.random()}`;
+                    const newUrl = `${newApi.url}${timestamp}`;
+                    
+                    this.replaceFailedImage(card, newUrl, newApi);
+                }
+            }
+
+            // 替换失败的图片
+            replaceFailedImage(card, newImageUrl, newApi) {
+                const imageWrapper = card.querySelector('.image-wrapper');
+                
+                imageWrapper.innerHTML = `
+                    <img src="${newImageUrl}" alt="随机图片" loading="lazy" class="gallery-image">
+                    <div class="image-overlay">
+                        <div class="image-actions">
+                            <button class="action-btn view-btn">
+                                <i class="fas fa-search-plus"></i>
+                                放大
+                            </button>
+                            <button class="action-btn download-btn">
+                                <i class="fas fa-download"></i>
+                                下载
+                            </button>
+                            <button class="action-btn refresh-btn">
+                                <i class="fas fa-sync-alt"></i>
+                                刷新
+                            </button>
+                            <button class="action-btn bg-btn">
+                                <i class="fas fa-paint-brush"></i>
+                                背景
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                const img = imageWrapper.querySelector('img');
+                const sourceElement = card.querySelector('.image-source');
+                
+                img.onload = () => {
+                    card.classList.remove('retrying', 'error');
+                    card.classList.add('loaded');
+                    sourceElement.textContent = `来源: ${newApi.name}`;
+                    
+                    // 重新绑定所有事件
+                    this.bindImageEvents(card, img, newApi);
+                    this.bindBasicButtonEvents(card, img, newApi);
+                    
+                    console.log('✅ 图片重新加载成功！');
+                };
+                
+                img.onerror = () => {
+                    console.log('❌ 重新加载仍然失败');
+                    this.showErrorPlaceholder(card, newApi);
+                };
+                
+                // 更新图片信息
+                const imageInfo = card.querySelector('.image-info');
+                imageInfo.innerHTML = `
+                    <div class="image-title">精美二次元图片</div>
+                    <div class="image-source">来源: ${newApi.name}</div>
+                `;
+            }
+
+            // 绑定基础按钮事件
+            bindBasicButtonEvents(card, img, api) {
+                const downloadBtn = card.querySelector('.download-btn');
+                const refreshBtn = card.querySelector('.refresh-btn');
+                const bgBtn = card.querySelector('.bg-btn');
+                
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.downloadImage(img.src, `image_${Date.now()}.jpg`);
+                    });
+                }
+                
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.refreshSingleImage(card, api);
+                    });
+                }
+                
+                if (bgBtn) {
+                    bgBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.setAsBackground(img.src);
+                    });
+                }
+            }
+        }
+
+        // 初始化画廊
+        document.addEventListener('DOMContentLoaded', () => {
+            new RandomImageGallery();
+            
+            // 初始化AOS动画
+            import('https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js')
+                .then(({ default: AOS }) => {
+                    AOS.init({
+                        duration: 800,
+                        easing: 'ease-out-cubic',
+                        once: false,
+                        offset: 50
+                    });
+                    console.log('✨ AOS 动画系统已初始化');
+                })
+                .catch(error => {
+                    console.warn('AOS 加载失败:', error);
+                });
+        });
     </script>
 
     <!-- Gwozai Brand Component -->
