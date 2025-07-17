@@ -29,7 +29,7 @@ class AutoNav {
                 { file: 'encrypt-tool.html', title: '加密工具', desc: '文本加密解密和压缩工具' }
             ],
             'media': [
-                { file: 'video-player.html', title: '视频播放器', desc: '在线视频播放工具' },
+                { file: 'video-player.html', title: '视频播放器', desc: '智能视频播放器，支持本地视频动态加载和在线播放' },
                 { file: 'random.html', title: '随机图片', desc: '随机二次元图片展示' }
             ],
             'fun': [

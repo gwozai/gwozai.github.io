@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视频播放器 - Tailwind CSS</title>
+    <title>视频播放器</title>
+    <!-- desc: 智能视频播放器，支持本地视频动态加载和在线播放 -->
     <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -47,8 +48,14 @@
 
         <!-- 视频列表 -->
         <div class="bg-white p-6 mt-8 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">视频列表</h2>
-            <ul id="videoList" class="space-y-4">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">视频播放列表</h2>
+                <button onclick="generateVideoList()" 
+                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    🔄 刷新列表
+                </button>
+            </div>
+            <ul id="videoList" class="space-y-3">
                 <!-- 视频列表将通过 JavaScript 动态生成 -->
             </ul>
         </div>
@@ -60,52 +67,220 @@
     </footer>
 
     <script>
-        // 初始化 Clappr 播放器，默认循环播放视频
+        // 初始化 Clappr 播放器
         let player = new Clappr.Player({
             parentId: "#player",
             width: "100%",
             height: "500px",
             loop: true,
-            autoPlay: true,
-            source: "videos/no7gwj.mp4"
+            autoPlay: false,
+            source: ""
         });
 
-        // 视频列表
-        const videos = [
-            { name: "视频 1 (～o￣3￣)～", path: "videos/(～o￣3￣)～.mp4" },
-            { name: "视频 2 no7gwj", path: "videos/no7gwj.mp4" }
-        ];
+        // 动态加载视频列表
+        async function loadVideoList() {
+            try {
+                const response = await fetch('../../videos/');
+                const text = await response.text();
+                
+                // 解析HTML，提取视频文件链接
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const links = doc.querySelectorAll('a[href]');
+                
+                const videoExtensions = ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.m4v'];
+                const videos = [];
+                
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && videoExtensions.some(ext => href.toLowerCase().endsWith(ext))) {
+                        const filename = decodeURIComponent(href);
+                        videos.push({
+                            name: filename.replace(/\.[^/.]+$/, ""), // 移除扩展名
+                            path: `../../videos/${filename}`,
+                            size: link.textContent.match(/\d+[KMG]B/)?.[0] || 'Unknown'
+                        });
+                    }
+                });
+                
+                return videos;
+            } catch (error) {
+                console.log('目录列表不可用，使用默认视频列表');
+                // 如果无法获取目录列表，使用默认列表
+                return [
+                    { name: "(～o￣3￣)～", path: "../../videos/(～o￣3￣)～.mp4", size: "8.2MB" },
+                    { name: "no7gwj", path: "../../videos/no7gwj.mp4", size: "1.6MB" }
+                ];
+            }
+        }
+
+        // 检查视频文件是否存在
+        async function checkVideoExists(path) {
+            try {
+                const response = await fetch(path, { method: 'HEAD' });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 获取视频信息
+        async function getVideoInfo(path) {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.onloadedmetadata = () => {
+                    resolve({
+                        duration: video.duration,
+                        width: video.videoWidth,
+                        height: video.videoHeight
+                    });
+                };
+                video.onerror = () => resolve(null);
+                video.src = path;
+            });
+        }
+
+        // 格式化时长
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
 
         // 动态生成视频列表
-        const videoList = document.getElementById('videoList');
-        videos.forEach(video => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <a href="#" onclick="playVideo('${encodeURI(video.path)}')"
-                    class="block px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:text-blue-900 font-medium">
-                    ${video.name}
-                </a>`;
-            videoList.appendChild(li);
-        });
+        async function generateVideoList() {
+            const videoList = document.getElementById('videoList');
+            videoList.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">正在加载视频列表...</span></li>';
+            
+            try {
+                const videos = await loadVideoList();
+                videoList.innerHTML = '';
+                
+                if (videos.length === 0) {
+                    videoList.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">未找到视频文件</span></li>';
+                    return;
+                }
+                
+                for (const video of videos) {
+                    const exists = await checkVideoExists(video.path);
+                    const info = exists ? await getVideoInfo(video.path) : null;
+                    
+                    const li = document.createElement('li');
+                    li.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                    
+                    const statusClass = exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                    const statusText = exists ? '可用' : '不可用';
+                    
+                    li.innerHTML = `
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">🎬</span>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">${video.name}</h3>
+                                        <div class="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                                            <span>📁 ${video.size}</span>
+                                            ${info ? `<span>⏱️ ${formatDuration(info.duration)}</span>` : ''}
+                                            ${info ? `<span>📺 ${info.width}×${info.height}</span>` : ''}
+                                            <span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${exists ? `
+                                    <button onclick="playVideo('${video.path}', '${video.name}')"
+                                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                        ▶️ 播放
+                                    </button>
+                                ` : `
+                                    <button disabled
+                                        class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed">
+                                        🚫 不可用
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                    
+                    videoList.appendChild(li);
+                }
+                
+                // 如果有可用视频，自动播放第一个
+                const firstAvailable = videos.find(v => checkVideoExists(v.path));
+                if (firstAvailable) {
+                    playVideo(firstAvailable.path, firstAvailable.name);
+                }
+                
+            } catch (error) {
+                console.error('加载视频列表失败:', error);
+                videoList.innerHTML = '<li class="text-center py-4"><span class="text-red-500">加载视频列表失败</span></li>';
+            }
+        }
 
         // 播放在线视频
         function playOnlineVideo() {
             const url = document.getElementById('onlineUrl').value;
-            if (url) player.load(url);
-            else alert('请输入有效的 URL！');
+            if (url) {
+                player.load(url);
+                showMessage('开始播放在线视频', 'info');
+            } else {
+                showMessage('请输入有效的 URL！', 'error');
+            }
         }
 
         // 播放本地视频文件
         function playLocalVideo() {
             const file = document.getElementById('localFile').files[0];
-            if (file) player.load(URL.createObjectURL(file));
-            else alert('请选择一个文件！');
+            if (file) {
+                player.load(URL.createObjectURL(file));
+                showMessage(`开始播放: ${file.name}`, 'info');
+            } else {
+                showMessage('请选择一个文件！', 'error');
+            }
         }
 
         // 播放视频列表中的视频
-        function playVideo(path) {
+        function playVideo(path, name) {
             player.load(path);
+            showMessage(`正在播放: ${name}`, 'success');
         }
+
+        // 显示消息
+        function showMessage(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = `fixed top-4 right-4 ${colors[type]} text-white px-4 py-2 rounded-lg z-50 transition-opacity duration-300`;
+            messageEl.textContent = message;
+            
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.style.opacity = '0';
+                setTimeout(() => messageEl.remove(), 300);
+            }, 3000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            generateVideoList();
+        });
     </script>
 </body>
 </html>
