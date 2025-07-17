@@ -79,39 +79,52 @@
 
         // 动态加载视频列表
         async function loadVideoList() {
+            console.log('开始加载视频列表...');
+            
+            // 直接使用已知的视频文件列表
+            const knownVideos = [
+                { name: "(～o￣3￣)～", path: "../../videos/(～o￣3￣)～.mp4", size: "8.2MB" },
+                { name: "no7gwj", path: "../../videos/no7gwj.mp4", size: "1.6MB" }
+            ];
+            
+            // 尝试通过API获取更多视频文件
             try {
-                const response = await fetch('../../videos/');
-                const text = await response.text();
-                
-                // 解析HTML，提取视频文件链接
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const links = doc.querySelectorAll('a[href]');
-                
-                const videoExtensions = ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.m4v'];
-                const videos = [];
-                
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-                    if (href && videoExtensions.some(ext => href.toLowerCase().endsWith(ext))) {
-                        const filename = decodeURIComponent(href);
-                        videos.push({
-                            name: filename.replace(/\.[^/.]+$/, ""), // 移除扩展名
-                            path: `../../videos/${filename}`,
-                            size: link.textContent.match(/\d+[KMG]B/)?.[0] || 'Unknown'
-                        });
+                const response = await fetch('../../videos/', { method: 'GET' });
+                if (response.ok) {
+                    const text = await response.text();
+                    console.log('获取到目录响应');
+                    
+                    // 解析HTML，提取视频文件链接
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    const links = doc.querySelectorAll('a[href]');
+                    
+                    const videoExtensions = ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.m4v'];
+                    const foundVideos = [];
+                    
+                    links.forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && videoExtensions.some(ext => href.toLowerCase().endsWith(ext))) {
+                            const filename = decodeURIComponent(href);
+                            foundVideos.push({
+                                name: filename.replace(/\.[^/.]+$/, ""), // 移除扩展名
+                                path: `../../videos/${filename}`,
+                                size: link.textContent.match(/\d+[KMG]B/)?.[0] || 'Unknown'
+                            });
+                        }
+                    });
+                    
+                    if (foundVideos.length > 0) {
+                        console.log('找到动态视频:', foundVideos);
+                        return foundVideos;
                     }
-                });
-                
-                return videos;
+                }
             } catch (error) {
-                console.log('目录列表不可用，使用默认视频列表');
-                // 如果无法获取目录列表，使用默认列表
-                return [
-                    { name: "(～o￣3￣)～", path: "../../videos/(～o￣3￣)～.mp4", size: "8.2MB" },
-                    { name: "no7gwj", path: "../../videos/no7gwj.mp4", size: "1.6MB" }
-                ];
+                console.log('动态获取失败:', error.message);
             }
+            
+            console.log('使用默认视频列表');
+            return knownVideos;
         }
 
         // 检查视频文件是否存在
@@ -164,6 +177,8 @@
             
             try {
                 const videos = await loadVideoList();
+                console.log('获取到的视频列表:', videos);
+                
                 videoList.innerHTML = '';
                 
                 if (videos.length === 0) {
@@ -171,9 +186,18 @@
                     return;
                 }
                 
+                let hasAvailableVideo = false;
+                
                 for (const video of videos) {
+                    console.log('处理视频:', video.name, video.path);
+                    
                     const exists = await checkVideoExists(video.path);
+                    console.log('视频存在性检查:', video.name, exists);
+                    
+                    if (exists) hasAvailableVideo = true;
+                    
                     const info = exists ? await getVideoInfo(video.path) : null;
+                    console.log('视频信息:', video.name, info);
                     
                     const li = document.createElement('li');
                     li.className = 'border border-gray-200 rounded-lg overflow-hidden';
@@ -216,15 +240,25 @@
                     videoList.appendChild(li);
                 }
                 
-                // 如果有可用视频，自动播放第一个
-                const firstAvailable = videos.find(v => checkVideoExists(v.path));
-                if (firstAvailable) {
-                    playVideo(firstAvailable.path, firstAvailable.name);
+                console.log('视频列表生成完成，可用视频数:', hasAvailableVideo);
+                
+                if (hasAvailableVideo) {
+                    // 如果有可用视频，自动播放第一个
+                    for (const video of videos) {
+                        const exists = await checkVideoExists(video.path);
+                        if (exists) {
+                            console.log('自动播放第一个可用视频:', video.name);
+                            playVideo(video.path, video.name);
+                            break;
+                        }
+                    }
+                } else {
+                    console.log('没有可用的视频文件');
                 }
                 
             } catch (error) {
                 console.error('加载视频列表失败:', error);
-                videoList.innerHTML = '<li class="text-center py-4"><span class="text-red-500">加载视频列表失败</span></li>';
+                videoList.innerHTML = '<li class="text-center py-4"><span class="text-red-500">加载视频列表失败: ' + error.message + '</span></li>';
             }
         }
 
