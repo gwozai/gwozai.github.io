@@ -902,8 +902,8 @@
                 <span>背景设置</span>
             </button>
             <button class="control-btn" id="fullscreenBtn">
-                <i class="fas fa-expand"></i>
-                <span>全屏欣赏</span>
+                <i class="fas fa-play-circle"></i>
+                <span>全屏幻灯片</span>
             </button>
         </div>
 
@@ -918,12 +918,12 @@
             </button>
             
             <div class="fullscreen-progress" id="fullscreenProgress">
-                <div class="progress-text">自动切换: <span id="progressText">暂停</span></div>
+                <div class="progress-text">随机图片: <span id="progressText">播放中</span></div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <div style="font-size: 12px; text-align: center; margin-top: 5px;">
-                    <span id="currentIndex">1</span> / <span id="totalImages">0</span>
+                    已加载: <span id="currentIndex">1</span> / <span id="totalImages">∞</span>
                 </div>
             </div>
             
@@ -2057,26 +2057,26 @@
 
             // 打开全屏模式
             openFullscreen() {
-                this.collectImages();
-                
-                if (this.fullscreenImages.length === 0) {
-                    alert('暂无图片可供全屏欣赏，请先加载一些图片！');
-                    return;
-                }
-
                 this.isFullscreen = true;
                 this.currentFullscreenIndex = 0;
+                this.fullscreenImages = []; // 重置图片列表，将动态加载新图片
                 
                 const overlay = document.getElementById('fullscreenOverlay');
                 overlay.classList.add('active');
                 
-                // 更新图片总数
-                document.getElementById('totalImages').textContent = this.fullscreenImages.length;
+                // 设置无限模式显示
+                document.getElementById('totalImages').textContent = '∞';
+                document.getElementById('currentIndex').textContent = '1';
                 
-                // 显示第一张图片
-                this.showCurrentImage();
+                // 立即加载并显示第一张新图片
+                this.loadNextFullscreenImage();
                 
-                console.log(`🖼️ 全屏模式启动，共 ${this.fullscreenImages.length} 张图片`);
+                // 自动开始播放
+                setTimeout(() => {
+                    this.startAutoPlay();
+                }, 1000);
+                
+                console.log('🖼️ 全屏模式启动，将连续加载新图片');
             }
 
             // 关闭全屏模式
@@ -2090,22 +2090,48 @@
                 console.log('🚪 退出全屏模式');
             }
 
-            // 收集当前画廊中的所有有效图片
-            collectImages() {
-                this.fullscreenImages = [];
-                const gallery = document.getElementById('gallery');
-                const imageCards = gallery.querySelectorAll('.image-card:not(.error)');
+            // 加载下一张全屏图片（新的随机图片）
+            loadNextFullscreenImage() {
+                const randomAPIs = this.imageAPIs.filter(apiItem => apiItem.type === 'random');
+                const randomApi = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                const timestamp = Date.now();
+                const imageUrl = `${randomApi.url}?fullscreen=${timestamp}&r=${Math.random()}`;
                 
-                imageCards.forEach(card => {
-                    const img = card.querySelector('img');
-                    if (img && img.complete && img.naturalWidth > 0) {
+                const fullscreenImg = document.getElementById('fullscreenImage');
+                
+                // 淡出当前图片
+                fullscreenImg.classList.remove('loaded');
+                
+                // 显示加载状态
+                console.log(`🔄 正在加载新图片: ${randomApi.name}`);
+                
+                setTimeout(() => {
+                    fullscreenImg.src = imageUrl;
+                    
+                    fullscreenImg.onload = () => {
+                        fullscreenImg.classList.add('loaded');
+                        
+                        // 将新图片添加到列表中
                         this.fullscreenImages.push({
-                            src: img.src,
-                            title: card.querySelector('.image-title')?.textContent || '精美图片',
-                            source: card.querySelector('.image-source')?.textContent || '未知来源'
+                            src: imageUrl,
+                            title: '精美二次元图片',
+                            source: randomApi.name
                         });
-                    }
-                });
+                        
+                        this.currentFullscreenIndex = this.fullscreenImages.length - 1;
+                        document.getElementById('currentIndex').textContent = this.fullscreenImages.length;
+                        
+                        console.log(`✅ 新图片加载成功: ${randomApi.name}`);
+                    };
+                    
+                    fullscreenImg.onerror = () => {
+                        console.log(`❌ 图片加载失败，尝试其他API`);
+                        // 如果加载失败，尝试另一个API
+                        setTimeout(() => {
+                            this.loadNextFullscreenImage();
+                        }, 500);
+                    };
+                }, 300);
             }
 
             // 显示当前索引的图片
@@ -2132,7 +2158,11 @@
 
             // 显示上一张图片
             showPrevImage() {
-                if (this.fullscreenImages.length === 0) return;
+                if (this.fullscreenImages.length <= 1) {
+                    // 如果没有历史图片，加载新图片
+                    this.loadNextFullscreenImage();
+                    return;
+                }
                 
                 this.currentFullscreenIndex = 
                     this.currentFullscreenIndex === 0 ? 
@@ -2143,14 +2173,10 @@
                 this.resetProgress();
             }
 
-            // 显示下一张图片
+            // 显示下一张图片（加载新图片）
             showNextImage() {
-                if (this.fullscreenImages.length === 0) return;
-                
-                this.currentFullscreenIndex = 
-                    (this.currentFullscreenIndex + 1) % this.fullscreenImages.length;
-                
-                this.showCurrentImage();
+                // 直接加载新的随机图片
+                this.loadNextFullscreenImage();
                 this.resetProgress();
             }
 
@@ -2165,8 +2191,6 @@
 
             // 开始自动播放
             startAutoPlay() {
-                if (this.fullscreenImages.length <= 1) return;
-                
                 this.isAutoPlaying = true;
                 this.updatePlayButton();
                 this.startProgress();
@@ -2207,7 +2231,7 @@
                     icon.className = 'fas fa-play';
                     text.textContent = ' 播放';
                     btn.classList.remove('active');
-                    document.getElementById('progressText').textContent = '暂停';
+                    document.getElementById('progressText').textContent = '已暂停';
                 }
             }
 
