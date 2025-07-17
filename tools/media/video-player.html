@@ -8,28 +8,36 @@
     <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800 min-h-screen">
     <!-- Header -->
-    <header class="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white py-8 shadow-lg">
-        <div class="max-w-5xl mx-auto px-4">
+    <header class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white py-12 shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+        <div class="absolute top-0 left-0 w-full h-full">
+            <div class="absolute top-10 left-10 w-20 h-20 bg-white bg-opacity-10 rounded-full blur-xl"></div>
+            <div class="absolute top-20 right-20 w-32 h-32 bg-pink-300 bg-opacity-20 rounded-full blur-2xl"></div>
+            <div class="absolute bottom-10 left-1/3 w-24 h-24 bg-blue-300 bg-opacity-15 rounded-full blur-xl"></div>
+        </div>
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                        <span class="text-2xl">🎬</span>
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white border-opacity-30">
+                        <span class="text-3xl">🎬</span>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold tracking-wide">智能视频播放器</h1>
-                        <p class="text-blue-100 text-sm mt-1">支持多格式播放，本地视频管理</p>
+                        <h1 class="text-4xl font-bold tracking-wide bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                            智能视频播放器
+                        </h1>
+                        <p class="text-blue-100 text-base mt-2 font-medium">支持多格式播放，本地视频管理，在线流媒体</p>
                     </div>
                 </div>
-                <div class="hidden md:flex items-center gap-4">
-                    <div class="text-right">
-                        <div class="text-sm text-blue-100">总视频数</div>
-                        <div class="text-xl font-bold" id="totalVideos">-</div>
+                <div class="hidden md:flex items-center gap-6">
+                    <div class="text-center bg-white bg-opacity-15 rounded-xl p-4 backdrop-blur-sm">
+                        <div class="text-sm text-blue-100 mb-1">总视频数</div>
+                        <div class="text-2xl font-bold" id="totalVideos">-</div>
                     </div>
-                    <div class="text-right">
-                        <div class="text-sm text-blue-100">播放时长</div>
-                        <div class="text-xl font-bold" id="totalDuration">-</div>
+                    <div class="text-center bg-white bg-opacity-15 rounded-xl p-4 backdrop-blur-sm">
+                        <div class="text-sm text-blue-100 mb-1">播放时长</div>
+                        <div class="text-2xl font-bold" id="totalDuration">-</div>
                     </div>
                 </div>
             </div>
@@ -39,39 +47,42 @@
     <!-- Main Content -->
     <main class="max-w-6xl mx-auto mt-10 px-4">
         <!-- 播放器控制栏 -->
-        <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="bg-white p-6 rounded-2xl shadow-xl mb-8 border border-gray-200">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div id="nowPlaying" class="flex items-center gap-2 text-gray-600">
-                        <span class="text-lg">▶️</span>
-                        <span id="currentVideoName">未播放</span>
-                    </div>
-                    <div class="hidden md:block text-sm text-gray-500">
-                        <span id="playbackInfo">准备播放</span>
+                <div class="flex items-center gap-6">
+                    <div id="nowPlaying" class="flex items-center gap-3 text-gray-700">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                            <span class="text-white text-lg">▶️</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-lg" id="currentVideoName">未播放</div>
+                            <div class="text-sm text-gray-500" id="playbackInfo">准备播放</div>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button id="prevBtn" onclick="playPreviousVideo()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors" disabled>
+                <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+                    <button id="prevBtn" onclick="playPreviousVideo()" class="p-3 text-gray-500 hover:text-white hover:bg-blue-500 rounded-lg transition-all duration-200" disabled>
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/>
                         </svg>
                     </button>
-                    <button id="playPauseBtn" onclick="togglePlayPause()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                    <button id="playPauseBtn" onclick="togglePlayPause()" class="p-3 text-gray-500 hover:text-white hover:bg-green-500 rounded-lg transition-all duration-200">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M8 5v10l7-5-7-5z"/>
                         </svg>
                     </button>
-                    <button id="nextBtn" onclick="playNextVideo()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors" disabled>
+                    <button id="nextBtn" onclick="playNextVideo()" class="p-3 text-gray-500 hover:text-white hover:bg-blue-500 rounded-lg transition-all duration-200" disabled>
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z"/>
                         </svg>
                     </button>
-                    <button id="shuffleBtn" onclick="toggleShuffle()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                    <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                    <button id="shuffleBtn" onclick="toggleShuffle()" class="p-3 text-gray-500 hover:text-white hover:bg-purple-500 rounded-lg transition-all duration-200">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
                         </svg>
                     </button>
-                    <button id="loopBtn" onclick="toggleLoop()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                    <button id="loopBtn" onclick="toggleLoop()" class="p-3 text-gray-500 hover:text-white hover:bg-orange-500 rounded-lg transition-all duration-200">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
                         </svg>
@@ -81,92 +92,137 @@
         </div>
         
         <!-- 视频播放器 -->
-        <div class="relative">
-            <div id="player" class="rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-black" style="min-height: 400px;"></div>
-            <div id="playerLoader" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-lg" style="display: none;">
+        <div class="relative mb-8">
+            <div id="player" class="rounded-2xl overflow-hidden shadow-2xl border border-gray-300 bg-gradient-to-br from-gray-900 to-black" style="min-height: 450px;"></div>
+            <div id="playerLoader" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black bg-opacity-80 rounded-2xl backdrop-blur-sm" style="display: none;">
                 <div class="text-white text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                    <p>正在加载视频...</p>
+                    <div class="relative">
+                        <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-6"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-6 h-6 bg-blue-500 rounded-full animate-pulse"></div>
+                        </div>
+                    </div>
+                    <p class="text-lg font-medium">正在加载视频...</p>
+                    <p class="text-sm text-gray-300 mt-1">请稍候片刻</p>
                 </div>
             </div>
         </div>
 
         <!-- 播放选项 -->
-        <div class="bg-white p-6 mt-8 rounded-lg shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-700">播放选项</h2>
-                <div class="flex items-center gap-2">
-                    <button onclick="clearPlayer()" class="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 transition-colors">
-                        清空播放器
+        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">播放选项</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="clearPlayer()" class="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md">
+                        🗑️ 清空播放器
                     </button>
-                    <button onclick="downloadCurrentVideo()" class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors">
-                        下载当前视频
+                    <button onclick="downloadCurrentVideo()" class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md">
+                        💾 下载当前视频
                     </button>
                 </div>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-8">
                 <!-- 在线视频 URL -->
-                <div>
-                    <label for="onlineUrl" class="block font-medium text-gray-600 mb-2">🌐 在线视频 URL：</label>
-                    <div class="flex">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white text-sm">🌐</span>
+                        </div>
+                        <label for="onlineUrl" class="block font-semibold text-gray-700 text-lg">在线视频 URL</label>
+                    </div>
+                    <div class="relative">
                         <input type="text" id="onlineUrl" placeholder="https://example.com/video.mp4"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200">
                         <button onclick="playOnlineVideo()"
-                            class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-r-lg hover:bg-blue-600 transition-colors">
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md">
                             播放
                         </button>
                     </div>
-                    <div class="mt-2 text-sm text-gray-500">
-                        支持格式：MP4, WebM, AVI, MOV 等
+                    <div class="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                        💡 支持格式：MP4, WebM, AVI, MOV, MKV 等主流视频格式
                     </div>
                 </div>
 
                 <!-- 本地视频文件 -->
-                <div>
-                    <label for="localFile" class="block font-medium text-gray-600 mb-2">📁 本地视频文件：</label>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white text-sm">📁</span>
+                        </div>
+                        <label for="localFile" class="block font-semibold text-gray-700 text-lg">本地视频文件</label>
+                    </div>
                     <div class="relative">
                         <input type="file" id="localFile" accept="video/*"
-                            class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-gray-100"
                             onchange="playLocalVideo()">
-                        <div class="absolute right-3 top-2 text-gray-400">
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.413V13H5.5z"/>
                             </svg>
                         </div>
                     </div>
-                    <div class="mt-2 text-sm text-gray-500">
-                        拖拽文件到此处或点击选择
+                    <div class="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                        🎬 支持拖拽文件到此处或点击选择，支持所有主流视频格式
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 视频列表 -->
-        <div class="bg-white p-6 mt-8 rounded-lg shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-700">视频播放列表</h2>
+        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">视频播放列表</h2>
+                </div>
                 <button onclick="generateVideoList()" 
-                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                    🔄 刷新列表
+                    class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
+                    </svg>
+                    刷新列表
                 </button>
             </div>
-            <ul id="videoList" class="space-y-3">
+            <div id="videoList" class="space-y-4">
                 <!-- 视频列表将通过 JavaScript 动态生成 -->
-            </ul>
+            </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-6 mt-12 text-sm text-gray-500">
-        <div class="flex justify-center items-center gap-4 mb-2">
-            <span>© 2025 智能视频播放器</span>
-            <button onclick="showKeyboardShortcuts()" class="text-blue-500 hover:text-blue-600">
-                快捷键说明
-            </button>
-        </div>
-        <div class="text-xs text-gray-400">
-            使用 Clappr 和 Tailwind CSS 构建 | 支持多种视频格式
+    <footer class="text-center py-12 mt-16 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="flex justify-center items-center gap-6 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <span class="text-xl">🎬</span>
+                </div>
+                <span class="text-lg font-semibold">© 2025 智能视频播放器</span>
+                <button onclick="showKeyboardShortcuts()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                    ⌨️ 快捷键说明
+                </button>
+            </div>
+            <div class="text-sm text-gray-300 mb-4">
+                使用 Clappr 和 Tailwind CSS 构建 | 支持多种视频格式 | 现代化视频播放体验
+            </div>
+            <div class="flex justify-center gap-4 text-xs text-gray-400">
+                <span>• 支持本地视频</span>
+                <span>• 在线流媒体</span>
+                <span>• 拖拽上传</span>
+                <span>• 键盘快捷键</span>
+                <span>• 响应式设计</span>
+            </div>
         </div>
     </footer>
 
@@ -371,42 +427,67 @@
                         totalDuration += info.duration;
                     }
                     
-                    const li = document.createElement('li');
-                    li.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                    const li = document.createElement('div');
+                    li.className = 'border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200';
                     li.dataset.index = i;
                     
-                    const statusClass = exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                    const statusClass = exists ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200';
                     const statusText = exists ? '可用' : '不可用';
-                    const isPlaying = false; // 不自动标记为播放中
+                    const statusIcon = exists ? '✅' : '❌';
                     
                     li.innerHTML = `
-                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
                             <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-2xl">🎬</span>
-                                    <div>
-                                        <h3 class="font-medium text-gray-900">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                                        <span class="text-white text-2xl">🎬</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-bold text-gray-900 text-lg mb-1">
                                             ${video.name}
                                         </h3>
-                                        <div class="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                                            <span>📁 ${video.size}</span>
-                                            ${info ? `<span>⏱️ ${formatDuration(info.duration)}</span>` : ''}
-                                            ${info ? `<span>📺 ${info.width}×${info.height}</span>` : ''}
-                                            <span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span>
+                                        <div class="flex items-center gap-6 text-sm text-gray-600">
+                                            <span class="flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                                                </svg>
+                                                ${video.size}
+                                            </span>
+                                            ${info ? `<span class="flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z"/>
+                                                </svg>
+                                                ${formatDuration(info.duration)}
+                                            </span>` : ''}
+                                            ${info ? `<span class="flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                                                </svg>
+                                                ${info.width}×${info.height}
+                                            </span>` : ''}
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium border ${statusClass}">
+                                                ${statusIcon} ${statusText}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-3">
                                 ${exists ? `
                                     <button onclick="playVideoByPath('${video.path}', '${video.name}')"
-                                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
-                                        ▶️ 播放
+                                        class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all duration-200 shadow-md flex items-center gap-2 font-medium">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M8 5v10l7-5-7-5z"/>
+                                        </svg>
+                                        播放
                                     </button>
                                 ` : `
                                     <button disabled
-                                        class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed">
-                                        🚫 不可用
+                                        class="px-6 py-3 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed flex items-center gap-2 font-medium">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 2L3 7v6l7 5 7-5V7l-7-5z"/>
+                                        </svg>
+                                        不可用
                                     </button>
                                 `}
                             </div>
@@ -488,25 +569,37 @@
                 return;
             }
             
-            console.log('播放本地视频:', file.name);
+            console.log('播放本地视频:', file.name, 'type:', file.type);
             showLoader(true);
             
             try {
                 const videoUrl = URL.createObjectURL(file);
-                player.stop();
+                console.log('创建的视频URL:', videoUrl);
+                
+                // 先停止当前播放
+                if (player.getPlayback && player.getPlayback()) {
+                    player.stop();
+                }
+                
+                // 加载新视频
                 player.load(videoUrl);
                 
-                const onLocalReady = () => {
-                    console.log('本地视频加载完成');
-                    player.play();
+                // 延迟播放以确保加载完成
+                setTimeout(() => {
+                    try {
+                        player.play();
+                        console.log('本地视频开始播放');
+                        updateCurrentVideo(file.name);
+                        updatePlaybackInfo('正在播放');
+                        showMessage(`开始播放: ${file.name}`, 'success');
+                    } catch (playError) {
+                        console.warn('本地视频自动播放失败:', playError);
+                        updateCurrentVideo(file.name);
+                        updatePlaybackInfo('已加载，请手动播放');
+                        showMessage(`视频已加载: ${file.name}，请点击播放`, 'info');
+                    }
                     showLoader(false);
-                    player.off(Clappr.Events.PLAYER_READY, onLocalReady);
-                };
-                player.on(Clappr.Events.PLAYER_READY, onLocalReady);
-                
-                updateCurrentVideo(file.name);
-                updatePlaybackInfo('正在加载');
-                showMessage(`开始播放: ${file.name}`, 'success');
+                }, 800);
                 
             } catch (error) {
                 console.error('本地视频播放错误:', error);
