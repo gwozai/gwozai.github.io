@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVM 安装指南</title>
+    <!-- desc: macOS 上的 NVM 安装与卸载完整指南，支持官方脚本和 Homebrew 两种方式 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-green-600 via-blue-600 to-purple-600 text-white py-12 shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+        <div class="absolute top-0 left-0 w-full h-full">
+            <div class="absolute top-10 left-10 w-20 h-20 bg-white bg-opacity-10 rounded-full blur-xl"></div>
+            <div class="absolute top-20 right-20 w-32 h-32 bg-green-300 bg-opacity-20 rounded-full blur-2xl"></div>
+            <div class="absolute bottom-10 left-1/3 w-24 h-24 bg-blue-300 bg-opacity-15 rounded-full blur-xl"></div>
+        </div>
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="flex items-center justify-center">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white border-opacity-30 mx-auto mb-4">
+                        <span class="text-4xl">⚡</span>
+                    </div>
+                    <h1 class="text-5xl font-bold tracking-wide bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent mb-4">
+                        NVM 安装指南
+                    </h1>
+                    <p class="text-blue-100 text-lg font-medium">macOS 上的 Node Version Manager 完整安装与卸载指南</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto mt-10 px-6">
+        <!-- 目录导航 -->
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white text-sm">📋</span>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">目录导航</h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <a href="#method1" class="block p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                        <span class="text-green-600 font-medium">方法一：</span> 官方安装脚本（推荐）
+                    </a>
+                    <a href="#method2" class="block p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                        <span class="text-blue-600 font-medium">方法二：</span> 使用 Homebrew 安装
+                    </a>
+                </div>
+                <div class="space-y-2">
+                    <a href="#troubleshooting" class="block p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                        <span class="text-orange-600 font-medium">排查：</span> 常见问题解决
+                    </a>
+                    <a href="#tools" class="block p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
+                        <span class="text-purple-600 font-medium">工具：</span> 一键复制命令
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 方法一：官方安装脚本 -->
+        <div id="method1" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                    <span class="text-white text-lg">🚀</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">方法一：使用官方安装脚本（推荐）</h2>
+            </div>
+            
+            <!-- 安装步骤 -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    安装步骤
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-gray-800 mb-3">步骤 1：下载并执行安装脚本</h4>
+                        <p class="text-gray-600 mb-4">使用 curl 下载并执行安装脚本（推荐）：</p>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                        <p class="text-gray-600 mt-4">或者使用 wget：</p>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-gray-800 mb-3">步骤 2：配置环境变量</h4>
+                        <p class="text-gray-600 mb-4">安装脚本会自动添加到 ~/.zshrc，以下是添加的内容：</p>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-gray-800 mb-3">步骤 3：重新加载配置文件</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">source ~/.zshrc</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-gray-800 mb-3">步骤 4：验证安装</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">nvm --version</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卸载步骤 -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold">×</span>
+                    卸载步骤
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-3">步骤 1：删除 NVM 目录</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">rm -rf "$HOME/.nvm"</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-3">步骤 2：从 ~/.zshrc 删除配置</h4>
+                        <p class="text-red-700 mb-4">手动删除以下行：</p>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-3">步骤 3：重新加载配置文件</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">source ~/.zshrc</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 方法二：Homebrew 安装 -->
+        <div id="method2" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <span class="text-white text-lg">🍺</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">方法二：使用 Homebrew 安装</h2>
+            </div>
+            
+            <!-- 安装步骤 -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    安装步骤
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-blue-800 mb-3">步骤 1：使用 Homebrew 安装 nvm</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-blue-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">brew install nvm</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-blue-800 mb-3">步骤 2：创建 NVM 目录</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-blue-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">mkdir ~/.nvm</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-blue-800 mb-3">步骤 3：配置环境变量</h4>
+                        <p class="text-blue-700 mb-4">将以下配置添加到 ~/.zshrc：</p>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-blue-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># NVM configuration
+export NVM_DIR="$HOME/.nvm"
+[ -s "$(brew --prefix)/opt/nvm/nvm.sh" ] && \. "$(brew --prefix)/opt/nvm/nvm.sh"
+[ -s "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm"</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-blue-800 mb-3">步骤 4：重新加载配置文件</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-blue-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">source ~/.zshrc</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h4 class="font-semibold text-blue-800 mb-3">步骤 5：验证安装</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-blue-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">nvm --version</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卸载步骤 -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold">×</span>
+                    卸载步骤
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-3">步骤 1：使用 Homebrew 卸载 nvm</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">brew uninstall nvm</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-3">步骤 2：删除 NVM 目录</h4>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">rm -rf ~/.nvm</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-3">步骤 3：删除配置文件</h4>
+                        <p class="text-red-700 mb-4">从 ~/.zshrc 中删除 NVM 相关配置</p>
+                        <div class="relative">
+                            <pre class="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto"><code class="language-bash">source ~/.zshrc</code></pre>
+                            <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                                复制
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 常见问题排查 -->
+        <div id="troubleshooting" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <span class="text-white text-lg">🔧</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">常见问题排查</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                    <h3 class="font-semibold text-orange-800 mb-3">问题 1：命令未找到</h3>
+                    <div class="text-orange-700 mb-4">
+                        <p>• 确保已经重新加载了配置文件：<code class="bg-orange-100 px-2 py-1 rounded">source ~/.zshrc</code></p>
+                        <p>• 检查 PATH 环境变量是否正确设置</p>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                    <h3 class="font-semibold text-orange-800 mb-3">问题 2：权限问题</h3>
+                    <div class="text-orange-700 mb-4">
+                        <p>• 确保 ~/.nvm 目录存在且有正确的权限</p>
+                        <p>• 检查用户对相关目录是否有读写权限</p>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                    <h3 class="font-semibold text-orange-800 mb-3">问题 3：路径中包含空格</h3>
+                    <div class="text-orange-700 mb-4">
+                        <p>• 如果使用 Homebrew 安装时遇到路径空格问题，建议使用官方安装脚本方式</p>
+                        <p>• 确保路径中的空格已正确转义</p>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                    <h3 class="font-semibold text-orange-800 mb-3">问题 4：版本问题</h3>
+                    <div class="text-orange-700 mb-4">
+                        <p>• 使用 <code class="bg-orange-100 px-2 py-1 rounded">nvm ls-remote</code> 查看可用的 Node.js 版本</p>
+                        <p>• 使用 <code class="bg-orange-100 px-2 py-1 rounded">nvm current</code> 查看当前使用的版本</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速工具 -->
+        <div id="tools" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <span class="text-white text-lg">🛠️</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">快速工具</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                    <h3 class="font-semibold text-purple-800 mb-3">一键安装（官方脚本）</h3>
+                    <button onclick="copyCommand('curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash')" 
+                            class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        复制安装命令
+                    </button>
+                </div>
+
+                <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                    <h3 class="font-semibold text-purple-800 mb-3">一键安装（Homebrew）</h3>
+                    <button onclick="copyCommand('brew install nvm')" 
+                            class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        复制安装命令
+                    </button>
+                </div>
+
+                <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                    <h3 class="font-semibold text-purple-800 mb-3">重载配置</h3>
+                    <button onclick="copyCommand('source ~/.zshrc')" 
+                            class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        复制重载命令
+                    </button>
+                </div>
+
+                <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                    <h3 class="font-semibold text-purple-800 mb-3">检查版本</h3>
+                    <button onclick="copyCommand('nvm --version')" 
+                            class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        复制检查命令
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="bg-yellow-50 p-6 rounded-2xl border border-yellow-200 mb-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm">⚠️</span>
+                </div>
+                <h3 class="font-semibold text-yellow-800">重要提醒</h3>
+            </div>
+            <p class="text-yellow-700">
+                在卸载 NVM 之前，建议先卸载所有已安装的 Node.js 版本：
+            </p>
+            <div class="mt-3 relative">
+                <pre class="bg-yellow-100 text-yellow-800 p-4 rounded-lg overflow-x-auto"><code class="language-bash">nvm deactivate
+nvm uninstall $(nvm current)</code></pre>
+                <button onclick="copyCode(this)" class="absolute top-2 right-2 px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition-colors">
+                    复制
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-12 mt-16 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="flex justify-center items-center gap-6 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <span class="text-xl">⚡</span>
+                </div>
+                <span class="text-lg font-semibold">© 2025 NVM 安装指南</span>
+            </div>
+            <div class="text-sm text-gray-300 mb-4">
+                完整的 macOS NVM 安装教程 | 支持官方脚本和 Homebrew 安装
+            </div>
+            <div class="flex justify-center gap-4 text-xs text-gray-400">
+                <span>• 一键复制命令</span>
+                <span>• 详细步骤说明</span>
+                <span>• 常见问题解答</span>
+                <span>• 快速工具</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 消息提示 -->
+    <div id="message" class="fixed top-4 right-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        命令已复制到剪贴板
+    </div>
+
+    <script>
+        // 复制代码功能
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling.querySelector('code');
+            const text = codeBlock.textContent;
+            copyToClipboard(text);
+        }
+
+        // 复制命令功能
+        function copyCommand(command) {
+            copyToClipboard(command);
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('命令已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                showMessage('复制失败，请手动复制', 'error');
+            });
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = message;
+            messageEl.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            
+            // 显示消息
+            messageEl.style.transform = 'translateX(0)';
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                messageEl.style.transform = 'translateX(100%)';
+            }, 3000);
+        }
+
+        // 平滑滚动到锚点
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
