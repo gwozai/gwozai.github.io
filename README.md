@@ -33,8 +33,6 @@ gwozai.github.io/
 │       ├── currenttime.html
 │       └── miniolink.html
 ├── 📁 pages/                    # 页面管理
-│   ├── 📁 home/                 # 主页变体
-│   │   └── main-home.html       # 个人主页
 │   └── 📁 admin/                # 管理工具
 │       ├── all.html             # 文件管理
 │       ├── site-navigation.html # 网址导航
@@ -171,7 +169,6 @@ MIT License - 详见 LICENSE 文件
 
 ## 🔗 相关链接
 
-- **个人主页**: [main-home.html](pages/home/main-home.html)
 - **文件管理**: [all.html](pages/admin/all.html)
 - **网址导航**: [site-navigation.html](pages/admin/site-navigation.html)
 
