@@ -4,183 +4,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>网页导航</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Gwozai 工具导航 - 智能工具集合</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 25px;
+            color: white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .stat-number {
+            display: block;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .quick-links {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .quick-link {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .quick-link:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        #auto-nav {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+        }
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            position: relative;
+        }
+        #search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        #search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        #search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .search-result-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .stats { gap: 15px; }
+            .stat-item { padding: 10px 15px; }
+            #auto-nav { padding: 20px; margin: 0 10px; }
+            .search-container { margin: 0 10px 30px 10px; }
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-r from-blue-50 to-blue-100 text-gray-800 font-sans">
-    <div class="max-w-6xl mx-auto p-6">
+<body>
+    <div class="container">
         <!-- 页面标题 -->
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold text-blue-600">网页导航</h1>
-            <p class="text-gray-600 mt-2">快速访问分组页面，提升效率</p>
-        </header>
+        <div class="header">
+            <h1>🚀 Gwozai 工具导航</h1>
+            <p>一站式智能工具集合，提升效率从这里开始</p>
+        </div>
 
-        <!-- 分组内容 -->
-        
-    <section class="mb-12">
-        <h2 class="text-2xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">主页集合</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    
-        <a href="index.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">index.html</h2>
-                <p class="text-gray-600 mb-4">主页</p>
+        <!-- 统计信息 -->
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="total-tools">13</span>
+                <span>个工具</span>
             </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="home.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">home.html</h2>
-                <p class="text-gray-600 mb-4">主页/首页</p>
+            <div class="stat-item">
+                <span class="stat-number">5</span>
+                <span>个分类</span>
             </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="index1.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">index1.html</h2>
-                <p class="text-gray-600 mb-4">主页1</p>
+            <div class="stat-item">
+                <span class="stat-number">∞</span>
+                <span>种可能</span>
             </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="index2.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">index2.html</h2>
-                <p class="text-gray-600 mb-4">主页2</p>
+        </div>
+
+        <!-- 搜索功能 -->
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="🔍 搜索工具..." />
+            <div id="search-results"></div>
+        </div>
+
+        <!-- 快速链接 -->
+        <div class="quick-links">
+            <a href="pages/home/main-home.html" class="quick-link">🏠 个人主页</a>
+            <a href="pages/admin/all.html" class="quick-link">📋 文件管理</a>
+            <a href="pages/admin/site-navigation.html" class="quick-link">🔗 网址导航</a>
+            <a href="#" onclick="createNewTool()" class="quick-link">➕ 创建工具</a>
+        </div>
+
+        <!-- 自动生成的工具导航 -->
+        <div id="auto-nav">
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+                <p>正在加载工具导航...</p>
             </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="index3.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">index3.html</h2>
-                <p class="text-gray-600 mb-4">主页3</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        </div></section>
-    <section class="mb-12">
-        <h2 class="text-2xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">工具页面</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    
-        <a href="conda_path_generator.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">conda_path_generator.html</h2>
-                <p class="text-gray-600 mb-4">Conda路径生成工具</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="play0.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">play0.html</h2>
-                <p class="text-gray-600 mb-4">视频播放</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="play1.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">play1.html</h2>
-                <p class="text-gray-600 mb-4">视频播放</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="play2.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">play2.html</h2>
-                <p class="text-gray-600 mb-4">视频播放</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="mysql.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">mysql.html</h2>
-                <p class="text-gray-600 mb-4">mysql命令行安装</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="mysql1.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">mysql1.html</h2>
-                <p class="text-gray-600 mb-4">mysql命令行安装备份</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="currenttime.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">currenttime.html</h2>
-                <p class="text-gray-600 mb-4">当前的时间</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        </div></section>
-    <section class="mb-12">
-        <h2 class="text-2xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">功能页面</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    
-        <a href="random.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">random.html</h2>
-                <p class="text-gray-600 mb-4">随机图片</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="sese.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">sese.html</h2>
-                <p class="text-gray-600 mb-4">网址导航</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="ai.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">ai.html</h2>
-                <p class="text-gray-600 mb-4">AI问答页面</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="java_env.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">java_env.html</h2>
-                <p class="text-gray-600 mb-4">Java环境变量生成</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="random_nihaowu.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">random_nihaowu.html</h2>
-                <p class="text-gray-600 mb-4">弹幕墙</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="randomnihaowu.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">randomnihaowu.html</h2>
-                <p class="text-gray-600 mb-4">随即一句</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        
-        <a href="yasuo.html" class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-            <div>
-                <h2 class="text-lg font-semibold text-blue-600 mb-2">yasuo.html</h2>
-                <p class="text-gray-600 mb-4">但幕墙2</p>
-            </div>
-            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">访问页面</span>
-        </a>
-        </div></section>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>© 2024 Gwozai Tools Collection | 持续更新中 ✨</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                使用 <code>node pages/admin/create-tool.js</code> 快速创建新工具
+            </p>
+        </div>
     </div>
+
+    <!-- 自动导航脚本 -->
+    <script src="js/auto-nav.js"></script>
+    <script>
+        // 创建新工具提示
+        function createNewTool() {
+            alert('请在项目根目录运行：\nnode pages/admin/create-tool.js\n\n这将启动交互式工具创建向导！');
+        }
+
+        // 更新统计数据
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.autoNav) {
+                    const stats = window.autoNav.getStats();
+                    document.getElementById('total-tools').textContent = stats.total;
+                    
+                    // 初始化搜索功能
+                    initSearch();
+                }
+            }, 100);
+        });
+        
+        // 搜索功能
+        function initSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                const results = searchTools(query);
+                displaySearchResults(results, query);
+            });
+            
+            // 点击外部关闭搜索结果
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.style.display = 'none';
+                }
+            });
+        }
+        
+        // 搜索工具
+        function searchTools(query) {
+            const results = [];
+            const toolsData = window.autoNav.toolsData;
+            
+            Object.entries(toolsData).forEach(([category, tools]) => {
+                tools.forEach(tool => {
+                    if (tool.title.toLowerCase().includes(query) || 
+                        tool.desc.toLowerCase().includes(query)) {
+                        results.push({
+                            ...tool,
+                            category: category,
+                            categoryName: window.autoNav.categories[category].name
+                        });
+                    }
+                });
+            });
+            
+            return results;
+        }
+        
+        // 显示搜索结果
+        function displaySearchResults(results, query) {
+            const searchResults = document.getElementById('search-results');
+            
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item">🔍 未找到相关工具</div>';
+            } else {
+                searchResults.innerHTML = results.map(tool => {
+                    const highlightedTitle = highlightText(tool.title, query);
+                    const highlightedDesc = highlightText(tool.desc, query);
+                    
+                    return `
+                        <div class="search-result-item" onclick="openTool('${tool.category}', '${tool.file}')">
+                            <div style="font-weight: 600; color: #333; margin-bottom: 4px;">
+                                ${highlightedTitle}
+                            </div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                ${highlightedDesc} · ${tool.categoryName}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            searchResults.style.display = 'block';
+        }
+        
+        // 高亮搜索关键词
+        function highlightText(text, query) {
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="search-highlight">$1</span>');
+        }
+        
+        // 打开工具
+        function openTool(category, file) {
+            window.location.href = `tools/${category}/${file}`;
+        }
+    </script>
 </body>
 </html>
