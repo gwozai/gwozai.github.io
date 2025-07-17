@@ -169,6 +169,146 @@
             transform: none;
         }
 
+        /* 全屏模式样式 */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .fullscreen-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.6s ease;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .fullscreen-image.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .fullscreen-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 15px 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .fullscreen-btn {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .fullscreen-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .fullscreen-exit {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-exit:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .fullscreen-progress {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 8px 0 5px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            transition: width 0.1s linear;
+            width: 0%;
+        }
+
         .gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -761,10 +901,54 @@
                 <i class="fas fa-palette"></i>
                 <span>背景设置</span>
             </button>
+            <button class="control-btn" id="fullscreenBtn">
+                <i class="fas fa-expand"></i>
+                <span>全屏欣赏</span>
+            </button>
         </div>
 
         <div class="gallery" id="gallery">
             <!-- 图片将动态加载到这里 -->
+        </div>
+
+        <!-- 全屏模式 -->
+        <div class="fullscreen-overlay" id="fullscreenOverlay">
+            <button class="fullscreen-exit" id="fullscreenExit">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="fullscreen-progress" id="fullscreenProgress">
+                <div class="progress-text">自动切换: <span id="progressText">暂停</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div style="font-size: 12px; text-align: center; margin-top: 5px;">
+                    <span id="currentIndex">1</span> / <span id="totalImages">0</span>
+                </div>
+            </div>
+            
+            <div class="fullscreen-container">
+                <img class="fullscreen-image" id="fullscreenImage" alt="全屏图片">
+            </div>
+            
+            <div class="fullscreen-controls">
+                <button class="fullscreen-btn" id="prevBtn">
+                    <i class="fas fa-chevron-left"></i>
+                    上一张
+                </button>
+                <button class="fullscreen-btn" id="playPauseBtn">
+                    <i class="fas fa-play"></i>
+                    播放
+                </button>
+                <button class="fullscreen-btn" id="nextBtn">
+                    <i class="fas fa-chevron-right"></i>
+                    下一张
+                </button>
+                <button class="fullscreen-btn" id="speedBtn">
+                    <i class="fas fa-clock"></i>
+                    <span id="speedText">3秒</span>
+                </button>
+            </div>
         </div>
 
         <div class="load-more-section">
@@ -827,6 +1011,7 @@
                 this.loadInitialImages();
                 this.updateStats();
                 this.startPreloading(); // 开始预加载
+                this.initFullscreenMode(); // 初始化全屏模式
                 
                 // 延迟检查并绑定事件，确保初始图片可以点击
                 setTimeout(() => {
@@ -1802,6 +1987,281 @@
                         this.setAsBackground(img.src);
                     });
                 }
+            }
+
+            // 全屏功能相关方法
+            initFullscreenMode() {
+                // 全屏相关状态
+                this.isFullscreen = false;
+                this.isAutoPlaying = false;
+                this.fullscreenImages = [];
+                this.currentFullscreenIndex = 0;
+                this.autoPlayTimer = null;
+                this.progressTimer = null;
+                this.playSpeed = 3000; // 3秒
+                this.speedOptions = [1000, 2000, 3000, 5000, 8000]; // 1秒, 2秒, 3秒, 5秒, 8秒
+                this.currentSpeedIndex = 2; // 默认3秒
+
+                // 绑定全屏按钮事件
+                document.getElementById('fullscreenBtn').addEventListener('click', () => {
+                    this.openFullscreen();
+                });
+
+                // 绑定全屏模式内的控制按钮
+                document.getElementById('fullscreenExit').addEventListener('click', () => {
+                    this.closeFullscreen();
+                });
+
+                document.getElementById('playPauseBtn').addEventListener('click', () => {
+                    this.toggleAutoPlay();
+                });
+
+                document.getElementById('prevBtn').addEventListener('click', () => {
+                    this.showPrevImage();
+                });
+
+                document.getElementById('nextBtn').addEventListener('click', () => {
+                    this.showNextImage();
+                });
+
+                document.getElementById('speedBtn').addEventListener('click', () => {
+                    this.cycleSpeed();
+                });
+
+                // 键盘控制
+                document.addEventListener('keydown', (e) => {
+                    if (!this.isFullscreen) return;
+                    
+                    switch(e.key) {
+                        case 'Escape':
+                            this.closeFullscreen();
+                            break;
+                        case 'ArrowLeft':
+                            this.showPrevImage();
+                            break;
+                        case 'ArrowRight':
+                            this.showNextImage();
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            this.toggleAutoPlay();
+                            break;
+                    }
+                });
+
+                // 点击图片区域切换下一张
+                document.getElementById('fullscreenImage').addEventListener('click', () => {
+                    this.showNextImage();
+                });
+            }
+
+            // 打开全屏模式
+            openFullscreen() {
+                this.collectImages();
+                
+                if (this.fullscreenImages.length === 0) {
+                    alert('暂无图片可供全屏欣赏，请先加载一些图片！');
+                    return;
+                }
+
+                this.isFullscreen = true;
+                this.currentFullscreenIndex = 0;
+                
+                const overlay = document.getElementById('fullscreenOverlay');
+                overlay.classList.add('active');
+                
+                // 更新图片总数
+                document.getElementById('totalImages').textContent = this.fullscreenImages.length;
+                
+                // 显示第一张图片
+                this.showCurrentImage();
+                
+                console.log(`🖼️ 全屏模式启动，共 ${this.fullscreenImages.length} 张图片`);
+            }
+
+            // 关闭全屏模式
+            closeFullscreen() {
+                this.isFullscreen = false;
+                this.stopAutoPlay();
+                
+                const overlay = document.getElementById('fullscreenOverlay');
+                overlay.classList.remove('active');
+                
+                console.log('🚪 退出全屏模式');
+            }
+
+            // 收集当前画廊中的所有有效图片
+            collectImages() {
+                this.fullscreenImages = [];
+                const gallery = document.getElementById('gallery');
+                const imageCards = gallery.querySelectorAll('.image-card:not(.error)');
+                
+                imageCards.forEach(card => {
+                    const img = card.querySelector('img');
+                    if (img && img.complete && img.naturalWidth > 0) {
+                        this.fullscreenImages.push({
+                            src: img.src,
+                            title: card.querySelector('.image-title')?.textContent || '精美图片',
+                            source: card.querySelector('.image-source')?.textContent || '未知来源'
+                        });
+                    }
+                });
+            }
+
+            // 显示当前索引的图片
+            showCurrentImage() {
+                if (this.fullscreenImages.length === 0) return;
+                
+                const currentImage = this.fullscreenImages[this.currentFullscreenIndex];
+                const fullscreenImg = document.getElementById('fullscreenImage');
+                
+                // 淡出当前图片
+                fullscreenImg.classList.remove('loaded');
+                
+                setTimeout(() => {
+                    fullscreenImg.src = currentImage.src;
+                    
+                    fullscreenImg.onload = () => {
+                        fullscreenImg.classList.add('loaded');
+                    };
+                    
+                    // 更新索引显示
+                    document.getElementById('currentIndex').textContent = this.currentFullscreenIndex + 1;
+                }, 300);
+            }
+
+            // 显示上一张图片
+            showPrevImage() {
+                if (this.fullscreenImages.length === 0) return;
+                
+                this.currentFullscreenIndex = 
+                    this.currentFullscreenIndex === 0 ? 
+                    this.fullscreenImages.length - 1 : 
+                    this.currentFullscreenIndex - 1;
+                
+                this.showCurrentImage();
+                this.resetProgress();
+            }
+
+            // 显示下一张图片
+            showNextImage() {
+                if (this.fullscreenImages.length === 0) return;
+                
+                this.currentFullscreenIndex = 
+                    (this.currentFullscreenIndex + 1) % this.fullscreenImages.length;
+                
+                this.showCurrentImage();
+                this.resetProgress();
+            }
+
+            // 切换自动播放
+            toggleAutoPlay() {
+                if (this.isAutoPlaying) {
+                    this.stopAutoPlay();
+                } else {
+                    this.startAutoPlay();
+                }
+            }
+
+            // 开始自动播放
+            startAutoPlay() {
+                if (this.fullscreenImages.length <= 1) return;
+                
+                this.isAutoPlaying = true;
+                this.updatePlayButton();
+                this.startProgress();
+                
+                this.autoPlayTimer = setInterval(() => {
+                    this.showNextImage();
+                }, this.playSpeed);
+                
+                console.log(`▶️ 开始自动播放，间隔 ${this.playSpeed/1000} 秒`);
+            }
+
+            // 停止自动播放
+            stopAutoPlay() {
+                this.isAutoPlaying = false;
+                this.updatePlayButton();
+                this.stopProgress();
+                
+                if (this.autoPlayTimer) {
+                    clearInterval(this.autoPlayTimer);
+                    this.autoPlayTimer = null;
+                }
+                
+                console.log('⏸️ 停止自动播放');
+            }
+
+            // 更新播放按钮状态
+            updatePlayButton() {
+                const btn = document.getElementById('playPauseBtn');
+                const icon = btn.querySelector('i');
+                const text = btn.lastChild;
+                
+                if (this.isAutoPlaying) {
+                    icon.className = 'fas fa-pause';
+                    text.textContent = ' 暂停';
+                    btn.classList.add('active');
+                    document.getElementById('progressText').textContent = '播放中';
+                } else {
+                    icon.className = 'fas fa-play';
+                    text.textContent = ' 播放';
+                    btn.classList.remove('active');
+                    document.getElementById('progressText').textContent = '暂停';
+                }
+            }
+
+            // 开始进度条动画
+            startProgress() {
+                this.resetProgress();
+                
+                const progressFill = document.getElementById('progressFill');
+                let progress = 0;
+                const interval = 50; // 50ms更新一次
+                const step = (interval / this.playSpeed) * 100;
+                
+                this.progressTimer = setInterval(() => {
+                    progress += step;
+                    if (progress >= 100) {
+                        progress = 0;
+                    }
+                    progressFill.style.width = progress + '%';
+                }, interval);
+            }
+
+            // 停止进度条动画
+            stopProgress() {
+                if (this.progressTimer) {
+                    clearInterval(this.progressTimer);
+                    this.progressTimer = null;
+                }
+                this.resetProgress();
+            }
+
+            // 重置进度条
+            resetProgress() {
+                document.getElementById('progressFill').style.width = '0%';
+            }
+
+            // 切换播放速度
+            cycleSpeed() {
+                this.currentSpeedIndex = (this.currentSpeedIndex + 1) % this.speedOptions.length;
+                this.playSpeed = this.speedOptions[this.currentSpeedIndex];
+                
+                const speedText = this.playSpeed === 1000 ? '1秒' :
+                                  this.playSpeed === 2000 ? '2秒' :
+                                  this.playSpeed === 3000 ? '3秒' :
+                                  this.playSpeed === 5000 ? '5秒' : '8秒';
+                
+                document.getElementById('speedText').textContent = speedText;
+                
+                // 如果正在自动播放，重启定时器
+                if (this.isAutoPlaying) {
+                    this.stopAutoPlay();
+                    this.startAutoPlay();
+                }
+                
+                console.log(`⏱️ 切换播放速度: ${speedText}`);
             }
         }
 
