@@ -191,10 +191,7 @@
                 height: "500px",
                 loop: isLoopMode,
                 autoPlay: false,
-                source: "",
-                plugins: {
-                    core: [Clappr.MediaControl, Clappr.Playback]
-                }
+                source: ""
             });
             
             // 绑定播放器事件
@@ -217,6 +214,10 @@
             player.on(Clappr.Events.PLAYER_ERROR, (error) => {
                 console.error('播放器错误:', error);
                 showMessage('播放器错误，请检查视频文件', 'error');
+            });
+            
+            player.on(Clappr.Events.PLAYER_READY, () => {
+                console.log('播放器初始化完成');
             });
         }
 
@@ -437,28 +438,80 @@
 
         // 播放在线视频
         function playOnlineVideo() {
-            const url = document.getElementById('onlineUrl').value;
-            if (url) {
-                player.load(url);
-                showMessage('开始播放在线视频', 'info');
-            } else {
+            const url = document.getElementById('onlineUrl').value.trim();
+            if (!url) {
                 showMessage('请输入有效的 URL！', 'error');
+                return;
+            }
+            
+            if (!player) {
+                showMessage('播放器未初始化', 'error');
+                return;
+            }
+            
+            console.log('播放在线视频:', url);
+            showLoader(true);
+            
+            try {
+                player.stop();
+                player.load(url);
+                
+                const onOnlineReady = () => {
+                    console.log('在线视频加载完成');
+                    player.play();
+                    showLoader(false);
+                    player.off(Clappr.Events.PLAYER_READY, onOnlineReady);
+                };
+                player.on(Clappr.Events.PLAYER_READY, onOnlineReady);
+                
+                updateCurrentVideo('在线视频');
+                updatePlaybackInfo('正在加载');
+                showMessage('开始播放在线视频', 'success');
+                
+            } catch (error) {
+                console.error('在线视频播放错误:', error);
+                showMessage('在线视频播放失败: ' + error.message, 'error');
+                showLoader(false);
             }
         }
 
         // 播放本地视频文件
         function playLocalVideo() {
             const file = document.getElementById('localFile').files[0];
-            if (file) {
-                const videoUrl = URL.createObjectURL(file);
-                showLoader(true);
-                player.load(videoUrl);
-                updateCurrentVideo(file.name);
-                updatePlaybackInfo('正在播放本地文件');
-                showMessage(`开始播放: ${file.name}`, 'success');
-                setTimeout(() => showLoader(false), 1000);
-            } else {
+            if (!file) {
                 showMessage('请选择一个文件！', 'error');
+                return;
+            }
+            
+            if (!player) {
+                showMessage('播放器未初始化', 'error');
+                return;
+            }
+            
+            console.log('播放本地视频:', file.name);
+            showLoader(true);
+            
+            try {
+                const videoUrl = URL.createObjectURL(file);
+                player.stop();
+                player.load(videoUrl);
+                
+                const onLocalReady = () => {
+                    console.log('本地视频加载完成');
+                    player.play();
+                    showLoader(false);
+                    player.off(Clappr.Events.PLAYER_READY, onLocalReady);
+                };
+                player.on(Clappr.Events.PLAYER_READY, onLocalReady);
+                
+                updateCurrentVideo(file.name);
+                updatePlaybackInfo('正在加载');
+                showMessage(`开始播放: ${file.name}`, 'success');
+                
+            } catch (error) {
+                console.error('本地视频播放错误:', error);
+                showMessage('本地视频播放失败: ' + error.message, 'error');
+                showLoader(false);
             }
         }
 
@@ -473,12 +526,45 @@
         
         // 直接通过路径播放视频
         function playVideoByPath(path, name) {
+            console.log('尝试播放视频:', path, name);
+            
+            if (!player) {
+                console.error('播放器未初始化');
+                showMessage('播放器未初始化', 'error');
+                return;
+            }
+            
             showLoader(true);
-            player.load(path);
-            updateCurrentVideo(name);
-            updatePlaybackInfo('正在播放');
-            showMessage(`正在播放: ${name}`, 'success');
-            setTimeout(() => showLoader(false), 1000);
+            
+            try {
+                // 先停止当前播放
+                if (player.getPlayback && player.getPlayback()) {
+                    player.stop();
+                }
+                
+                // 加载新视频 - 使用更直接的方式
+                player.load(path);
+                
+                // 尝试立即播放
+                setTimeout(() => {
+                    try {
+                        player.play();
+                        console.log('视频开始播放');
+                    } catch (playError) {
+                        console.warn('自动播放失败:', playError);
+                    }
+                    showLoader(false);
+                }, 500);
+                
+                updateCurrentVideo(name);
+                updatePlaybackInfo('正在加载');
+                showMessage(`正在播放: ${name}`, 'success');
+                
+            } catch (error) {
+                console.error('播放错误:', error);
+                showMessage('播放失败: ' + error.message, 'error');
+                showLoader(false);
+            }
         }
         
         // 按索引播放视频
