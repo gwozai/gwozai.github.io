@@ -10,38 +10,134 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
     <!-- Header -->
-    <header class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-6 shadow-md">
-        <h1 class="text-center text-3xl font-bold tracking-wide">视频播放器</h1>
+    <header class="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white py-8 shadow-lg">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <span class="text-2xl">🎬</span>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-wide">智能视频播放器</h1>
+                        <p class="text-blue-100 text-sm mt-1">支持多格式播放，本地视频管理</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100">总视频数</div>
+                        <div class="text-xl font-bold" id="totalVideos">-</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100">播放时长</div>
+                        <div class="text-xl font-bold" id="totalDuration">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-5xl mx-auto mt-10 px-4">
+    <main class="max-w-6xl mx-auto mt-10 px-4">
+        <!-- 播放器控制栏 -->
+        <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div id="nowPlaying" class="flex items-center gap-2 text-gray-600">
+                        <span class="text-lg">▶️</span>
+                        <span id="currentVideoName">未播放</span>
+                    </div>
+                    <div class="hidden md:block text-sm text-gray-500">
+                        <span id="playbackInfo">准备播放</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="prevBtn" onclick="playPreviousVideo()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors" disabled>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/>
+                        </svg>
+                    </button>
+                    <button id="playPauseBtn" onclick="togglePlayPause()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 5v10l7-5-7-5z"/>
+                        </svg>
+                    </button>
+                    <button id="nextBtn" onclick="playNextVideo()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors" disabled>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z"/>
+                        </svg>
+                    </button>
+                    <button id="shuffleBtn" onclick="toggleShuffle()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
+                        </svg>
+                    </button>
+                    <button id="loopBtn" onclick="toggleLoop()" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
         <!-- 视频播放器 -->
-        <div id="player" class="rounded-lg overflow-hidden shadow-lg border border-gray-200"></div>
+        <div class="relative">
+            <div id="player" class="rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-black" style="min-height: 400px;"></div>
+            <div id="playerLoader" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-lg" style="display: none;">
+                <div class="text-white text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p>正在加载视频...</p>
+                </div>
+            </div>
+        </div>
 
         <!-- 播放选项 -->
         <div class="bg-white p-6 mt-8 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">播放选项</h2>
-            <div class="space-y-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">播放选项</h2>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearPlayer()" class="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                        清空播放器
+                    </button>
+                    <button onclick="downloadCurrentVideo()" class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors">
+                        下载当前视频
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
                 <!-- 在线视频 URL -->
                 <div>
-                    <label for="onlineUrl" class="block font-medium text-gray-600 mb-2">在线视频 URL：</label>
+                    <label for="onlineUrl" class="block font-medium text-gray-600 mb-2">🌐 在线视频 URL：</label>
                     <div class="flex">
                         <input type="text" id="onlineUrl" placeholder="https://example.com/video.mp4"
                             class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <button onclick="playOnlineVideo()"
-                            class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-r-lg hover:bg-blue-600">
+                            class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-r-lg hover:bg-blue-600 transition-colors">
                             播放
                         </button>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-500">
+                        支持格式：MP4, WebM, AVI, MOV 等
                     </div>
                 </div>
 
                 <!-- 本地视频文件 -->
                 <div>
-                    <label for="localFile" class="block font-medium text-gray-600 mb-2">本地视频文件：</label>
-                    <input type="file" id="localFile" accept="video/*"
-                        class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        onchange="playLocalVideo()">
+                    <label for="localFile" class="block font-medium text-gray-600 mb-2">📁 本地视频文件：</label>
+                    <div class="relative">
+                        <input type="file" id="localFile" accept="video/*"
+                            class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            onchange="playLocalVideo()">
+                        <div class="absolute right-3 top-2 text-gray-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.413V13H5.5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-500">
+                        拖拽文件到此处或点击选择
+                    </div>
                 </div>
             </div>
         </div>
@@ -63,19 +159,66 @@
 
     <!-- Footer -->
     <footer class="text-center py-6 mt-12 text-sm text-gray-500">
-        © 2025 视频播放器 - 使用 Clappr 和 Tailwind CSS 构建
+        <div class="flex justify-center items-center gap-4 mb-2">
+            <span>© 2025 智能视频播放器</span>
+            <button onclick="showKeyboardShortcuts()" class="text-blue-500 hover:text-blue-600">
+                快捷键说明
+            </button>
+        </div>
+        <div class="text-xs text-gray-400">
+            使用 Clappr 和 Tailwind CSS 构建 | 支持多种视频格式
+        </div>
     </footer>
 
     <script>
+        // 播放器状态管理
+        let player = null;
+        let currentVideoIndex = 0;
+        let videoList = [];
+        let isShuffleMode = false;
+        let isLoopMode = false;
+        let totalDuration = 0;
+        
         // 初始化 Clappr 播放器
-        let player = new Clappr.Player({
-            parentId: "#player",
-            width: "100%",
-            height: "500px",
-            loop: true,
-            autoPlay: false,
-            source: ""
-        });
+        function initPlayer() {
+            if (player) {
+                player.destroy();
+            }
+            
+            player = new Clappr.Player({
+                parentId: "#player",
+                width: "100%",
+                height: "500px",
+                loop: isLoopMode,
+                autoPlay: false,
+                source: "",
+                plugins: {
+                    core: [Clappr.MediaControl, Clappr.Playback]
+                }
+            });
+            
+            // 绑定播放器事件
+            player.on(Clappr.Events.PLAYER_PLAY, () => {
+                updatePlayPauseButton(true);
+                updatePlaybackInfo('正在播放');
+            });
+            
+            player.on(Clappr.Events.PLAYER_PAUSE, () => {
+                updatePlayPauseButton(false);
+                updatePlaybackInfo('已暂停');
+            });
+            
+            player.on(Clappr.Events.PLAYER_ENDED, () => {
+                if (!isLoopMode) {
+                    playNextVideo();
+                }
+            });
+            
+            player.on(Clappr.Events.PLAYER_ERROR, (error) => {
+                console.error('播放器错误:', error);
+                showMessage('播放器错误，请检查视频文件', 'error');
+            });
+        }
 
         // 动态加载视频列表
         async function loadVideoList() {
@@ -172,46 +315,62 @@
 
         // 动态生成视频列表
         async function generateVideoList() {
-            const videoList = document.getElementById('videoList');
-            videoList.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">正在加载视频列表...</span></li>';
+            const videoListElement = document.getElementById('videoList');
+            videoListElement.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">正在加载视频列表...</span></li>';
             
             try {
                 const videos = await loadVideoList();
                 console.log('获取到的视频列表:', videos);
                 
-                videoList.innerHTML = '';
+                videoListElement.innerHTML = '';
                 
                 if (videos.length === 0) {
-                    videoList.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">未找到视频文件</span></li>';
+                    videoListElement.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">未找到视频文件</span></li>';
                     return;
                 }
                 
+                videoList = []; // 重置全局视频列表
+                totalDuration = 0;
                 let hasAvailableVideo = false;
                 
-                for (const video of videos) {
+                for (let i = 0; i < videos.length; i++) {
+                    const video = videos[i];
                     console.log('处理视频:', video.name, video.path);
                     
                     const exists = await checkVideoExists(video.path);
                     console.log('视频存在性检查:', video.name, exists);
                     
-                    if (exists) hasAvailableVideo = true;
+                    if (exists) {
+                        hasAvailableVideo = true;
+                        video.index = i;
+                        video.exists = true;
+                        videoList.push(video);
+                    }
                     
                     const info = exists ? await getVideoInfo(video.path) : null;
                     console.log('视频信息:', video.name, info);
                     
+                    if (info && info.duration) {
+                        totalDuration += info.duration;
+                    }
+                    
                     const li = document.createElement('li');
                     li.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                    li.dataset.index = i;
                     
                     const statusClass = exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                     const statusText = exists ? '可用' : '不可用';
+                    const isPlaying = currentVideoIndex === i;
                     
                     li.innerHTML = `
-                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${isPlaying ? 'bg-blue-50 border-blue-200' : ''}">
                             <div class="flex-1">
                                 <div class="flex items-center gap-3">
                                     <span class="text-2xl">🎬</span>
                                     <div>
-                                        <h3 class="font-medium text-gray-900">${video.name}</h3>
+                                        <h3 class="font-medium text-gray-900 ${isPlaying ? 'text-blue-600' : ''}">
+                                            ${isPlaying ? '▶️ ' : ''}${video.name}
+                                        </h3>
                                         <div class="flex items-center gap-4 text-sm text-gray-500 mt-1">
                                             <span>📁 ${video.size}</span>
                                             ${info ? `<span>⏱️ ${formatDuration(info.duration)}</span>` : ''}
@@ -223,9 +382,9 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 ${exists ? `
-                                    <button onclick="playVideo('${video.path}', '${video.name}')"
-                                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                        ▶️ 播放
+                                    <button onclick="playVideoByIndex(${i})"
+                                        class="px-4 py-2 ${isPlaying ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded-lg transition-colors">
+                                        ${isPlaying ? '⏸️ 播放中' : '▶️ 播放'}
                                     </button>
                                 ` : `
                                     <button disabled
@@ -237,20 +396,21 @@
                         </div>
                     `;
                     
-                    videoList.appendChild(li);
+                    videoListElement.appendChild(li);
                 }
+                
+                // 更新统计信息
+                updateStats();
                 
                 console.log('视频列表生成完成，可用视频数:', hasAvailableVideo);
                 
-                if (hasAvailableVideo) {
-                    // 如果有可用视频，自动播放第一个
-                    for (const video of videos) {
-                        const exists = await checkVideoExists(video.path);
-                        if (exists) {
-                            console.log('自动播放第一个可用视频:', video.name);
-                            playVideo(video.path, video.name);
-                            break;
-                        }
+                if (hasAvailableVideo && videoList.length > 0) {
+                    // 更新播放控制按钮状态
+                    updateNavigationButtons();
+                    
+                    // 自动播放第一个可用视频
+                    if (currentVideoIndex === 0) {
+                        playVideoByIndex(0);
                     }
                 } else {
                     console.log('没有可用的视频文件');
@@ -258,7 +418,7 @@
                 
             } catch (error) {
                 console.error('加载视频列表失败:', error);
-                videoList.innerHTML = '<li class="text-center py-4"><span class="text-red-500">加载视频列表失败: ' + error.message + '</span></li>';
+                videoListElement.innerHTML = '<li class="text-center py-4"><span class="text-red-500">加载视频列表失败: ' + error.message + '</span></li>';
             }
         }
 
@@ -286,8 +446,105 @@
 
         // 播放视频列表中的视频
         function playVideo(path, name) {
+            showLoader(true);
             player.load(path);
+            updateCurrentVideo(name);
             showMessage(`正在播放: ${name}`, 'success');
+            setTimeout(() => showLoader(false), 1000);
+        }
+        
+        // 按索引播放视频
+        function playVideoByIndex(index) {
+            if (index < 0 || index >= videoList.length) return;
+            
+            currentVideoIndex = index;
+            const video = videoList[index];
+            playVideo(video.path, video.name);
+            
+            // 更新列表显示
+            updateVideoListDisplay();
+            updateNavigationButtons();
+        }
+        
+        // 上一个视频
+        function playPreviousVideo() {
+            if (videoList.length === 0) return;
+            
+            let nextIndex;
+            if (isShuffleMode) {
+                nextIndex = Math.floor(Math.random() * videoList.length);
+            } else {
+                nextIndex = currentVideoIndex > 0 ? currentVideoIndex - 1 : videoList.length - 1;
+            }
+            
+            playVideoByIndex(nextIndex);
+        }
+        
+        // 下一个视频
+        function playNextVideo() {
+            if (videoList.length === 0) return;
+            
+            let nextIndex;
+            if (isShuffleMode) {
+                nextIndex = Math.floor(Math.random() * videoList.length);
+            } else {
+                nextIndex = currentVideoIndex < videoList.length - 1 ? currentVideoIndex + 1 : 0;
+            }
+            
+            playVideoByIndex(nextIndex);
+        }
+        
+        // 切换播放/暂停
+        function togglePlayPause() {
+            if (player && player.getPlayback()) {
+                if (player.getPlayback().isPlaying()) {
+                    player.pause();
+                } else {
+                    player.play();
+                }
+            }
+        }
+        
+        // 切换随机模式
+        function toggleShuffle() {
+            isShuffleMode = !isShuffleMode;
+            updateShuffleButton();
+            showMessage(isShuffleMode ? '已开启随机播放' : '已关闭随机播放', 'info');
+        }
+        
+        // 切换循环模式
+        function toggleLoop() {
+            isLoopMode = !isLoopMode;
+            if (player) {
+                player.configure({ loop: isLoopMode });
+            }
+            updateLoopButton();
+            showMessage(isLoopMode ? '已开启循环播放' : '已关闭循环播放', 'info');
+        }
+        
+        // 清空播放器
+        function clearPlayer() {
+            if (player) {
+                player.stop();
+                player.load('');
+            }
+            updateCurrentVideo('未播放');
+            updatePlaybackInfo('已停止');
+            showMessage('已清空播放器', 'info');
+        }
+        
+        // 下载当前视频
+        function downloadCurrentVideo() {
+            if (currentVideoIndex >= 0 && currentVideoIndex < videoList.length) {
+                const video = videoList[currentVideoIndex];
+                const a = document.createElement('a');
+                a.href = video.path;
+                a.download = video.name + '.mp4';
+                a.click();
+                showMessage(`正在下载: ${video.name}`, 'success');
+            } else {
+                showMessage('没有正在播放的视频', 'warning');
+            }
         }
 
         // 显示消息
@@ -311,10 +568,134 @@
             }, 3000);
         }
 
+        // UI 更新函数
+        function updateCurrentVideo(name) {
+            document.getElementById('currentVideoName').textContent = name;
+        }
+        
+        function updatePlaybackInfo(info) {
+            document.getElementById('playbackInfo').textContent = info;
+        }
+        
+        function updatePlayPauseButton(isPlaying) {
+            const btn = document.getElementById('playPauseBtn');
+            btn.innerHTML = isPlaying ? 
+                '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1h2zM13 4a1 1 0 011 1v10a1 1 0 01-1 1h-2a1 1 0 01-1-1V5a1 1 0 011-1h2z"/></svg>' :
+                '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8 5v10l7-5-7-5z"/></svg>';
+        }
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const hasVideos = videoList.length > 0;
+            
+            prevBtn.disabled = !hasVideos;
+            nextBtn.disabled = !hasVideos;
+            
+            if (hasVideos) {
+                prevBtn.classList.remove('text-gray-500');
+                nextBtn.classList.remove('text-gray-500');
+                prevBtn.classList.add('text-blue-600');
+                nextBtn.classList.add('text-blue-600');
+            }
+        }
+        
+        function updateShuffleButton() {
+            const btn = document.getElementById('shuffleBtn');
+            btn.classList.toggle('text-blue-600', isShuffleMode);
+            btn.classList.toggle('text-gray-500', !isShuffleMode);
+        }
+        
+        function updateLoopButton() {
+            const btn = document.getElementById('loopBtn');
+            btn.classList.toggle('text-blue-600', isLoopMode);
+            btn.classList.toggle('text-gray-500', !isLoopMode);
+        }
+        
+        function updateStats() {
+            document.getElementById('totalVideos').textContent = videoList.length;
+            document.getElementById('totalDuration').textContent = formatDuration(totalDuration);
+        }
+        
+        function updateVideoListDisplay() {
+            const listItems = document.querySelectorAll('#videoList li');
+            listItems.forEach((item, index) => {
+                const isPlaying = index === currentVideoIndex;
+                const div = item.querySelector('div');
+                
+                if (isPlaying) {
+                    div.classList.add('bg-blue-50', 'border-blue-200');
+                } else {
+                    div.classList.remove('bg-blue-50', 'border-blue-200');
+                }
+            });
+        }
+        
+        function showLoader(show) {
+            document.getElementById('playerLoader').style.display = show ? 'flex' : 'none';
+        }
+        
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
+            initPlayer();
             generateVideoList();
+            
+            // 支持拖拽上传
+            const dropZone = document.getElementById('localFile');
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-blue-400');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-blue-400');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-400');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    dropZone.files = files;
+                    playLocalVideo();
+                }
+            });
         });
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    playPreviousVideo();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    playNextVideo();
+                    break;
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    toggleShuffle();
+                    break;
+                case 'l':
+                case 'L':
+                    e.preventDefault();
+                    toggleLoop();
+                    break;
+            }
+        });
+        
+        // 显示快捷键提示
+        function showKeyboardShortcuts() {
+            showMessage('快捷键：空格-播放/暂停，左右箭头-切换视频，S-随机，L-循环', 'info');
+        }
     </script>
 </body>
 </html>
