@@ -325,13 +325,23 @@
                 videoListElement.innerHTML = '';
                 
                 if (videos.length === 0) {
-                    videoListElement.innerHTML = '<li class="text-center py-4"><span class="text-gray-500">未找到视频文件</span></li>';
+                    videoListElement.innerHTML = `
+                        <li class="text-center py-8">
+                            <span class="text-gray-500">未找到视频文件</span>
+                            <div class="mt-4 text-sm text-gray-400">
+                                <p>您可以:</p>
+                                <p>1. 上传本地视频文件进行播放</p>
+                                <p>2. 输入在线视频URL进行播放</p>
+                                <p>3. 将视频文件放入 videos/ 目录中</p>
+                            </div>
+                        </li>
+                    `;
                     return;
                 }
                 
                 videoList = []; // 重置全局视频列表
                 totalDuration = 0;
-                let hasAvailableVideo = false;
+                let processedVideos = [];
                 
                 for (let i = 0; i < videos.length; i++) {
                     const video = videos[i];
@@ -340,12 +350,18 @@
                     const exists = await checkVideoExists(video.path);
                     console.log('视频存在性检查:', video.name, exists);
                     
+                    // 将视频添加到处理列表，无论是否存在
+                    const processedVideo = {
+                        ...video,
+                        index: i,
+                        exists: exists
+                    };
+                    
                     if (exists) {
-                        hasAvailableVideo = true;
-                        video.index = i;
-                        video.exists = true;
-                        videoList.push(video);
+                        videoList.push(processedVideo);
                     }
+                    
+                    processedVideos.push(processedVideo);
                     
                     const info = exists ? await getVideoInfo(video.path) : null;
                     console.log('视频信息:', video.name, info);
@@ -360,16 +376,16 @@
                     
                     const statusClass = exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                     const statusText = exists ? '可用' : '不可用';
-                    const isPlaying = currentVideoIndex === i;
+                    const isPlaying = false; // 不自动标记为播放中
                     
                     li.innerHTML = `
-                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${isPlaying ? 'bg-blue-50 border-blue-200' : ''}">
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                             <div class="flex-1">
                                 <div class="flex items-center gap-3">
                                     <span class="text-2xl">🎬</span>
                                     <div>
-                                        <h3 class="font-medium text-gray-900 ${isPlaying ? 'text-blue-600' : ''}">
-                                            ${isPlaying ? '▶️ ' : ''}${video.name}
+                                        <h3 class="font-medium text-gray-900">
+                                            ${video.name}
                                         </h3>
                                         <div class="flex items-center gap-4 text-sm text-gray-500 mt-1">
                                             <span>📁 ${video.size}</span>
@@ -382,9 +398,9 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 ${exists ? `
-                                    <button onclick="playVideoByIndex(${i})"
-                                        class="px-4 py-2 ${isPlaying ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded-lg transition-colors">
-                                        ${isPlaying ? '⏸️ 播放中' : '▶️ 播放'}
+                                    <button onclick="playVideoByPath('${video.path}', '${video.name}')"
+                                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                                        ▶️ 播放
                                     </button>
                                 ` : `
                                     <button disabled
@@ -402,18 +418,15 @@
                 // 更新统计信息
                 updateStats();
                 
-                console.log('视频列表生成完成，可用视频数:', hasAvailableVideo);
+                console.log('视频列表生成完成，可用视频数:', videoList.length);
                 
-                if (hasAvailableVideo && videoList.length > 0) {
+                if (videoList.length > 0) {
                     // 更新播放控制按钮状态
                     updateNavigationButtons();
-                    
-                    // 自动播放第一个可用视频
-                    if (currentVideoIndex === 0) {
-                        playVideoByIndex(0);
-                    }
+                    showMessage(`发现 ${videoList.length} 个可用视频文件`, 'success');
                 } else {
                     console.log('没有可用的视频文件');
+                    showMessage('没有找到可用的视频文件', 'warning');
                 }
                 
             } catch (error) {
@@ -437,8 +450,13 @@
         function playLocalVideo() {
             const file = document.getElementById('localFile').files[0];
             if (file) {
-                player.load(URL.createObjectURL(file));
-                showMessage(`开始播放: ${file.name}`, 'info');
+                const videoUrl = URL.createObjectURL(file);
+                showLoader(true);
+                player.load(videoUrl);
+                updateCurrentVideo(file.name);
+                updatePlaybackInfo('正在播放本地文件');
+                showMessage(`开始播放: ${file.name}`, 'success');
+                setTimeout(() => showLoader(false), 1000);
             } else {
                 showMessage('请选择一个文件！', 'error');
             }
@@ -449,6 +467,16 @@
             showLoader(true);
             player.load(path);
             updateCurrentVideo(name);
+            showMessage(`正在播放: ${name}`, 'success');
+            setTimeout(() => showLoader(false), 1000);
+        }
+        
+        // 直接通过路径播放视频
+        function playVideoByPath(path, name) {
+            showLoader(true);
+            player.load(path);
+            updateCurrentVideo(name);
+            updatePlaybackInfo('正在播放');
             showMessage(`正在播放: ${name}`, 'success');
             setTimeout(() => showLoader(false), 1000);
         }
@@ -642,22 +670,33 @@
             
             // 支持拖拽上传
             const dropZone = document.getElementById('localFile');
+            const dropZoneParent = dropZone.parentElement;
+            
             dropZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                dropZone.classList.add('border-blue-400');
+                dropZone.classList.add('border-blue-400', 'bg-blue-50');
+                dropZoneParent.classList.add('bg-blue-50');
             });
             
             dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('border-blue-400');
+                dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+                dropZoneParent.classList.remove('bg-blue-50');
             });
             
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
-                dropZone.classList.remove('border-blue-400');
+                dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+                dropZoneParent.classList.remove('bg-blue-50');
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    dropZone.files = files;
-                    playLocalVideo();
+                    // 检查是否为视频文件
+                    const file = files[0];
+                    if (file.type.startsWith('video/')) {
+                        dropZone.files = files;
+                        playLocalVideo();
+                    } else {
+                        showMessage('请选择视频文件', 'error');
+                    }
                 }
             });
         });
