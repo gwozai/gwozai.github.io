@@ -753,6 +753,135 @@
             visibility: visible;
         }
 
+        /* 启动加载屏幕样式 */
+        .startup-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .startup-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-container {
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .loader-logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: logoFloat 2s ease-in-out infinite;
+        }
+
+        .loader-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loader-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .loader-progress {
+            margin: 30px auto;
+            max-width: 300px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fff, #f8f9fa);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .loader-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .pulse-ring {
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: absolute;
+            top: -60px;
+            left: -60px;
+            animation: pulse 2s ease-out infinite;
+        }
+
+        .pulse-ring-delay-1 {
+            animation-delay: 0.5s;
+        }
+
+        .pulse-ring-delay-2 {
+            animation-delay: 1s;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* 主界面初始隐藏 */
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .main-content.loaded {
+            opacity: 1;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -804,12 +933,38 @@
     </style>
 </head>
 <body>
-    <!-- 动态背景层 -->
-    <div class="background-layer" id="backgroundLayer"></div>
-    <div class="background-overlay" id="backgroundOverlay"></div>
+    <!-- 启动加载屏幕 -->
+    <div class="startup-loader" id="startupLoader">
+        <div class="loader-container">
+            <div class="loader-logo">
+                <i class="fas fa-images"></i>
+            </div>
+            <div class="loader-title">智能随机图片浏览器</div>
+            <div class="loader-subtitle">正在预加载精美图片...</div>
+            <div class="loader-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="loaderProgress"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="loadedImagesCount">0</span> / <span id="targetImagesCount">3</span> 张图片已缓存
+                </div>
+            </div>
+            <div class="loader-animation">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring pulse-ring-delay-1"></div>
+                <div class="pulse-ring pulse-ring-delay-2"></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- 面板遮罩 -->
-    <div class="panel-backdrop" id="panelBackdrop"></div>
+    <!-- 主界面容器 -->
+    <div class="main-content" id="mainContent" style="display: none;">
+        <!-- 动态背景层 -->
+        <div class="background-layer" id="backgroundLayer"></div>
+        <div class="background-overlay" id="backgroundOverlay"></div>
+
+        <!-- 面板遮罩 -->
+        <div class="panel-backdrop" id="panelBackdrop"></div>
 
     <!-- 背景设置面板 -->
     <div class="background-panel" id="backgroundPanel">
@@ -985,6 +1140,9 @@
                 this.preloadQueue = []; // 预加载队列
                 this.maxPreloadCount = 15; // 最大预加载数量
                 this.isPreloading = false;
+                this.startupCache = []; // 启动缓存
+                this.targetStartupImages = 3; // 启动需要的图片数量
+                this.isStartupComplete = false;
                 this.imageAPIs = [
                     {
                         name: '樱花API',
@@ -1008,15 +1166,11 @@
                 ];
 
                 this.initializeEventListeners();
-                this.loadInitialImages();
                 this.updateStats();
-                this.startPreloading(); // 开始预加载
                 this.initFullscreenMode(); // 初始化全屏模式
                 
-                // 延迟检查并绑定事件，确保初始图片可以点击
-                setTimeout(() => {
-                    this.forceBindAllEvents();
-                }, 2000);
+                // 开始启动预缓存流程
+                this.startStartupPreload();
             }
 
             initializeEventListeners() {
@@ -1106,15 +1260,246 @@
                 });
             }
 
+            // 启动预缓存流程
+            async startStartupPreload() {
+                console.log('🚀 开始启动预缓存流程...');
+                
+                // 更新进度显示
+                document.getElementById('targetImagesCount').textContent = this.targetStartupImages;
+                document.getElementById('loadedImagesCount').textContent = '0';
+                document.getElementById('loaderProgress').style.width = '0%';
+                
+                try {
+                    // 并行预缓存图片
+                    const preloadPromises = [];
+                    
+                    // 加载Bing每日壁纸
+                    const bingAPI = this.imageAPIs.find(api => api.type === 'daily');
+                    preloadPromises.push(this.preloadStartupImage(bingAPI, 0));
+                    
+                    // 加载随机图片
+                    const randomAPIs = this.imageAPIs.filter(api => api.type === 'random');
+                    for (let i = 1; i < this.targetStartupImages; i++) {
+                        const api = randomAPIs[Math.floor(Math.random() * randomAPIs.length)];
+                        preloadPromises.push(this.preloadStartupImage(api, i));
+                    }
+                    
+                    // 等待所有图片预缓存完成
+                    await Promise.allSettled(preloadPromises);
+                    
+                    // 启动完成，显示主界面
+                    this.completeStartup();
+                    
+                } catch (error) {
+                    console.error('启动预缓存失败:', error);
+                    // 即使失败也要显示界面
+                    setTimeout(() => this.completeStartup(), 2000);
+                }
+            }
+
+            // 预缓存单张启动图片
+            async preloadStartupImage(api, index) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    const timestamp = api.addTimestamp ? `?startup=${Date.now()}&i=${index}&r=${Math.random()}` : '';
+                    const imageUrl = `${api.url}${timestamp}`;
+                    
+                    const timeout = setTimeout(() => {
+                        console.warn(`⏰ 启动图片${index + 1}加载超时: ${api.name}`);
+                        resolve();
+                    }, 10000); // 10秒超时
+                    
+                    img.onload = () => {
+                        clearTimeout(timeout);
+                        
+                        // 添加到启动缓存
+                        this.startupCache.push({
+                            url: imageUrl,
+                            api: api,
+                            element: img
+                        });
+                        
+                        // 更新进度
+                        this.updateStartupProgress();
+                        
+                        console.log(`✅ 启动图片${index + 1}预缓存成功: ${api.name}`);
+                        resolve();
+                    };
+                    
+                    img.onerror = () => {
+                        clearTimeout(timeout);
+                        console.warn(`❌ 启动图片${index + 1}预缓存失败: ${api.name}`);
+                        resolve();
+                    };
+                    
+                    img.src = imageUrl;
+                });
+            }
+
+            // 更新启动进度
+            updateStartupProgress() {
+                const loaded = this.startupCache.length;
+                const progress = (loaded / this.targetStartupImages) * 100;
+                
+                document.getElementById('loadedImagesCount').textContent = loaded;
+                document.getElementById('loaderProgress').style.width = progress + '%';
+                
+                // 更新加载提示文本
+                const subtitle = document.querySelector('.loader-subtitle');
+                if (loaded === 0) {
+                    subtitle.textContent = '正在连接图片服务器...';
+                } else if (loaded < this.targetStartupImages) {
+                    subtitle.textContent = `正在预加载精美图片... (${loaded}/${this.targetStartupImages})`;
+                } else {
+                    subtitle.textContent = '准备就绪，即将进入主界面...';
+                }
+            }
+
+            // 完成启动，显示主界面
+            completeStartup() {
+                this.isStartupComplete = true;
+                
+                console.log(`🎉 启动完成！已预缓存 ${this.startupCache.length} 张图片`);
+                
+                // 延迟一点时间让用户看到100%进度
+                setTimeout(() => {
+                    // 隐藏启动屏幕
+                    const startupLoader = document.getElementById('startupLoader');
+                    startupLoader.classList.add('hidden');
+                    
+                    // 显示主界面
+                    const mainContent = document.getElementById('mainContent');
+                    mainContent.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        mainContent.classList.add('loaded');
+                        
+                        // 开始加载初始图片（使用启动缓存）
+                        this.loadInitialImagesFromCache();
+                        
+                        // 启动正常的预加载系统
+                        this.startPreloading();
+                        
+                        // 延迟检查并绑定事件
+                        setTimeout(() => {
+                            this.forceBindAllEvents();
+                        }, 1000);
+                        
+                    }, 100);
+                }, 500);
+            }
+
+            // 从启动缓存加载初始图片
+            async loadInitialImagesFromCache() {
+                console.log('📸 使用启动缓存快速显示初始图片...');
+                
+                // 使用缓存的图片创建卡片
+                for (let i = 0; i < this.startupCache.length; i++) {
+                    const cachedImage = this.startupCache[i];
+                    await this.createImageCardFromCache(cachedImage, i);
+                }
+                
+                // 如果缓存不足，补充加载
+                const remainingCount = 6 - this.startupCache.length;
+                if (remainingCount > 0) {
+                    await this.loadImages(remainingCount);
+                }
+                
+                console.log('✨ 初始图片显示完成！');
+            }
+
+            // 从缓存创建图片卡片
+            async createImageCardFromCache(cachedImage, index) {
+                return new Promise((resolve) => {
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    
+                    card.innerHTML = `
+                        <div class="image-wrapper" data-pswp-width="1920" data-pswp-height="1080">
+                            <img src="${cachedImage.url}" alt="随机图片" class="gallery-image">
+                            <div class="image-overlay">
+                                <div class="image-actions">
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-search-plus"></i>
+                                        放大
+                                    </button>
+                                    <button class="action-btn download-btn">
+                                        <i class="fas fa-download"></i>
+                                        下载
+                                    </button>
+                                    <button class="action-btn refresh-btn">
+                                        <i class="fas fa-sync-alt"></i>
+                                        刷新
+                                    </button>
+                                    <button class="action-btn bg-btn">
+                                        <i class="fas fa-paint-brush"></i>
+                                        背景
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image-info">
+                            <div class="image-title">精美二次元图片</div>
+                            <div class="image-source">来源: ${cachedImage.api.name}</div>
+                        </div>
+                    `;
+                    
+                    // 添加AOS动画
+                    card.setAttribute('data-aos', 'fade-up');
+                    card.setAttribute('data-aos-duration', '600');
+                    card.setAttribute('data-aos-delay', index * 100);
+                    
+                    const img = card.querySelector('img');
+                    const downloadBtn = card.querySelector('.download-btn');
+                    const refreshBtn = card.querySelector('.refresh-btn');
+                    const bgBtn = card.querySelector('.bg-btn');
+                    
+                    // 立即显示（因为图片已经缓存）
+                    this.loadedCount++;
+                    this.updateStats();
+                    card.classList.add('loaded');
+                    
+                    // 绑定基础事件
+                    this.bindBasicButtonEvents(card, img, cachedImage.api);
+                    
+                    // 为卡片添加标识
+                    card.setAttribute('data-api-type', cachedImage.api.type);
+                    card.setAttribute('data-retry-count', '0');
+                    card.setAttribute('data-original-api', JSON.stringify(cachedImage.api));
+                    
+                    this.gallery.appendChild(card);
+                    
+                    // 短暂延迟后绑定图片事件
+                    setTimeout(() => {
+                        this.bindImageEvents(card, img, cachedImage.api);
+                    }, 100);
+                    
+                    resolve();
+                });
+            }
+
             async loadInitialImages() {
                 this.showLoadingSkeletons(6);
-                await this.loadImages(6);
-                this.hideLoadingSkeletons();
                 
-                // 确保初始图片也能正确绑定事件
-                setTimeout(() => {
-                    this.refreshImageEvents();
-                }, 1000);
+                // 分批加载，确保第一张图片能正常显示
+                try {
+                    // 先加载3张图片
+                    await this.loadImages(3);
+                    
+                    // 等待一下再加载剩余的图片
+                    setTimeout(async () => {
+                        await this.loadImages(3);
+                        this.hideLoadingSkeletons();
+                        
+                        // 确保所有图片都能正确绑定事件
+                        setTimeout(() => {
+                            this.forceBindAllEvents();
+                        }, 500);
+                    }, 1000);
+                } catch (error) {
+                    console.error('初始图片加载失败:', error);
+                    this.hideLoadingSkeletons();
+                }
             }
 
             showLoadingSkeletons(count) {
@@ -1150,7 +1535,16 @@
                 }
 
                 try {
-                    await Promise.allSettled(promises);
+                    const results = await Promise.allSettled(promises);
+                    
+                    // 检查结果并处理失败的情况
+                    results.forEach((result, index) => {
+                        if (result.status === 'rejected') {
+                            console.warn(`图片 ${index + 1} 加载失败:`, result.reason);
+                        }
+                    });
+                    
+                    console.log(`✅ 批次加载完成: ${promises.length} 张图片`);
                 } catch (error) {
                     console.error('加载图片时出错:', error);
                 }
@@ -1209,11 +1603,16 @@
                     img.onload = () => {
                         this.loadedCount++;
                         this.updateStats();
+                        
+                        // 立即显示图片，减少延迟
+                        card.classList.add('loaded');
+                        
+                        // 快速绑定点击事件，确保用户可以立即交互
                         setTimeout(() => {
-                            card.classList.add('loaded');
-                            // 确保图片加载完成后再绑定点击事件
                             this.bindImageEvents(card, img, api);
-                        }, Math.random() * 500);
+                        }, 100); // 减少延迟时间
+                        
+                        console.log(`✅ 图片加载成功: ${api.name}`);
                         resolve();
                     };
 
@@ -1221,9 +1620,10 @@
                         this.failedCount++;
                         this.updateStats();
                         
+                        console.warn(`❌ 图片加载失败: ${api.name}`);
                         // 不直接删除，而是尝试重新加载或显示占位符
                         this.handleImageError(card, img, api);
-                        resolve();
+                        resolve(); // 即使失败也要resolve，不阻塞其他图片
                     };
 
                     // 基础的下载和刷新按钮事件（立即绑定）
@@ -1246,6 +1646,28 @@
                     card.setAttribute('data-api-type', api.type);
                     card.setAttribute('data-retry-count', '0');
                     card.setAttribute('data-original-api', JSON.stringify(api));
+
+                    // 添加超时机制，防止图片无限期加载
+                    const timeout = setTimeout(() => {
+                        if (!img.complete) {
+                            console.warn(`⏰ 图片加载超时: ${api.name}`);
+                            img.onerror();
+                        }
+                    }, 15000); // 15秒超时
+
+                    // 图片加载完成后清除超时
+                    const originalOnload = img.onload;
+                    const originalOnerror = img.onerror;
+                    
+                    img.onload = function() {
+                        clearTimeout(timeout);
+                        originalOnload.call(this);
+                    };
+                    
+                    img.onerror = function() {
+                        clearTimeout(timeout);
+                        originalOnerror.call(this);
+                    };
 
                     this.gallery.appendChild(card);
                 });
@@ -1458,15 +1880,29 @@
                 if (this.isPreloading) return;
                 this.isPreloading = true;
                 
-                // 持续预加载图片
+                console.log('🚀 启动预加载系统...');
+                
+                // 立即开始预加载图片
                 this.preloadImages();
                 
-                // 每30秒补充预加载队列
-                setInterval(() => {
+                // 前1分钟更频繁地补充预加载队列
+                const initialInterval = setInterval(() => {
                     if (this.preloadedImages.size < this.maxPreloadCount) {
                         this.preloadImages();
                     }
-                }, 30000);
+                }, 10000); // 前期每10秒检查一次
+                
+                // 1分钟后改为正常频率
+                setTimeout(() => {
+                    clearInterval(initialInterval);
+                    
+                    // 每30秒补充预加载队列
+                    setInterval(() => {
+                        if (this.preloadedImages.size < this.maxPreloadCount) {
+                            this.preloadImages();
+                        }
+                    }, 30000);
+                }, 60000);
             }
 
             async preloadImages() {
@@ -1797,16 +2233,23 @@
             // 处理图片加载错误
             handleImageError(card, img, api) {
                 const retryCount = parseInt(card.getAttribute('data-retry-count') || '0');
-                const maxRetries = 3;
+                const maxRetries = 2; // 减少重试次数，提高响应速度
                 
                 console.log(`❌ 图片加载失败: ${img.src.substring(0, 50)}...，重试次数: ${retryCount}/${maxRetries}`);
                 
                 if (retryCount < maxRetries) {
-                    // 还可以重试
+                    // 还可以重试，优先使用预加载图片
                     this.retryImageLoad(card, img, api, retryCount);
                 } else {
-                    // 超过重试次数，显示错误占位符
-                    this.showErrorPlaceholder(card, api);
+                    // 超过重试次数，尝试最后一次使用预加载图片
+                    const preloadedImage = this.getPreloadedImage();
+                    if (preloadedImage) {
+                        console.log('🔄 使用预加载图片作为最后的回退方案');
+                        this.replaceFailedImage(card, preloadedImage.url, preloadedImage.api);
+                    } else {
+                        // 如果没有预加载图片，显示错误占位符
+                        this.showErrorPlaceholder(card, api);
+                    }
                 }
             }
 
@@ -2310,8 +2753,8 @@
         });
     </script>
 
-    <!-- Gwozai Brand Component -->
-    <div class="gwozai-brand">
+        <!-- Gwozai Brand Component -->
+        <div class="gwozai-brand">
         <div class="gwozai-logo">
             <span class="gwozai-text">gwozai</span>
             <span class="gwozai-dot">.</span>
@@ -2425,5 +2868,6 @@
             window.location.href = homePath;
         });
     </script>
+    </div> <!-- 主界面容器结束 -->
 </body>
 </html>
