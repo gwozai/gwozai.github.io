@@ -23,6 +23,7 @@ class AutoNav {
                 { file: 'java_powershell.html', title: 'Java PowerShell工具', desc: 'Java相关PowerShell脚本' },
                 { file: 'mysql-setup.html', title: 'MySQL安装配置', desc: 'MySQL数据库安装配置指南' },
                 { file: 'nvm-guide.html', title: 'NVM 安装指南', desc: 'macOS 上的 NVM 安装与卸载完整指南，支持官方脚本和 Homebrew 两种方式' },
+                { file: 'nvm-manual-install.html', title: 'NVM 手动安装指南', desc: 'NVM 和 Node.js 14 macOS 手动解压安装完整指南' },
                 { file: 'springboot.html', title: 'SpringBoot工具', desc: 'SpringBoot开发辅助工具' }
             ],
             'security': [

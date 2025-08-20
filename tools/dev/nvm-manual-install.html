@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVM 手动解压安装指南</title>
+    <!-- desc: NVM 和 Node.js 14 macOS 手动解压安装完整指南 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+
+        .command-box {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #2d3748;
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .section-content {
+            padding: 24px;
+        }
+
+        .step-item {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .step-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .download-link {
+            display: inline-block;
+            background: #3182ce;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin: 8px 0;
+            transition: all 0.2s;
+        }
+
+        .download-link:hover {
+            background: #2c5282;
+            transform: translateY(-1px);
+        }
+
+        .warning-box {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .warning-title {
+            color: #c53030;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .info-box {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .info-title {
+            color: #2c7a7b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .directory-tree {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding: 0 8px;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .progress-step:last-child::before {
+            display: none;
+        }
+
+        .progress-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #718096;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 8px;
+        }
+
+        .progress-step.active .progress-dot {
+            background: #667eea;
+            color: white;
+        }
+
+        .progress-step.completed .progress-dot {
+            background: #48bb78;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-btn.prev {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .nav-btn.next {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            .section-content {
+                padding: 16px;
+            }
+            
+            .progress-indicator {
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+            
+            .progress-step {
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 页面头部 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🚀 NVM 手动解压安装指南</h1>
+            <p class="text-xl text-gray-600">NVM 和 Node.js 14 macOS 完整安装教程</p>
+        </div>
+
+        <!-- 进度指示器 -->
+        <div class="progress-indicator">
+            <div class="progress-step active" data-step="1">
+                <div class="progress-dot">1</div>
+                <div class="text-sm">安装 NVM</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="progress-dot">2</div>
+                <div class="text-sm">安装 Node.js</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="progress-dot">3</div>
+                <div class="text-sm">配置管理</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="progress-dot">4</div>
+                <div class="text-sm">故障排除</div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div id="content-area">
+            <!-- 第一步：安装 NVM -->
+            <div class="section-card" data-section="1">
+                <div class="section-header">
+                    <h2>第一步：安装 NVM</h2>
+                </div>
+                <div class="section-content">
+                    <div class="step-item">
+                        <div class="step-title">1. 下载 NVM</div>
+                        <p class="text-gray-600 mb-4">下载 NVM 0.40.3 版本的压缩包：</p>
+                        <a href="https://myfileforever.lanzouq.com/izg1u31gxt9c" target="_blank" class="download-link">
+                            📥 下载 NVM 0.40.3
+                        </a>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">2. 解压 NVM</div>
+                        <p class="text-gray-600 mb-4">创建 .nvm 目录并解压文件：</p>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+# 创建 .nvm 目录
+mkdir -p ~/.nvm
+
+# 解压 nvm-0.40.3.tar.gz 到 .nvm 目录
+tar -xzf nvm-0.40.3.tar.gz --strip-components 1 -C ~/.nvm</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">3. 配置环境变量</div>
+                        <p class="text-gray-600 mb-4">根据你的 Shell 类型选择配置：</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">对于 zsh（~/.zshrc）：</h4>
+                            <div class="command-box">
+                                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.zshrc
+echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.zshrc
+echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> ~/.zshrc</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">对于 bash（~/.bashrc）：</h4>
+                            <div class="command-box">
+                                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
+echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
+echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> ~/.bashrc</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">4. 重新加载配置</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+source ~/.zshrc  # 如果使用 zsh
+# 或
+source ~/.bashrc  # 如果使用 bash</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">5. 验证 NVM 安装</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+nvm --version  # 应显示 0.40.3</div>
+                        <div class="info-box">
+                            <div class="info-title">✅ 成功提示</div>
+                            <p>如果显示版本号 0.40.3，说明 NVM 安装成功！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二步：安装 Node.js 14 -->
+            <div class="section-card" data-section="2" style="display: none;">
+                <div class="section-header">
+                    <h2>第二步：安装 Node.js 14</h2>
+                </div>
+                <div class="section-content">
+                    <div class="step-item">
+                        <div class="step-title">1. 下载 Node.js 14</div>
+                        <p class="text-gray-600 mb-4">下载 Node.js 14.21.3 版本：</p>
+                        <a href="https://myfileforever.lanzouq.com/ih5sy31gxtfi" target="_blank" class="download-link">
+                            📥 下载 Node.js 14.21.3
+                        </a>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">2. 创建目标目录</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+mkdir -p ~/.nvm/versions/node/v14.21.3</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">3. 解压 Node.js</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+tar -xzf node-v14.21.3-darwin-x64.tar.gz --strip-components 1 -C ~/.nvm/versions/node/v14.21.3</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">4. 使用 Node.js 14</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+nvm use 14.21.3</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">5. 验证安装</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+node --version  # 应显示 v14.21.3
+npm --version   # 应显示对应的 npm 版本</div>
+                        <div class="info-box">
+                            <div class="info-title">✅ 安装成功</div>
+                            <p>如果两个命令都显示正确的版本号，说明 Node.js 14 安装成功！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三步：配置管理 -->
+            <div class="section-card" data-section="3" style="display: none;">
+                <div class="section-header">
+                    <h2>第三步：配置和管理</h2>
+                </div>
+                <div class="section-content">
+                    <div class="step-item">
+                        <div class="step-title">设置默认版本</div>
+                        <p class="text-gray-600 mb-4">设置 Node.js 14 为默认版本：</p>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+nvm alias default 14.21.3</div>
+                        
+                        <p class="text-gray-600 mb-4 mt-4">设置其他版本为默认（如需要）：</p>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+nvm alias default 16.20.1</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">常用 NVM 命令</div>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+nvm ls                   # 列出已安装的版本
+nvm use &lt;版本&gt;          # 切换版本
+nvm current             # 显示当前使用的版本
+nvm alias default &lt;版本&gt; # 设置默认版本</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">优化 npm 配置</div>
+                        <p class="text-gray-600 mb-4">设置国内镜像源（加速下载）：</p>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+npm config set registry https://registry.npmmirror.com</div>
+                        
+                        <p class="text-gray-600 mb-4 mt-4">其他 npm 配置命令：</p>
+                        <div class="command-box">
+                            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+# 查看当前配置
+npm config list
+
+# 恢复官方源
+npm config set registry https://registry.npmjs.org/</div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">目录结构参考</div>
+                        <div class="directory-tree">~/.nvm/
+├── nvm.sh                  # NVM 主脚本
+├── bash_completion         # 命令补全脚本
+├── versions/
+│   └── node/
+│       └── v14.21.3/       # Node.js 安装目录
+│           ├── bin/        # 可执行文件目录
+│           ├── include/    # 头文件目录
+│           ├── lib/        # 库文件目录
+│           └── share/      # 共享资源目录</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四步：故障排除 -->
+            <div class="section-card" data-section="4" style="display: none;">
+                <div class="section-header">
+                    <h2>第四步：故障排除</h2>
+                </div>
+                <div class="section-content">
+                    <div class="step-item">
+                        <div class="step-title">NVM 命令未找到</div>
+                        <div class="warning-box">
+                            <div class="warning-title">⚠️ 常见问题</div>
+                            <p>如果终端显示 "command not found: nvm"，请按以下步骤检查：</p>
+                        </div>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2 mb-4">
+                            <li>检查 <code class="bg-gray-200 px-1 rounded">~/.nvm</code> 目录是否存在</li>
+                            <li>确认环境变量是否正确配置</li>
+                            <li>重新加载 shell 配置文件：<code class="bg-gray-200 px-1 rounded">source ~/.zshrc</code> 或 <code class="bg-gray-200 px-1 rounded">source ~/.bashrc</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">Node.js 版本未被识别</div>
+                        <div class="warning-box">
+                            <div class="warning-title">⚠️ 版本问题</div>
+                            <p>如果 nvm ls 中看不到安装的版本，请检查：</p>
+                        </div>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2 mb-4">
+                            <li>检查版本目录结构是否正确（<code class="bg-gray-200 px-1 rounded">~/.nvm/versions/node/v14.21.3</code>）</li>
+                            <li>确保文件权限正确（<code class="bg-gray-200 px-1 rounded">chmod +x</code> 可执行文件）</li>
+                            <li>运行 <code class="bg-gray-200 px-1 rounded">nvm ls</code> 检查版本列表</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">npm 不可用</div>
+                        <div class="warning-box">
+                            <div class="warning-title">⚠️ npm 问题</div>
+                            <p>如果 npm 命令无法使用，请尝试：</p>
+                        </div>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2 mb-4">
+                            <li>检查 <code class="bg-gray-200 px-1 rounded">bin</code> 目录下的可执行文件</li>
+                            <li>确保文件具有执行权限（<code class="bg-gray-200 px-1 rounded">chmod +x</code>）</li>
+                            <li>重新加载 NVM：<code class="bg-gray-200 px-1 rounded">source ~/.nvm/nvm.sh</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-title">注意事项</div>
+                        <div class="info-box">
+                            <div class="info-title">💡 重要提示</div>
+                            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                                <li>本指南适用于 macOS 系统，其他系统需调整路径和命令</li>
+                                <li>下载链接可能因网络环境而失效，请检查链接有效性</li>
+                                <li>建议定期检查 NVM 和 Node.js 的官方更新</li>
+                                <li>如果遇到权限问题，避免使用 sudo，正确配置用户权限</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航按钮 -->
+        <div class="nav-buttons no-print">
+            <button class="nav-btn prev" onclick="previousStep()" disabled>
+                ← 上一步
+            </button>
+            <button class="nav-btn next" onclick="nextStep()">
+                下一步 →
+            </button>
+        </div>
+
+        <!-- 打印按钮 -->
+        <div class="text-center mt-8 no-print">
+            <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                🖨️ 打印指南
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function updateProgress() {
+            // 更新进度指示器
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                const stepNumber = index + 1;
+                const dot = step.querySelector('.progress-dot');
+                
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+
+            // 显示/隐藏内容区域
+            document.querySelectorAll('.section-card').forEach((section, index) => {
+                const sectionNumber = index + 1;
+                section.style.display = sectionNumber === currentStep ? 'block' : 'none';
+            });
+
+            // 更新导航按钮状态
+            const prevBtn = document.querySelector('.nav-btn.prev');
+            const nextBtn = document.querySelector('.nav-btn.next');
+            
+            prevBtn.disabled = currentStep === 1;
+            nextBtn.disabled = currentStep === totalSteps;
+            
+            if (currentStep === totalSteps) {
+                nextBtn.textContent = '完成 ✓';
+            } else {
+                nextBtn.textContent = '下一步 →';
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateProgress();
+                scrollToTop();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateProgress();
+                scrollToTop();
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.textContent.replace('复制', '').trim();
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = '已复制';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = '复制';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // 降级方案
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                button.textContent = '已复制';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = '复制';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // 点击进度指示器直接跳转
+        document.querySelectorAll('.progress-step').forEach((step, index) => {
+            step.addEventListener('click', () => {
+                currentStep = index + 1;
+                updateProgress();
+                scrollToTop();
+            });
+            step.style.cursor = 'pointer';
+        });
+
+        // 初始化
+        updateProgress();
+    </script>
+
+    <!-- Gwozai Brand Component -->
+    <div class="gwozai-brand">
+        <div class="gwozai-logo">
+            <span class="gwozai-text">gwozai</span>
+            <span class="gwozai-dot">.</span>
+            <span class="gwozai-tech">tech</span>
+        </div>
+        <div class="gwozai-tagline">打造实用工具集</div>
+    </div>
+
+    <style>
+        .gwozai-brand {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .gwozai-brand:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .gwozai-logo {
+            display: flex;
+            align-items: center;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .gwozai-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .gwozai-dot {
+            color: #ff6b6b;
+            margin: 0 1px;
+        }
+
+        .gwozai-tech {
+            color: #4ecdc4;
+        }
+
+        .gwozai-tagline {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .gwozai-brand {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 12px;
+            }
+            
+            .gwozai-logo {
+                font-size: 14px;
+            }
+            
+            .gwozai-tagline {
+                font-size: 9px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .gwozai-brand {
+                background: rgba(30, 30, 30, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .gwozai-brand:hover {
+                background: rgba(40, 40, 40, 1);
+            }
+            
+            .gwozai-tagline {
+                color: #aaa;
+            }
+        }
+    </style>
+
+    <script>
+        document.querySelector('.gwozai-brand').addEventListener('click', function() {
+            const currentPath = window.location.pathname;
+            const pathSegments = currentPath.split('/');
+            
+            let homePath = '/';
+            if (pathSegments.includes('tools')) {
+                homePath = '../../index.html';
+            } else if (pathSegments.includes('pages')) {
+                homePath = '../index.html';
+            }
+            
+            window.location.href = homePath;
+        });
+    </script>
+</body>
+</html>
