@@ -36,7 +36,8 @@ class AutoNav {
             'fun': [
                 { file: 'ai.html', title: 'AI聊天助手', desc: 'AI对话和智能问答' },
                 { file: 'danmaku-wall.html', title: '弹幕墙', desc: '动态弹幕展示墙' },
-                { file: 'random-text.html', title: '随机一句', desc: '随机文字生成器' }
+                { file: 'random-text.html', title: '随机一句', desc: '随机文字生成器' },
+                { file: 'site-navigation.html', title: '网址导航', desc: '各类网站导航和资源链接' }
             ],
             'utility': [
                 { file: 'currenttime.html', title: '当前时间', desc: '实时时间显示工具' },

@@ -47,7 +47,8 @@
                 <div><label for="maxConnections" class="block text-sm font-medium text-gray-700 mb-1">最大连接数:</label><input type="number" id="maxConnections" value="200" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
                 <div><label for="timezone" class="block text-sm font-medium text-gray-700 mb-1">时区设置:</label><input type="text" id="timezone" value="+8:00" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
                 <div><label for="defaultPassword" class="block text-sm font-medium text-gray-700 mb-1">默认密码:</label><input type="text" id="defaultPassword" value="123456" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-            </div><button onclick="generateIniFile()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">生成 my.ini 配置文件</button>
+            </div>
+            <button onclick="generateIniFile()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">生成 my.ini 配置文件</button>
         </div>
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-xl font-semibold text-blue-600 mb-4">2. my.ini 配置文件</h2><textarea id="iniContent" readonly class="w-full h-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"></textarea>
@@ -67,7 +68,30 @@
                     <div class="pl-4 border-l-4 border-blue-200">
                         <ol class="list-decimal list-inside space-y-2 text-sm">
                             <li>关闭 MySQL 服务：<code class="bg-gray-100 px-1 py-0.5 rounded">net stop mysql</code></li>
-                            <li>以跳过密码验证方式启动：<code class="bg-gray-100 px-1 py-0.5 rounded">mysqld --console --skip-grant-tables --shared-memory</code></li>
+                            <li>以跳过密码验证方式启动：
+                                <div class="mt-2 mb-2">
+                                    <p class="text-sm font-medium text-gray-700 mb-1">基本命令：</p>
+                                    <code class="bg-gray-100 px-1 py-0.5 rounded text-sm">mysqld --console --skip-grant-tables --shared-memory</code>
+                                </div>
+                                <div class="mt-2 mb-2">
+                                    <p class="text-sm font-medium text-gray-700 mb-1">完整命令（包含日志和配置参数）：</p>
+                                    <div class="bg-gray-800 text-white p-3 rounded-md text-xs font-mono break-all">
+mysqld --console --skip-grant-tables --shared-memory --log-error-verbosity=3 --general-log=ON --general-log-file=mysql-reset.log --slow-query-log=ON --slow-query-log-file=mysql-slow.log --log-queries-not-using-indexes=ON --port=3306 --bind-address=127.0.0.1
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-600">
+                                    <p><strong>参数说明：</strong></p>
+                                    <ul class="list-disc list-inside ml-2 space-y-1">
+                                        <li><code>--console</code>: 显示控制台输出</li>
+                                        <li><code>--skip-grant-tables</code>: 跳过权限表验证</li>
+                                        <li><code>--shared-memory</code>: 启用共享内存连接</li>
+                                        <li><code>--log-error-verbosity=3</code>: 错误日志详细级别</li>
+                                        <li><code>--general-log=ON</code>: 启用通用日志</li>
+                                        <li><code>--slow-query-log=ON</code>: 启用慢查询日志</li>
+                                        <li><code>--bind-address=127.0.0.1</code>: 只允许本地连接（安全）</li>
+                                    </ul>
+                                </div>
+                            </li>
                             <li>新开命令窗口，无密码登录：<code class="bg-gray-100 px-1 py-0.5 rounded">mysql -uroot -p</code> (直接回车)</li>
                             <li>重置密码：
                                 <pre class="bg-gray-100 p-2 rounded mt-1 overflow-x-auto"><code>use mysql;
@@ -77,7 +101,9 @@ update user set authentication_string='' where user='root';
                             <li>关闭第2步的命令窗口，重启MySQL服务：<code class="bg-gray-100 px-1 py-0.5 rounded">net start mysql</code></li>
                             <li>无密码登录并设置新密码：
                                 <pre class="bg-gray-100 p-2 rounded mt-1 overflow-x-auto"><code>mysql -uroot -p
-ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</span>';</code></pre>
+ALTER USER 'root'@'localhost' IDENTIFIED BY '<span id="resetPassword">123456</span>';
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '<span id="resetPassword">123456</span>';</code></pre>
                             </li>
                         </ol>
                     </div>
@@ -223,17 +249,70 @@ default-time_zone='${timezone}'`;
             </div>`;
         }
 
+        function extractTempPassword() {
+            const tempPasswordInput = document.getElementById('tempPassword');
+            const extractedPasswordDiv = document.getElementById('extractedPassword');
+            const loginCommandDiv = document.getElementById('loginCommand');
+            const generatedCommandDiv = document.getElementById('generatedCommand');
+            
+            const inputText = tempPasswordInput.value;
+            
+            if (!inputText.trim()) {
+                extractedPasswordDiv.style.display = 'none';
+                loginCommandDiv.style.display = 'none';
+                return;
+            }
+            
+            // 匹配 MySQL 初始化生成的临时密码格式
+            // A temporary password is generated for root@localhost: xxxxxxxxx
+            const passwordRegex = /A temporary password is generated for root@localhost:\s*([A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;':",./<>?`~]+)/i;
+            const match = inputText.match(passwordRegex);
+            
+            if (match && match[1]) {
+                const password = match[1].trim();
+                extractedPasswordDiv.textContent = `识别到的临时密码: ${password}`;
+                extractedPasswordDiv.style.display = 'block';
+                
+                // 生成登录命令
+                generatedCommandDiv.textContent = `mysql -uroot -p${password}`;
+                loginCommandDiv.style.display = 'block';
+            } else {
+                // 尝试其他可能的密码格式
+                const alternativeRegex = /password.*?([A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;':",./<>?`~]{8,})/gi;
+                const altMatch = inputText.match(alternativeRegex);
+                
+                if (altMatch && altMatch.length > 0) {
+                    // 取最后一个匹配的密码（通常是最新的）
+                    const lastMatch = altMatch[altMatch.length - 1];
+                    const passwordMatch = lastMatch.match(/([A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;':",./<>?`~]{8,})/);
+                    if (passwordMatch) {
+                        const password = passwordMatch[1];
+                        extractedPasswordDiv.textContent = `可能的临时密码: ${password}`;
+                        extractedPasswordDiv.style.display = 'block';
+                        extractedPasswordDiv.className = 'mt-2 text-sm text-orange-600 font-mono';
+                        
+                        generatedCommandDiv.textContent = `mysql -uroot -p${password}`;
+                        loginCommandDiv.style.display = 'block';
+                    }
+                } else {
+                    extractedPasswordDiv.textContent = '未能识别到临时密码，请确保粘贴了完整的 mysqld --initialize --console 输出';
+                    extractedPasswordDiv.style.display = 'block';
+                    extractedPasswordDiv.className = 'mt-2 text-sm text-red-600 font-mono';
+                    loginCommandDiv.style.display = 'none';
+                }
+            }
+        }
+
         function updateInstallSteps() {
             const mysqlPath = document.getElementById('mysqlPath').value;
             const defaultPassword = document.getElementById('defaultPassword').value;
             const installStepsHTML = `
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 1: 删除以前安装的 MySQL 服务</h3>
-                    <p class="mb-2 text-gray-600">以管理员身份运行命令提示符，执行以下命令：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">sc query mysql</div>
-                    <p class="mb-2 text-gray-600">如果有结果，需要停止并删除服务：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">net stop mysql</div>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command">sc delete mysql</div>
+                    <p class="mb-2 text-gray-600">以管理员身份运行命令提示符，先杀死占用3306端口的进程：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">for /f "tokens=5" %a in ('netstat -ano ^| find ":3306"') do taskkill /f /pid %a</div>
+                    <p class="mb-2 text-gray-600">然后删除所有可能存在的MySQL服务：</p>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command">sc query mysql & net stop mysql & sc delete mysql & sc query mysql57 & net stop mysql57 & sc delete mysql57 & sc query mysql80 & net stop mysql80 & sc delete mysql80</div>
                 </div>
 
                 <div>
@@ -253,7 +332,7 @@ default-time_zone='${timezone}'`;
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 4: 安装并配置 MySQL</h3>
                     <p class="mb-2 text-gray-600">以管理员身份运行命令提示符，切换到 MySQL 的 bin 目录：</p>
                     ${createImageContainer(images.cmdAdmin,"以管理员身份运行命令提示符")}
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">cd ${mysqlPath}\\bin</div>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">cd /d ${mysqlPath}\\bin</div>
                     <p class="mb-2 text-gray-600">安装 MySQL 服务并指定配置文件：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --install "MySQL" --defaults-file="${mysqlPath}\\my.ini"</div>
                     <p class="mb-2 text-gray-600">初始化 MySQL：</p>
@@ -268,11 +347,22 @@ default-time_zone='${timezone}'`;
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 5: 登录并修改密码</h3>
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <label for="tempPassword" class="block text-sm font-medium text-blue-700 mb-1">临时密码 (粘贴 mysqld --initialize --console 生成的密码):</label>
+                        <textarea id="tempPassword" placeholder="请粘贴完整的初始化输出，系统将自动识别临时密码..." class="w-full h-20 px-3 py-2 border border-blue-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm" oninput="extractTempPassword()"></textarea>
+                        <div id="extractedPassword" class="mt-2 text-sm text-green-600 font-mono" style="display: none;"></div>
+                        <div id="loginCommand" class="mt-2" style="display: none;">
+                            <label class="block text-sm font-medium text-blue-700 mb-1">生成的登录命令:</label>
+                            <div class="bg-gray-800 text-white p-3 rounded-md text-sm font-mono" id="generatedCommand"></div>
+                        </div>
+                    </div>
                     <p class="mb-2 text-gray-600">使用临时密码登录：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysql -uroot -p</div>
                     ${createImageContainer(images.loginMysql,"使用临��密码登录")}
                     <p class="mb-2 text-gray-600">修改 root 密码为 ${defaultPassword}：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';</div>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">FLUSH PRIVILEGES;</div>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${defaultPassword}';</div>
                     ${createImageContainer(images.changePassword,"修改 root 密码")}
                     <p class="mb-2 text-gray-600">验证配置文件是否生效：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">\\s</div>
@@ -284,12 +374,31 @@ default-time_zone='${timezone}'`;
 
                 <div>
                     <h3 class="text-lg font-medium text-gray-800 mb-3">步骤 6: 配置环境变量</h3>
-                    <p class="mb-2 text-gray-600">1. 新建系统变量 MYSQL_HOME，值为：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span></p>
-                    ${createImageContainer(images.envVariable1,"新建系统变量 MYSQL_HOME")}
-                    <p class="mb-2 text-gray-600">2. 编辑系统变量 Path，添加：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">%MYSQL_HOME%\\bin</span></p>
-                    ${createImageContainer(images.envVariable2,"双击打开 Path 系统变量")}
-                    ${createImageContainer(images.envVariable3,"添加 %MYSQL_HOME%\\bin")}
-                    <p class="mb-2 text-gray-600">3. 验证环境变量是否配置成功：</p>
+                    
+                    <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <h4 class="text-md font-medium text-green-700 mb-3">方法一：使用 PowerShell 命令（推荐）</h4>
+                        <p class="mb-2 text-gray-600">以管理员身份运行 PowerShell，执行以下命令为所有用户配置环境变量：</p>
+                        
+                        <p class="mb-1 text-sm font-medium text-gray-700">设置 MYSQL_HOME 系统变量：</p>
+                        <div class="bg-gray-800 text-white p-3 rounded-md command mb-3 text-sm">[Environment]::SetEnvironmentVariable("MYSQL_HOME", "${mysqlPath}", "Machine")</div>
+                        
+                        <p class="mb-1 text-sm font-medium text-gray-700">添加 MySQL bin 目录到 Path：</p>
+                        <div class="bg-gray-800 text-white p-3 rounded-md command mb-3 text-sm">\$currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")<br>\$mysqlBinPath = "${mysqlPath}\\bin"<br>if (\$currentPath -notlike "*\$mysqlBinPath*") {<br>&nbsp;&nbsp;&nbsp;&nbsp;[Environment]::SetEnvironmentVariable("Path", "\$currentPath;\$mysqlBinPath", "Machine")<br>}</div>
+                        
+                        <p class="mb-1 text-sm font-medium text-gray-700">一行命令版本（复制使用）：</p>
+                        <div class="bg-gray-800 text-white p-3 rounded-md command mb-2 text-sm">[Environment]::SetEnvironmentVariable("MYSQL_HOME", "${mysqlPath}", "Machine"); \$currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine"); \$mysqlBinPath = "${mysqlPath}\\bin"; if (\$currentPath -notlike "*\$mysqlBinPath*") { [Environment]::SetEnvironmentVariable("Path", "\$currentPath;\$mysqlBinPath", "Machine") }</div>
+                    </div>
+                    
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h4 class="text-md font-medium text-blue-700 mb-3">方法二：手动图形界面配置</h4>
+                        <p class="mb-2 text-gray-600">1. 新建系统变量 MYSQL_HOME，值为：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">${mysqlPath}</span></p>
+                        ${createImageContainer(images.envVariable1,"新建系统变量 MYSQL_HOME")}
+                        <p class="mb-2 text-gray-600">2. 编辑系统变量 Path，添加：<span class="font-mono bg-gray-100 px-1 py-0.5 rounded">%MYSQL_HOME%\\bin</span></p>
+                        ${createImageContainer(images.envVariable2,"双击打开 Path 系统变量")}
+                        ${createImageContainer(images.envVariable3,"添加 %MYSQL_HOME%\\bin")}
+                    </div>
+                    
+                    <p class="mb-2 text-gray-600 font-semibold">验证环境变量配置（需要重新打开命令窗口）：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mt-2">mysql --version</div>
                     ${createImageContainer(images.verifyEnv,"验证 MySQL 环境变量")}
                 </div>
@@ -308,7 +417,20 @@ default-time_zone='${timezone}'`;
                     ${createImageContainer(images.stopMysql,"关闭 MySQL 服务")}
 
                     <p class="mb-2 text-gray-600">2. 跳过 MySQL 密码验证：</p>
-                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --console --skip-grant-tables --shared-memory</div>
+                    <div class="mb-3">
+                        <p class="text-sm font-medium text-gray-700 mb-1">基本命令：</p>
+                        <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">mysqld --console --skip-grant-tables --shared-memory</div>
+                        
+                        <p class="text-sm font-medium text-gray-700 mb-1">完整命令（推荐，包含详细日志）：</p>
+                        <div class="bg-gray-800 text-white p-3 rounded-md text-xs font-mono break-all mb-2">
+mysqld --console --skip-grant-tables --shared-memory --log-error-verbosity=3 --general-log=ON --general-log-file=mysql-reset.log --slow-query-log=ON --slow-query-log-file=mysql-slow.log --log-queries-not-using-indexes=ON --port=3306 --bind-address=127.0.0.1
+                        </div>
+                        
+                        <div class="text-xs text-blue-600 bg-blue-50 p-2 rounded border">
+                            <p><strong>日志文件位置：</strong>MySQL 数据目录下（通常是 data 文件夹）</p>
+                            <p><strong>作用：</strong>方便追踪重置密码过程中的所有操作和可能的错误</p>
+                        </div>
+                    </div>
                     ${createImageContainer(images.skipPassword,"跳过 MySQL 密码验证")}
 
                     <p class="mb-2 text-gray-600">3. 在新的命令窗口中，无密码方式进入 MySQL：</p>
@@ -334,6 +456,8 @@ default-time_zone='${timezone}'`;
 
                     <p class="mb-2 text-gray-600">8. 修改密码为 ${defaultPassword}：</p>
                     <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED BY '${defaultPassword}';</div>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">FLUSH PRIVILEGES;</div>
+                    <div class="bg-gray-800 text-white p-3 rounded-md command mb-2">ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${defaultPassword}';</div>
                     ${createImageContainer(images.setNewPassword,"修改密码")}
                 </div>
             `;
