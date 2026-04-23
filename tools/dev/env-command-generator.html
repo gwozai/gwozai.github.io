@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>环境变量一行命令生成器 - Gwozai工具导航</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
+      padding: 28px;
+    }
+    .page-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .page-header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #1f2937;
+    }
+    .page-header .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .page-header .back-link:hover {
+      color: #764ba2;
+    }
+    .desc {
+      margin: 0 0 24px;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field.full {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-weight: 600;
+      color: #374151;
+    }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,.15);
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 22px 0 18px;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+    .primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,.4); }
+    .secondary { background: #e5e7eb; color: #111827; }
+    .secondary:hover { background: #d1d5db; }
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      resize: vertical;
+      padding: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      font-family: Consolas, Monaco, monospace;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .tip {
+      margin-top: 12px;
+      color: #4b5563;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ok {
+      color: #059669;
+      font-weight: 600;
+    }
+    .warning {
+      color: #d97706;
+      font-weight: 500;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 20px; }
+      .page-header h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <a href="../index.html" class="back-link">← 返回导航</a>
+      <h1>环境变量一行命令生成器</h1>
+    </div>
+    <p class="desc">输入 Java、Maven、Tomcat、MySQL 安装目录，点击"生成命令"后会自动生成一整行 PowerShell 命令。可直接复制到 PowerShell 中执行。</p>
+
+    <div class="grid">
+      <div class="field">
+        <label for="javaHome">JAVA_HOME</label>
+        <input id="javaHome" value="D:\Program Files\Java\jdk-1.8" />
+      </div>
+      <div class="field">
+        <label for="mavenHome">MAVEN_HOME</label>
+        <input id="mavenHome" value="D:\apache-maven-3.9.9" />
+      </div>
+      <div class="field">
+        <label for="tomcatHome">CATALINA_HOME</label>
+        <input id="tomcatHome" value="D:\apache-tomcat-9.0.105" />
+      </div>
+      <div class="field">
+        <label for="mysqlHome">MYSQL_HOME</label>
+        <input id="mysqlHome" value="D:\Program Files\MySQL\MySQL Server 8.0" />
+      </div>
+      <div class="field full">
+        <label for="output">生成结果</label>
+        <textarea id="output" placeholder="点击下方按钮后，这里会显示生成的一行命令"></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="generateCommand()">生成命令</button>
+      <button class="secondary" onclick="copyCommand()">复制命令</button>
+      <button class="secondary" onclick="fillDefaults()">恢复默认值</button>
+    </div>
+
+    <div id="status" class="tip">
+      <span>💡</span>
+      <span>提示：建议使用"以管理员身份运行"的 PowerShell 执行。</span>
+    </div>
+  </div>
+
+  <script>
+    function ps(str) {
+      return String(str).replace(/"/g, '""');
+    }
+
+    function fillDefaults() {
+      document.getElementById('javaHome').value = 'D:\\Program Files\\Java\\jdk-1.8';
+      document.getElementById('mavenHome').value = 'D:\\apache-maven-3.9.9';
+      document.getElementById('tomcatHome').value = 'D:\\apache-tomcat-9.0.105';
+      document.getElementById('mysqlHome').value = 'D:\\Program Files\\MySQL\\MySQL Server 8.0';
+      document.getElementById('status').innerHTML = '<span>✓</span> <span>已恢复默认值</span>';
+    }
+
+    function generateCommand() {
+      const javaHome = document.getElementById('javaHome').value.trim();
+      const mavenHome = document.getElementById('mavenHome').value.trim();
+      const tomcatHome = document.getElementById('tomcatHome').value.trim();
+      const mysqlHome = document.getElementById('mysqlHome').value.trim();
+
+      const entries = [
+        { varName: 'JAVA_HOME', path: javaHome, cmd: 'java', binFile: 'java.exe' },
+        { varName: 'MAVEN_HOME', path: mavenHome, cmd: 'mvn', binFile: 'mvn.cmd' },
+        { varName: 'CATALINA_HOME', path: tomcatHome, cmd: 'catalina', binFile: 'catalina.bat' },
+        { varName: 'MYSQL_HOME', path: mysqlHome, cmd: 'mysql', binFile: 'mysql.exe' }
+      ].filter(item => item.path);
+
+      if (entries.length === 0) {
+        document.getElementById('output').value = '';
+        document.getElementById('status').innerHTML = '<span>⚠️</span> <span>请至少填写一个路径</span>';
+        return;
+      }
+
+      const escapePs = s => String(s).replace(/"/g, '""');
+      let parts = [];
+
+      entries.forEach(item => {
+        const shortName = item.varName.replace('_HOME', '').toLowerCase();
+        parts.push(`$${shortName}Home=\"${escapePs(item.path)}\"`);
+        parts.push(`$${shortName}Bin=Join-Path $${shortName}Home 'bin'`);
+        parts.push(`[Environment]::SetEnvironmentVariable(\"${item.varName}\",$${shortName}Home,\"Machine\")`);
+        parts.push(`$env:${item.varName}=$${shortName}Home`);
+        parts.push(`Write-Host \"已设置 ${item.varName}: $${shortName}Home\" -ForegroundColor Green`);
+      });
+
+      parts.push(`$machinePath=[Environment]::GetEnvironmentVariable(\"Path\",\"Machine\")`);
+      parts.push(`$pathParts=@($machinePath -split ';' | Where-Object { $_.Trim() -ne '' })`);
+      entries.forEach(item => {
+        const shortName = item.varName.replace('_HOME', '').toLowerCase();
+        parts.push(`if($pathParts -notcontains $${shortName}Bin){$pathParts += $${shortName}Bin}`);
+      });
+      parts.push(`$newPath=($pathParts | Select-Object -Unique) -join ';'`);
+      parts.push(`[Environment]::SetEnvironmentVariable(\"Path\",$newPath,\"Machine\")`);
+      parts.push(`$sessionParts=@($env:Path -split ';' | Where-Object { $_.Trim() -ne '' })`);
+      entries.forEach(item => {
+        const shortName = item.varName.replace('_HOME', '').toLowerCase();
+        parts.push(`if($sessionParts -notcontains $${shortName}Bin){$sessionParts += $${shortName}Bin}`);
+      });
+      parts.push(`$env:Path=($sessionParts | Select-Object -Unique) -join ';'`);
+      parts.push(`Write-Host \"已更新 PATH 变量\" -ForegroundColor Green`);
+      parts.push(`Write-Host \"\`n环境变量配置验证:\" -ForegroundColor Cyan`);
+
+      entries.forEach(item => {
+        const successName = item.varName.replace('_HOME', '');
+        parts.push(`try{$cmd=Get-Command ${item.cmd} -ErrorAction Stop;Write-Host \"${successName}配置成功: $($cmd.Source)\" -ForegroundColor Green}catch{Write-Host \"${successName}配置验证失败\" -ForegroundColor Red}`);
+      });
+
+      parts.push(`Write-Host \"\`n配置过程完成!\" -ForegroundColor Cyan`);
+      parts.push(`Write-Host \"注意: 某些程序可能需要重新打开终端后才能完全识别新环境变量\" -ForegroundColor Yellow`);
+
+      document.getElementById('output').value = parts.join(';');
+      document.getElementById('status').innerHTML = '<span>✓</span> <span class="ok">命令已生成</span>';
+    }
+
+    async function copyCommand() {
+      const output = document.getElementById('output');
+      if (!output.value.trim()) {
+        document.getElementById('status').innerHTML = '<span>⚠️</span> <span>请先生成命令</span>';
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(output.value);
+        document.getElementById('status').innerHTML = '<span>✓</span> <span class="ok">已复制到剪贴板</span>';
+      } catch (e) {
+        output.select();
+        document.execCommand('copy');
+        document.getElementById('status').innerHTML = '<span>✓</span> <span class="ok">已复制到剪贴板</span>';
+      }
+    }
+
+    generateCommand();
+  </script>
+
+  <!-- Gwozai Brand -->
+  <div class="gwozai-brand" onclick="window.location.href='../index.html'">
+    <div class="gwozai-logo">
+      <span class="gwozai-text">gwozai</span>
+      <span class="gwozai-dot">.</span>
+      <span class="gwozai-tech">tech</span>
+    </div>
+    <div class="gwozai-tagline">打造实用工具集</div>
+  </div>
+
+  <style>
+    .gwozai-brand {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .gwozai-brand:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    .gwozai-logo {
+      display: flex;
+      align-items: center;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .gwozai-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gwozai-dot { color: #ff6b6b; margin: 0 1px; }
+    .gwozai-tech { color: #4ecdc4; }
+    .gwozai-tagline {
+      font-size: 10px;
+      color: #666;
+      text-align: center;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    @media (max-width: 768px) {
+      .gwozai-brand { bottom: 15px; right: 15px; padding: 10px 12px; }
+      .gwozai-logo { font-size: 14px; }
+      .gwozai-tagline { font-size: 9px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .gwozai-brand {
+        background: rgba(30, 30, 30, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .gwozai-tagline { color: #aaa; }
+    }
+  </style>
+</body>
+</html>

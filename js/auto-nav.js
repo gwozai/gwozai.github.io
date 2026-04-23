@@ -19,6 +19,7 @@ class AutoNav {
         return {
             'dev': [
                 { file: 'conda_path_generator.html', title: 'Conda路径生成器', desc: 'Conda环境变量配置生成工具' },
+                { file: 'env-command-generator.html', title: '环境变量命令生成器', desc: 'PowerShell环境变量一行命令生成工具，支持Java、Maven、Tomcat、MySQL' },
                 { file: 'java_env.html', title: 'Java环境配置', desc: 'Java环境变量生成工具' },
                 { file: 'java_powershell.html', title: 'Java PowerShell工具', desc: 'Java相关PowerShell脚本' },
                 { file: 'mysql-setup.html', title: 'MySQL安装配置', desc: 'MySQL数据库安装配置指南' },
