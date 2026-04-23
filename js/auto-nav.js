@@ -26,7 +26,8 @@ class AutoNav {
                 { file: 'nvm-guide.html', title: 'NVM 安装指南', desc: 'macOS 上的 NVM 安装与卸载完整指南，支持官方脚本和 Homebrew 两种方式' },
                 { file: 'nvm-manual-install.html', title: 'NVM 手动安装指南', desc: 'NVM 和 Node.js 14 macOS 手动解压安装完整指南' },
                 { file: 'springboot.html', title: 'SpringBoot工具', desc: 'SpringBoot开发辅助工具' },
-                { file: 'windows-config.html', title: 'Windows 环境配置指南', desc: 'Windows 环境变量设置、软件安装和故障排除完整指南' }
+                { file: 'windows-config.html', title: 'Windows 环境配置指南', desc: 'Windows 环境变量设置、软件安装和故障排除完整指南' },
+                { url: 'https://voiceless-chocolate-lz4padqhj4.edgeone.app/', title: 'SQL 时间随机化', desc: '把 SQL 文件中的时间字面量随机替换到指定范围内，全程本地离线完成' }
             ],
             'security': [
                 { file: 'md5.html', title: 'MD5哈希工具', desc: 'MD5加密和验证工具' },
@@ -53,11 +54,14 @@ class AutoNav {
     // 生成导航卡片HTML
     generateToolCard(tool, category) {
         const categoryInfo = this.categories[category];
+        const linkUrl = tool.url || `tools/${category}/${tool.file}`;
+        const isExternal = tool.url && tool.url.startsWith('http');
+        
         return `
             <div class="tool-card" data-category="${category}">
-                <a href="tools/${category}/${tool.file}" class="tool-link">
+                <a href="${linkUrl}" class="tool-link" ${isExternal ? 'target="_blank" rel="noopener noreferrer"' : ''}>
                     <div class="tool-content">
-                        <h3 class="tool-title">${tool.title}</h3>
+                        <h3 class="tool-title">${tool.title}${isExternal ? ' ↗' : ''}</h3>
                         <p class="tool-desc">${tool.desc}</p>
                         <div class="tool-category" style="background-color: ${categoryInfo.color}">
                             ${categoryInfo.name}
